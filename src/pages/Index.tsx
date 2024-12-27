@@ -187,25 +187,26 @@ const Index = () => {
             </div>
           </div>
         </Card>
-        
-        <TransactionManager
-          onAddTransaction={handleAddTransaction}
-          onAddRecurringTransaction={handleAddRecurringTransaction}
-          onDeleteTransaction={handleDeleteTransaction}
-        />
+      
+      <TransactionManager
+        onAddTransaction={handleAddTransaction}
+        onAddRecurringTransaction={handleAddRecurringTransaction}
+        onDeleteTransaction={handleDeleteTransaction}
+      />
 
-        <MonthlyStats
-          transactions={transactions}
-          recurringTransactions={recurringTransactions}
-          selectedMonth={selectedMonth}
-          onMonthSelect={setSelectedMonth}
-        />
+      <MonthlyStats
+        transactions={transactions}
+        recurringTransactions={recurringTransactions}
+        selectedMonth={selectedMonth}
+        onMonthSelect={setSelectedMonth}
+      />
 
-        <TransactionHistory
-          transactions={transactions}
-          recurringTransactions={recurringTransactions}
-          onDeleteTransaction={handleDeleteTransaction}
-        />
+      <TransactionHistory
+        transactions={transactions}
+        recurringTransactions={recurringTransactions}
+        onDeleteTransaction={handleDeleteTransaction}
+        selectedMonth={selectedMonth}
+      />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           <RunwayChart 
