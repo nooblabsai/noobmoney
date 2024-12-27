@@ -9,11 +9,13 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Trash2, Wallet, PiggyBank } from 'lucide-react';
+import { Trash2, Wallet, PiggyBank, FileDown } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { Card } from '@/components/ui/card';
 import { useTransactions } from '@/hooks/useTransactions';
 import { Transaction, RecurringTransaction } from '@/types/transactions';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 const Index = () => {
   const { t } = useLanguage();
@@ -51,6 +53,45 @@ const Index = () => {
       title: t('reset.complete'),
       description: t('data.cleared'),
     });
+  };
+
+  const handleExportPDF = async () => {
+    const element = document.getElementById('financial-report');
+    if (!element) return;
+
+    try {
+      toast({
+        title: "Generating PDF",
+        description: "Please wait while we generate your financial report...",
+      });
+
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        logging: false,
+        useCORS: true,
+      });
+
+      const imgWidth = 210; // A4 width in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgData = canvas.toDataURL('image/png');
+      
+      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+      pdf.save('financial-report.pdf');
+
+      toast({
+        title: "Export Complete",
+        description: "Your financial report has been downloaded.",
+      });
+    } catch (error) {
+      console.error('PDF export error:', error);
+      toast({
+        title: "Export Failed",
+        description: "Failed to generate PDF. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const calculateRunway = (includeInitialBalances: boolean) => {
@@ -104,6 +145,10 @@ const Index = () => {
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-center">{t('financial.runway.calculator')}</h1>
         <div className="flex items-center gap-4">
+          <Button onClick={handleExportPDF} className="flex items-center gap-2">
+            <FileDown className="h-4 w-4" />
+            Export PDF
+          </Button>
           <LanguageMenu />
           <Button variant="destructive" onClick={handleReset} className="flex items-center gap-2">
             <Trash2 className="h-4 w-4" />
@@ -112,81 +157,83 @@ const Index = () => {
         </div>
       </div>
 
-      <Card className="p-6 mb-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div>
-            <div className="flex items-center gap-3 mb-4">
-              <Wallet className="h-6 w-6 text-primary" />
-              <Label htmlFor="bankBalance" className="text-xl font-semibold">{t('current.bank.balance')}</Label>
+      <div id="financial-report">
+        <Card className="p-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+              <div className="flex items-center gap-3 mb-4">
+                <Wallet className="h-6 w-6 text-primary" />
+                <Label htmlFor="bankBalance" className="text-xl font-semibold">{t('current.bank.balance')}</Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-4xl font-bold text-primary">€</span>
+                <Input
+                  id="bankBalance"
+                  type="text"
+                  value={bankBalance}
+                  onChange={(e) => setBankBalance(e.target.value)}
+                  className="text-4xl font-bold h-16 max-w-xs"
+                />
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-4xl font-bold text-primary">€</span>
-              <Input
-                id="bankBalance"
-                type="text"
-                value={bankBalance}
-                onChange={(e) => setBankBalance(e.target.value)}
-                className="text-4xl font-bold h-16 max-w-xs"
-              />
+            
+            <div>
+              <div className="flex items-center gap-3 mb-4">
+                <PiggyBank className="h-6 w-6 text-red-500" />
+                <Label htmlFor="debtBalance" className="text-xl font-semibold">Current Debt Balance</Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-4xl font-bold text-red-500">€</span>
+                <Input
+                  id="debtBalance"
+                  type="text"
+                  value={debtBalance}
+                  onChange={(e) => setDebtBalance(e.target.value)}
+                  className="text-4xl font-bold h-16 max-w-xs"
+                />
+              </div>
             </div>
           </div>
-          
-          <div>
-            <div className="flex items-center gap-3 mb-4">
-              <PiggyBank className="h-6 w-6 text-red-500" />
-              <Label htmlFor="debtBalance" className="text-xl font-semibold">Current Debt Balance</Label>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-4xl font-bold text-red-500">€</span>
-              <Input
-                id="debtBalance"
-                type="text"
-                value={debtBalance}
-                onChange={(e) => setDebtBalance(e.target.value)}
-                className="text-4xl font-bold h-16 max-w-xs"
-              />
-            </div>
-          </div>
-        </div>
-      </Card>
-      
-      <TransactionManager
-        onAddTransaction={handleAddTransaction}
-        onAddRecurringTransaction={handleAddRecurringTransaction}
-        onDeleteTransaction={handleDeleteTransaction}
-      />
-
-      <MonthlyStats
-        transactions={transactions}
-        recurringTransactions={recurringTransactions as unknown as Transaction[]}
-        selectedMonth={selectedMonth}
-        onMonthSelect={setSelectedMonth}
-      />
-
-      <TransactionHistory
-        transactions={transactions}
-        recurringTransactions={recurringTransactions as unknown as Transaction[]}
-        onDeleteTransaction={handleDeleteTransaction}
-      />
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <RunwayChart 
-          data={calculateRunway(true)} 
-          title="Financial Runway (with initial balances)"
-          showIncomeExpenses={false}
+        </Card>
+        
+        <TransactionManager
+          onAddTransaction={handleAddTransaction}
+          onAddRecurringTransaction={handleAddRecurringTransaction}
+          onDeleteTransaction={handleDeleteTransaction}
         />
-        <RunwayChart 
-          data={calculateRunway(false)} 
-          title="Financial Runway (without initial balances)"
-          showIncomeExpenses={true}
+
+        <MonthlyStats
+          transactions={transactions}
+          recurringTransactions={recurringTransactions}
+          selectedMonth={selectedMonth}
+          onMonthSelect={setSelectedMonth}
+        />
+
+        <TransactionHistory
+          transactions={transactions}
+          recurringTransactions={recurringTransactions}
+          onDeleteTransaction={handleDeleteTransaction}
+        />
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <RunwayChart 
+            data={calculateRunway(true)} 
+            title="Financial Runway (with initial balances)"
+            showIncomeExpenses={false}
+          />
+          <RunwayChart 
+            data={calculateRunway(false)} 
+            title="Financial Runway (without initial balances)"
+            showIncomeExpenses={true}
+          />
+        </div>
+
+        <FinancialAnalysis
+          transactions={transactions}
+          recurringTransactions={recurringTransactions}
+          currentBalance={parseFloat(bankBalance)}
         />
       </div>
-
-      <FinancialAnalysis
-        transactions={transactions}
-        recurringTransactions={recurringTransactions}
-        currentBalance={parseFloat(bankBalance)}
-      />
     </div>
   );
 };
