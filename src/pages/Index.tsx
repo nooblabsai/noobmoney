@@ -13,6 +13,7 @@ import { Trash2, Wallet, PiggyBank } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { Card } from '@/components/ui/card';
 import { useTransactions } from '@/hooks/useTransactions';
+import { Transaction, RecurringTransaction } from '@/types/transactions';
 
 const Index = () => {
   const { t } = useLanguage();
@@ -157,14 +158,14 @@ const Index = () => {
 
       <MonthlyStats
         transactions={transactions}
-        recurringTransactions={recurringTransactions}
+        recurringTransactions={recurringTransactions as unknown as Transaction[]}
         selectedMonth={selectedMonth}
         onMonthSelect={setSelectedMonth}
       />
 
       <TransactionHistory
         transactions={transactions}
-        recurringTransactions={recurringTransactions}
+        recurringTransactions={recurringTransactions as unknown as Transaction[]}
         onDeleteTransaction={handleDeleteTransaction}
       />
 

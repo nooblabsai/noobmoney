@@ -23,6 +23,31 @@ const RunwayChart: React.FC<RunwayChartProps> = ({ data, title, showIncomeExpens
     }).format(value);
   };
 
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-white p-4 border rounded shadow-lg">
+          <p className="text-sm font-semibold mb-2">Month: {label}</p>
+          {payload.map((entry: any, index: number) => (
+            <p
+              key={`${entry.name}-${index}`}
+              className={`text-sm ${
+                entry.name === 'Balance'
+                  ? 'text-primary'
+                  : entry.name === 'Income'
+                  ? 'text-green-600'
+                  : 'text-red-600'
+              }`}
+            >
+              {entry.name}: {formatCurrency(entry.value)}
+            </p>
+          ))}
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
     <Card className="p-6 h-[400px] animate-fade-in">
       <h2 className="text-xl font-semibold mb-4">{title}</h2>
@@ -41,10 +66,7 @@ const RunwayChart: React.FC<RunwayChartProps> = ({ data, title, showIncomeExpens
           <YAxis
             tickFormatter={(value) => formatCurrency(value)}
           />
-          <Tooltip
-            formatter={(value: number) => [formatCurrency(value), 'Amount']}
-            labelFormatter={(label) => `Month: ${label}`}
-          />
+          <Tooltip content={<CustomTooltip />} />
           <Legend />
           <Line
             type="monotone"
