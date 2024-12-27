@@ -57,13 +57,13 @@ const Index = () => {
     localStorage.setItem('currentBalance', currentBalance.toString());
   }, [currentBalance]);
 
-  const handleAddTransaction = (amount: number, description: string, isIncome: boolean) => {
+  const handleAddTransaction = (amount: number, description: string, isIncome: boolean, date: Date) => {
     const newTransaction = {
       id: Math.random().toString(),
       amount,
       description,
       isIncome,
-      date: new Date(),
+      date,
     };
     setTransactions([...transactions, newTransaction]);
     setCurrentBalance(prev => prev + (isIncome ? amount : -amount));
@@ -107,10 +107,32 @@ const Index = () => {
     const data = [];
     let balance = currentBalance;
 
+    // Sort transactions by date
+    const sortedTransactions = [...transactions].sort((a, b) => a.date.getTime() - b.date.getTime());
+
+    // Get the current month
+    const currentDate = new Date();
+    const startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+
+    // Calculate balance for the next 12 months
     for (let i = 0; i < 12; i++) {
+      const monthStart = new Date(startDate.getFullYear(), startDate.getMonth() + i, 1);
+      const monthEnd = new Date(startDate.getFullYear(), startDate.getMonth() + i + 1, 0);
+
+      // Add monthly recurring transactions
       balance += monthlyNet;
+
+      // Add one-time transactions for this month
+      const monthTransactions = sortedTransactions.filter(
+        t => t.date >= monthStart && t.date <= monthEnd
+      );
+      
+      for (const transaction of monthTransactions) {
+        balance += transaction.isIncome ? transaction.amount : -transaction.amount;
+      }
+
       data.push({
-        month: new Date(Date.now() + i * 30 * 24 * 60 * 60 * 1000).toLocaleString('default', { month: 'short' }),
+        month: monthStart.toLocaleString('default', { month: 'short' }),
         balance: balance,
       });
     }
