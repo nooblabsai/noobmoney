@@ -162,6 +162,11 @@ const Index = () => {
     return data;
   };
 
+  const recurringTransactionsWithDate: Transaction[] = recurringTransactions.map(t => ({
+    ...t,
+    date: new Date(), // Set current date for recurring transactions
+  }));
+
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="flex justify-between items-center mb-8">
@@ -188,23 +193,20 @@ const Index = () => {
 
       <MonthlyStats
         transactions={transactions}
-        recurringTransactions={recurringTransactions}
+        recurringTransactions={recurringTransactionsWithDate}
         selectedMonth={selectedMonth}
         onMonthSelect={setSelectedMonth}
       />
 
       <TransactionHistory
         transactions={transactions}
-        recurringTransactions={recurringTransactions.map(t => ({
-          ...t,
-          date: new Date(),
-        }))}
+        recurringTransactions={recurringTransactionsWithDate}
         onDeleteTransaction={handleDeleteTransaction}
       />
 
       <FinancialAnalysis
         transactions={transactions}
-        recurringTransactions={recurringTransactions}
+        recurringTransactions={recurringTransactionsWithDate}
         currentBalance={currentBalance}
       />
 
