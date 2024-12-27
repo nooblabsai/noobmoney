@@ -103,7 +103,7 @@ const RecurringTransactions: React.FC<RecurringTransactionsProps> = ({
             <div>
               <span className="font-medium">{transaction.description}</span>
               <span className={`ml-2 ${transaction.isIncome ? 'text-green-600' : 'text-red-600'}`}>
-                ${transaction.amount.toFixed(2)}
+                €{transaction.amount.toFixed(2)}
               </span>
             </div>
             <Button

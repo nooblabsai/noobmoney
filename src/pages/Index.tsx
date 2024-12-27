@@ -7,7 +7,14 @@ import { useToast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
 import { Trash2, ArrowUpCircle, ArrowDownCircle } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { format } from 'date-fns';
+import { format, addMonths } from 'date-fns';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 interface Transaction {
   id: string;
@@ -26,6 +33,7 @@ interface RecurringTransaction {
 
 const Index = () => {
   const { toast } = useToast();
+  const [selectedMonth, setSelectedMonth] = React.useState('0'); // 0 is current month
   const [transactions, setTransactions] = React.useState<Transaction[]>(() => {
     const saved = localStorage.getItem('transactions');
     if (saved) {
@@ -74,7 +82,7 @@ const Index = () => {
     
     toast({
       title: `${isIncome ? 'Income' : 'Expense'} Added`,
-      description: `${description}: $${amount.toFixed(2)}`,
+      description: `${description}: €${amount.toFixed(2)}`,
     });
   };
 
@@ -87,7 +95,7 @@ const Index = () => {
     
     toast({
       title: 'Recurring Transaction Added',
-      description: `${transaction.description}: $${transaction.amount.toFixed(2)} monthly`,
+      description: `${transaction.description}: €${transaction.amount.toFixed(2)} monthly`,
     });
   };
 
@@ -107,6 +115,29 @@ const Index = () => {
       title: 'Reset Complete',
       description: 'All data has been cleared.',
     });
+  };
+
+  const getBalanceForMonth = (monthOffset: number) => {
+    const targetDate = addMonths(new Date(), monthOffset);
+    const targetMonth = targetDate.getMonth();
+    const targetYear = targetDate.getFullYear();
+
+    // Filter transactions for the specific month
+    const monthTransactions = transactions.filter(t => {
+      const transactionDate = new Date(t.date);
+      return transactionDate.getMonth() === targetMonth && 
+             transactionDate.getFullYear() === targetYear;
+    });
+
+    // Calculate balance from transactions
+    return monthTransactions.reduce((acc, t) => 
+      acc + (t.isIncome ? t.amount : -t.amount), 0);
+  };
+
+  const getRecurringTotalForMonth = (isIncome: boolean) => {
+    return recurringTransactions
+      .filter(t => t.isIncome === isIncome)
+      .reduce((sum, t) => sum + t.amount, 0);
   };
 
   const calculateRunway = () => {
@@ -133,11 +164,11 @@ const Index = () => {
       const monthStart = new Date(startDate.getFullYear(), startDate.getMonth() + i, 1);
       const monthEnd = new Date(startDate.getFullYear(), startDate.getMonth() + i + 1, 0);
 
-      // Calculate this month's balance starting from the current balance
-      let monthlyBalance = currentBalance;
+      // Start with 0 balance for each month
+      let monthlyBalance = 0;
 
-      // Add recurring transactions for all months from current to this one
-      monthlyBalance += monthlyNet * (i + 1);
+      // Add recurring transactions for this month
+      monthlyBalance += monthlyNet;
 
       // Only add one-time transactions that occur in this specific month
       const monthTransactions = sortedTransactions.filter(
@@ -155,6 +186,18 @@ const Index = () => {
     }
 
     return data;
+  };
+
+  const getMonthOptions = () => {
+    const options = [];
+    for (let i = 0; i < 12; i++) {
+      const date = addMonths(new Date(), i);
+      options.push({
+        value: i.toString(),
+        label: format(date, 'MMMM yyyy')
+      });
+    }
+    return options;
   };
 
   return (
@@ -181,23 +224,38 @@ const Index = () => {
         </div>
       </div>
 
+      <div className="mb-4">
+        <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Select month" />
+          </SelectTrigger>
+          <SelectContent>
+            {getMonthOptions().map(option => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <Card className="p-6">
-          <h3 className="text-lg font-medium mb-2">Current Balance</h3>
-          <p className={`text-2xl font-bold ${currentBalance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-            ${currentBalance.toFixed(2)}
+          <h3 className="text-lg font-medium mb-2">Balance for {format(addMonths(new Date(), parseInt(selectedMonth)), 'MMMM yyyy')}</h3>
+          <p className={`text-2xl font-bold ${getBalanceForMonth(parseInt(selectedMonth)) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+            €{getBalanceForMonth(parseInt(selectedMonth)).toFixed(2)}
           </p>
         </Card>
         <Card className="p-6">
           <h3 className="text-lg font-medium mb-2">Monthly Income</h3>
           <p className="text-2xl font-bold text-green-600">
-            ${recurringTransactions.filter(t => t.isIncome).reduce((sum, t) => sum + t.amount, 0).toFixed(2)}
+            €{getRecurringTotalForMonth(true).toFixed(2)}
           </p>
         </Card>
         <Card className="p-6">
           <h3 className="text-lg font-medium mb-2">Monthly Expenses</h3>
           <p className="text-2xl font-bold text-red-600">
-            ${recurringTransactions.filter(t => !t.isIncome).reduce((sum, t) => sum + t.amount, 0).toFixed(2)}
+            €{getRecurringTotalForMonth(false).toFixed(2)}
           </p>
         </Card>
       </div>
@@ -228,7 +286,7 @@ const Index = () => {
                 <span className={`font-medium ${
                   transaction.isIncome ? 'text-green-600' : 'text-red-600'
                 }`}>
-                  ${transaction.amount.toFixed(2)}
+                  €{transaction.amount.toFixed(2)}
                 </span>
               </div>
             ))}
