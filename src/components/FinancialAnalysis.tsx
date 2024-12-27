@@ -71,9 +71,10 @@ const FinancialAnalysis: React.FC<FinancialAnalysisProps> = ({
       const data = await response.json();
       setAnalysis(data.choices[0].message.content);
     } catch (error) {
+      console.error('Analysis error:', error);
       toast({
         title: 'Error',
-        description: 'Failed to generate financial analysis. Please try again.',
+        description: 'Failed to generate financial analysis. Please ensure your OpenAI API key is set correctly.',
         variant: 'destructive',
       });
     } finally {
