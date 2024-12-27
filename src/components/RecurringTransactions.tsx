@@ -15,7 +15,7 @@ interface RecurringTransaction {
 interface RecurringTransactionsProps {
   onAdd: (transaction: Omit<RecurringTransaction, 'id'>) => void;
   transactions: RecurringTransaction[];
-  onDelete: (id: string) => void;
+  onDelete: (id: string, isRecurring: boolean) => void;  // Updated type signature here
 }
 
 const RecurringTransactions: React.FC<RecurringTransactionsProps> = ({
@@ -109,7 +109,7 @@ const RecurringTransactions: React.FC<RecurringTransactionsProps> = ({
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => onDelete(transaction.id)}
+              onClick={() => onDelete(transaction.id, true)}  // Updated to pass isRecurring as true
               className="text-red-500 hover:text-red-700"
             >
               Delete
