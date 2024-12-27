@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card } from '@/components/ui/card';
 import { ArrowUpCircle, ArrowDownCircle, Repeat, Trash2 } from 'lucide-react';
 import { format, addMonths, isSameMonth } from 'date-fns';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Transaction, RecurringTransaction } from '@/types/transactions';
+import { Button } from '@/components/ui/button';
 
 interface TransactionHistoryProps {
   transactions: Transaction[];
@@ -20,18 +21,19 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
   selectedMonth,
 }) => {
   const { t } = useLanguage();
+  const [showAllTransactions, setShowAllTransactions] = useState(false);
 
   const selectedDate = addMonths(new Date(), parseInt(selectedMonth));
 
-  // Filter one-time transactions for the selected month only
-  const filteredTransactions = transactions.filter(t => 
-    isSameMonth(new Date(t.date), selectedDate)
-  );
+  // Filter transactions based on showAllTransactions state
+  const filteredTransactions = showAllTransactions 
+    ? transactions 
+    : transactions.filter(t => isSameMonth(new Date(t.date), selectedDate));
 
-  // Filter recurring transactions that are active in the selected month
-  const filteredRecurringTransactions = recurringTransactions.filter(t => 
-    isSameMonth(new Date(t.startDate), selectedDate)
-  );
+  // Filter recurring transactions based on showAllTransactions state
+  const filteredRecurringTransactions = showAllTransactions
+    ? recurringTransactions
+    : recurringTransactions.filter(t => isSameMonth(new Date(t.startDate), selectedDate));
 
   // Combine and sort all transactions
   const allTransactions = [
@@ -62,9 +64,17 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
 
   return (
     <Card className="p-6 mb-8">
-      <h2 className="text-xl font-semibold mb-4">
-        {t('transaction.history')} - {format(selectedDate, 'MMMM yyyy')}
-      </h2>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-semibold">
+          {t('transaction.history')} - {showAllTransactions ? t('all.time') : format(selectedDate, 'MMMM yyyy')}
+        </h2>
+        <Button
+          variant="outline"
+          onClick={() => setShowAllTransactions(!showAllTransactions)}
+        >
+          {showAllTransactions ? t('show.selected.month') : t('show.all.transactions')}
+        </Button>
+      </div>
       <ScrollArea className="h-[300px] w-full rounded-md border p-4">
         {allTransactions.length === 0 ? (
           <div className="text-center text-gray-500 py-4">
