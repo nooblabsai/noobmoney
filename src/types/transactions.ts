@@ -6,10 +6,6 @@ export interface Transaction {
   date: Date;
 }
 
-export interface RecurringTransaction {
-  id: string;
-  amount: number;
-  description: string;
-  isIncome: boolean;
+export interface RecurringTransaction extends Transaction {
   startDate: Date;
 }

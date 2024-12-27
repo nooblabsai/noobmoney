@@ -65,20 +65,92 @@ const Index = () => {
         description: "Please wait while we generate your financial report...",
       });
 
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        logging: false,
-        useCORS: true,
+      // Temporarily modify styles for better PDF capture
+      const originalStyle = element.style.cssText;
+      element.style.backgroundColor = '#ffffff';
+      
+      // Force all text to be black for better contrast
+      const textElements = element.querySelectorAll('p, h1, h2, h3, span, div');
+      const originalColors = new Map();
+      textElements.forEach(el => {
+        originalColors.set(el, el.style.color);
+        el.style.color = '#000000';
       });
 
+      // Ensure charts are using high contrast colors
+      const chartElements = element.querySelectorAll('.recharts-line-curve');
+      chartElements.forEach(el => {
+        if (el.getAttribute('stroke') === '#1e3a8a') {
+          el.setAttribute('stroke', '#1A1F2C'); // Darker blue
+        } else if (el.getAttribute('stroke') === '#16a34a') {
+          el.setAttribute('stroke', '#0EA5E9'); // Brighter blue
+        } else if (el.getAttribute('stroke') === '#dc2626') {
+          el.setAttribute('stroke', '#F97316'); // Bright orange
+        }
+      });
+
+      const canvas = await html2canvas(element, {
+        scale: 2, // Increase resolution
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+        windowWidth: element.scrollWidth,
+        windowHeight: element.scrollHeight,
+        onclone: (clonedDoc) => {
+          const clonedElement = clonedDoc.getElementById('financial-report');
+          if (clonedElement) {
+            clonedElement.style.width = `${element.scrollWidth}px`;
+            clonedElement.style.height = `${element.scrollHeight}px`;
+          }
+        }
+      });
+
+      // Calculate dimensions to ensure full capture
       const imgWidth = 210; // A4 width in mm
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      
       const pdf = new jsPDF('p', 'mm', 'a4');
-      const imgData = canvas.toDataURL('image/png');
       
-      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+      // Split into multiple pages if content is too long
+      let position = 0;
+      const maxHeight = 297; // A4 height in mm
+      
+      while (position < imgHeight) {
+        if (position > 0) {
+          pdf.addPage();
+        }
+        
+        const height = Math.min(maxHeight, imgHeight - position);
+        const canvas2 = document.createElement('canvas');
+        canvas2.width = canvas.width;
+        canvas2.height = (height * canvas.width) / imgWidth;
+        
+        const ctx = canvas2.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(
+            canvas,
+            0,
+            (position * canvas.width) / imgWidth,
+            canvas.width,
+            canvas2.height,
+            0,
+            0,
+            canvas2.width,
+            canvas2.height
+          );
+        }
+        
+        const imgData = canvas2.toDataURL('image/png');
+        pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, height);
+        position += maxHeight;
+      }
+
       pdf.save('financial-report.pdf');
+
+      // Restore original styles
+      element.style.cssText = originalStyle;
+      textElements.forEach(el => {
+        el.style.color = originalColors.get(el) || '';
+      });
 
       toast({
         title: "Export Complete",
