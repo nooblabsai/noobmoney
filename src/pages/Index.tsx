@@ -5,6 +5,8 @@ import RunwayChart from '@/components/RunwayChart';
 import TransactionHistory from '@/components/TransactionHistory';
 import MonthlyStats from '@/components/MonthlyStats';
 import FinancialAnalysis from '@/components/FinancialAnalysis';
+import LanguageMenu from '@/components/LanguageMenu';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { useToast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
@@ -25,6 +27,7 @@ interface RecurringTransaction {
 }
 
 const Index = () => {
+  const { t } = useLanguage();
   const { toast } = useToast();
   const [selectedMonth, setSelectedMonth] = React.useState('0');
   const [transactions, setTransactions] = React.useState<Transaction[]>(() => {
@@ -170,16 +173,19 @@ const Index = () => {
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-center">Financial Runway Calculator</h1>
-        <Button variant="destructive" onClick={handleReset} className="flex items-center gap-2">
-          <Trash2 className="h-4 w-4" />
-          Reset Data
-        </Button>
+        <h1 className="text-3xl font-bold text-center">{t('financial.runway.calculator')}</h1>
+        <div className="flex items-center gap-4">
+          <LanguageMenu />
+          <Button variant="destructive" onClick={handleReset} className="flex items-center gap-2">
+            <Trash2 className="h-4 w-4" />
+            {t('reset.data')}
+          </Button>
+        </div>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <div>
-          <h2 className="text-xl font-semibold mb-4">Add Transaction</h2>
+          <h2 className="text-xl font-semibold mb-4">{t('add.transaction')}</h2>
           <ExpenseForm onSubmit={handleAddTransaction} />
         </div>
         <div>
