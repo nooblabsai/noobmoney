@@ -9,9 +9,10 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Wallet } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { Transaction, RecurringTransaction } from '@/types/transactions';
+import { Card } from '@/components/ui/card';
 
 const Index = () => {
   const { t } = useLanguage();
@@ -100,12 +101,10 @@ const Index = () => {
       const monthStart = new Date(currentDate.getFullYear(), currentDate.getMonth() + i, 1);
       const monthEnd = new Date(currentDate.getFullYear(), currentDate.getMonth() + i + 1, 0);
 
-      // Calculate recurring transactions for this month
       const monthlyRecurring = recurringTransactions
         .filter(t => new Date(t.startDate) <= monthEnd)
         .reduce((sum, t) => sum + (t.isIncome ? t.amount : -t.amount), 0);
 
-      // Calculate one-time transactions for this month
       const monthlyOneTime = transactions
         .filter(t => {
           const transactionDate = new Date(t.date);
@@ -124,19 +123,25 @@ const Index = () => {
     return data;
   };
 
-  const mappedTransactionsForHistory = [
-    ...transactions.map(t => ({ ...t, isRecurring: false })),
-    ...recurringTransactions.map(rt => ({
-      ...rt,
-      date: rt.startDate,
-      isRecurring: true
-    }))
-  ] as Transaction[];
-
-  const mappedRecurringTransactionsForStats = recurringTransactions.map(rt => ({
+  // Map recurring transactions to regular transactions for history display
+  const mappedRecurringTransactionsForHistory = recurringTransactions.map(rt => ({
     ...rt,
-    date: rt.startDate
-  })) as Transaction[];
+    date: rt.startDate,
+    id: rt.id,
+    amount: rt.amount,
+    description: rt.description,
+    isIncome: rt.isIncome
+  }));
+
+  // Map regular transactions to recurring transactions for monthly stats
+  const mappedTransactionsForStats = transactions.map(t => ({
+    ...t,
+    startDate: t.date,
+    id: t.id,
+    amount: t.amount,
+    description: t.description,
+    isIncome: t.isIncome
+  }));
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -151,16 +156,22 @@ const Index = () => {
         </div>
       </div>
 
-      <div className="mb-8">
-        <Label htmlFor="bankBalance">{t('current.bank.balance')}</Label>
-        <Input
-          id="bankBalance"
-          type="number"
-          value={bankBalance}
-          onChange={(e) => setBankBalance(parseFloat(e.target.value) || 0)}
-          className="max-w-xs"
-        />
-      </div>
+      <Card className="p-6 mb-8">
+        <div className="flex items-center gap-3 mb-4">
+          <Wallet className="h-6 w-6 text-primary" />
+          <Label htmlFor="bankBalance" className="text-xl font-semibold">{t('current.bank.balance')}</Label>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-3xl font-bold text-primary">€</span>
+          <Input
+            id="bankBalance"
+            type="number"
+            value={bankBalance}
+            onChange={(e) => setBankBalance(parseFloat(e.target.value) || 0)}
+            className="text-3xl font-bold h-14 max-w-xs"
+          />
+        </div>
+      </Card>
       
       <TransactionManager
         onAddTransaction={handleAddTransaction}
@@ -169,14 +180,14 @@ const Index = () => {
       />
 
       <MonthlyStats
-        transactions={transactions}
-        recurringTransactions={mappedRecurringTransactionsForStats}
+        transactions={mappedTransactionsForStats}
+        recurringTransactions={recurringTransactions}
         selectedMonth={selectedMonth}
         onMonthSelect={setSelectedMonth}
       />
 
       <TransactionHistory
-        transactions={mappedTransactionsForHistory}
+        transactions={[...transactions, ...mappedRecurringTransactionsForHistory]}
         recurringTransactions={[]}
         onDeleteTransaction={handleDeleteTransaction}
       />
