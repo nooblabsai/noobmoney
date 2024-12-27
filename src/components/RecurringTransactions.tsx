@@ -1,9 +1,8 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { PlusCircle, Repeat } from 'lucide-react';
+import { Repeat } from 'lucide-react';
+import RecurringTransactionForm from './recurring/RecurringTransactionForm';
+import RecurringTransactionItem from './recurring/RecurringTransactionItem';
 
 interface RecurringTransaction {
   id: string;
@@ -15,7 +14,7 @@ interface RecurringTransaction {
 interface RecurringTransactionsProps {
   onAdd: (transaction: Omit<RecurringTransaction, 'id'>) => void;
   transactions: RecurringTransaction[];
-  onDelete: (id: string, isRecurring: boolean) => void;  // Updated type signature here
+  onDelete: (id: string, isRecurring: boolean) => void;
 }
 
 const RecurringTransactions: React.FC<RecurringTransactionsProps> = ({
@@ -46,75 +45,23 @@ const RecurringTransactions: React.FC<RecurringTransactionsProps> = ({
         <h2 className="text-xl font-semibold">Recurring Transactions</h2>
       </div>
       
-      <form onSubmit={handleSubmit} className="space-y-4 mb-6">
-        <div className="space-y-2">
-          <Label htmlFor="recurring-amount">Monthly Amount</Label>
-          <Input
-            id="recurring-amount"
-            type="number"
-            step="0.01"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            placeholder="Enter monthly amount"
-            className="w-full"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="recurring-description">Description</Label>
-          <Input
-            id="recurring-description"
-            type="text"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Enter description"
-            className="w-full"
-          />
-        </div>
-        <div className="flex items-center space-x-2">
-          <Button
-            type="button"
-            variant={isIncome ? "default" : "outline"}
-            onClick={() => setIsIncome(true)}
-            className="w-1/2"
-          >
-            Income
-          </Button>
-          <Button
-            type="button"
-            variant={!isIncome ? "default" : "outline"}
-            onClick={() => setIsIncome(false)}
-            className="w-1/2"
-          >
-            Expense
-          </Button>
-        </div>
-        <Button type="submit" className="w-full">
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Add Recurring {isIncome ? 'Income' : 'Expense'}
-        </Button>
-      </form>
+      <RecurringTransactionForm
+        amount={amount}
+        setAmount={setAmount}
+        description={description}
+        setDescription={setDescription}
+        isIncome={isIncome}
+        setIsIncome={setIsIncome}
+        onSubmit={handleSubmit}
+      />
 
       <div className="space-y-2">
         {transactions.map((transaction) => (
-          <div
+          <RecurringTransactionItem
             key={transaction.id}
-            className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-          >
-            <div>
-              <span className="font-medium">{transaction.description}</span>
-              <span className={`ml-2 ${transaction.isIncome ? 'text-green-600' : 'text-red-600'}`}>
-                €{transaction.amount.toFixed(2)}
-              </span>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onDelete(transaction.id, true)}  // Updated to pass isRecurring as true
-              className="text-red-500 hover:text-red-700"
-            >
-              Delete
-            </Button>
-          </div>
+            transaction={transaction}
+            onDelete={onDelete}
+          />
         ))}
       </div>
     </Card>
