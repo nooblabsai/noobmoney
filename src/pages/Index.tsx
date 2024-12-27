@@ -232,6 +232,7 @@ const Index = () => {
           transactions={transactions}
           recurringTransactions={recurringTransactions}
           currentBalance={parseFloat(bankBalance)}
+          debtBalance={parseFloat(debtBalance)}
         />
       </div>
     </div>

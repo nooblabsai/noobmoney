@@ -24,12 +24,14 @@ interface FinancialAnalysisProps {
   transactions: Transaction[];
   recurringTransactions: Transaction[];
   currentBalance: number;
+  debtBalance: number;
 }
 
 const FinancialAnalysis: React.FC<FinancialAnalysisProps> = ({
   transactions,
   recurringTransactions,
   currentBalance,
+  debtBalance,
 }) => {
   const { toast } = useToast();
   const { language, t } = useLanguage();
@@ -71,6 +73,8 @@ const FinancialAnalysis: React.FC<FinancialAnalysisProps> = ({
       const prompt = language === 'el'
         ? `Ανάλυσε την παρακάτω οικονομική κατάσταση:
           Τρέχον Υπόλοιπο: €${currentBalance}
+          Τρέχον Χρέος: €${debtBalance}
+          Καθαρή Θέση: €${currentBalance - debtBalance}
           Μηνιαία Επαναλαμβανόμενα Έσοδα: €${monthlyRecurringIncome}
           Μηνιαία Επαναλαμβανόμενα Έξοδα: €${monthlyRecurringExpenses}
           Συνολικά Έκτακτα Έσοδα: €${oneTimeIncome}
@@ -82,6 +86,8 @@ const FinancialAnalysis: React.FC<FinancialAnalysisProps> = ({
           Παρακαλώ δώσε μια σύντομη ανάλυση της οικονομικής υγείας και διάρκειας, μαζί με εφαρμόσιμες συμβουλές για βελτίωση. Κράτησε την απάντηση συνοπτική και εστιασμένη στα πιο σημαντικά σημεία.`
         : `As a financial advisor, analyze this financial situation:
           Current Balance: €${currentBalance}
+          Current Debt: €${debtBalance}
+          Net Worth: €${currentBalance - debtBalance}
           Monthly Recurring Income: €${monthlyRecurringIncome}
           Monthly Recurring Expenses: €${monthlyRecurringExpenses}
           Total One-time Income: €${oneTimeIncome}
@@ -111,7 +117,7 @@ const FinancialAnalysis: React.FC<FinancialAnalysisProps> = ({
             },
           ],
           temperature: 0.7,
-          max_tokens: 500,
+          max_tokens: 1000,
         }),
       });
 
