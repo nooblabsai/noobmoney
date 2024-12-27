@@ -132,7 +132,17 @@ const Index = () => {
     return data;
   };
 
-  const mappedRecurringTransactions = recurringTransactions.map(rt => ({
+  // Create mapped transactions with correct types
+  const mappedTransactionsForHistory = [
+    ...transactions,
+    ...recurringTransactions.map(rt => ({
+      ...rt,
+      date: rt.startDate,
+      isRecurring: true
+    }))
+  ] as Transaction[];
+
+  const mappedRecurringTransactionsForStats = recurringTransactions.map(rt => ({
     ...rt,
     date: rt.startDate
   })) as Transaction[];
@@ -158,14 +168,14 @@ const Index = () => {
 
       <MonthlyStats
         transactions={transactions}
-        recurringTransactions={mappedRecurringTransactions}
+        recurringTransactions={mappedRecurringTransactionsForStats}
         selectedMonth={selectedMonth}
         onMonthSelect={setSelectedMonth}
       />
 
       <TransactionHistory
-        transactions={transactions}
-        recurringTransactions={mappedRecurringTransactions}
+        transactions={mappedTransactionsForHistory}
+        recurringTransactions={recurringTransactions}
         onDeleteTransaction={handleDeleteTransaction}
       />
 
