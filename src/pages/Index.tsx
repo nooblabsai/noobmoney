@@ -9,7 +9,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Trash2, Wallet } from 'lucide-react';
+import { Trash2, Wallet, PiggyBank } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { Card } from '@/components/ui/card';
 import { useTransactions } from '@/hooks/useTransactions';
@@ -20,6 +20,10 @@ const Index = () => {
   const [selectedMonth, setSelectedMonth] = React.useState('0');
   const [bankBalance, setBankBalance] = React.useState(() => {
     const saved = localStorage.getItem('bankBalance');
+    return saved ? parseFloat(saved) : 0;
+  });
+  const [debtBalance, setDebtBalance] = React.useState(() => {
+    const saved = localStorage.getItem('debtBalance');
     return saved ? parseFloat(saved) : 0;
   });
 
@@ -35,6 +39,10 @@ const Index = () => {
     localStorage.setItem('bankBalance', bankBalance.toString());
   }, [bankBalance]);
 
+  React.useEffect(() => {
+    localStorage.setItem('debtBalance', debtBalance.toString());
+  }, [debtBalance]);
+
   const handleReset = () => {
     localStorage.clear();
     window.location.reload();
@@ -44,10 +52,10 @@ const Index = () => {
     });
   };
 
-  const calculateRunway = () => {
+  const calculateRunway = (includeInitialBalances: boolean) => {
     const data = [];
     const currentDate = new Date();
-    let runningBalance = bankBalance;
+    let runningBalance = includeInitialBalances ? bankBalance - debtBalance : 0;
     
     for (let i = 0; i < 12; i++) {
       const monthStart = new Date(currentDate.getFullYear(), currentDate.getMonth() + i, 1);
@@ -89,19 +97,40 @@ const Index = () => {
       </div>
 
       <Card className="p-6 mb-8">
-        <div className="flex items-center gap-3 mb-4">
-          <Wallet className="h-6 w-6 text-primary" />
-          <Label htmlFor="bankBalance" className="text-xl font-semibold">{t('current.bank.balance')}</Label>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-4xl font-bold text-primary">€</span>
-          <Input
-            id="bankBalance"
-            type="number"
-            value={bankBalance}
-            onChange={(e) => setBankBalance(parseFloat(e.target.value) || 0)}
-            className="text-4xl font-bold h-16 max-w-xs"
-          />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div>
+            <div className="flex items-center gap-3 mb-4">
+              <Wallet className="h-6 w-6 text-primary" />
+              <Label htmlFor="bankBalance" className="text-xl font-semibold">{t('current.bank.balance')}</Label>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-4xl font-bold text-primary">€</span>
+              <Input
+                id="bankBalance"
+                type="number"
+                value={bankBalance}
+                onChange={(e) => setBankBalance(parseFloat(e.target.value) || 0)}
+                className="text-4xl font-bold h-16 max-w-xs"
+              />
+            </div>
+          </div>
+          
+          <div>
+            <div className="flex items-center gap-3 mb-4">
+              <PiggyBank className="h-6 w-6 text-red-500" />
+              <Label htmlFor="debtBalance" className="text-xl font-semibold">Current Debt Balance</Label>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-4xl font-bold text-red-500">€</span>
+              <Input
+                id="debtBalance"
+                type="number"
+                value={debtBalance}
+                onChange={(e) => setDebtBalance(parseFloat(e.target.value) || 0)}
+                className="text-4xl font-bold h-16 max-w-xs"
+              />
+            </div>
+          </div>
         </div>
       </Card>
       
@@ -124,7 +153,16 @@ const Index = () => {
         onDeleteTransaction={handleDeleteTransaction}
       />
 
-      <RunwayChart data={calculateRunway()} />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <RunwayChart 
+          data={calculateRunway(true)} 
+          title="Financial Runway (with initial balances)"
+        />
+        <RunwayChart 
+          data={calculateRunway(false)} 
+          title="Financial Runway (without initial balances)"
+        />
+      </div>
 
       <FinancialAnalysis
         transactions={transactions}

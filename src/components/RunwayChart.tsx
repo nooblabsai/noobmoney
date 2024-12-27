@@ -7,9 +7,10 @@ interface RunwayChartProps {
     month: string;
     balance: number;
   }[];
+  title: string;
 }
 
-const RunwayChart: React.FC<RunwayChartProps> = ({ data }) => {
+const RunwayChart: React.FC<RunwayChartProps> = ({ data, title }) => {
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -21,7 +22,7 @@ const RunwayChart: React.FC<RunwayChartProps> = ({ data }) => {
 
   return (
     <Card className="p-6 h-[400px] animate-fade-in">
-      <h2 className="text-xl font-semibold mb-4">Financial Runway</h2>
+      <h2 className="text-xl font-semibold mb-4">{title}</h2>
       <ResponsiveContainer width="100%" height="100%">
         <LineChart
           data={data}
