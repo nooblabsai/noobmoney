@@ -128,18 +128,18 @@ const Index = () => {
     const currentDate = new Date();
     const startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
 
-    // Start with the current balance
-    let runningBalance = currentBalance;
-
     // Calculate balance for the next 12 months
     for (let i = 0; i < 12; i++) {
       const monthStart = new Date(startDate.getFullYear(), startDate.getMonth() + i, 1);
       const monthEnd = new Date(startDate.getFullYear(), startDate.getMonth() + i + 1, 0);
 
-      // Add monthly recurring transactions
-      let monthlyBalance = runningBalance + monthlyNet;
+      // Calculate this month's balance starting from the current balance
+      let monthlyBalance = currentBalance;
 
-      // Add one-time transactions for this specific month only
+      // Add recurring transactions for all months from current to this one
+      monthlyBalance += monthlyNet * (i + 1);
+
+      // Only add one-time transactions that occur in this specific month
       const monthTransactions = sortedTransactions.filter(
         t => t.date >= monthStart && t.date <= monthEnd
       );
@@ -152,9 +152,6 @@ const Index = () => {
         month: monthStart.toLocaleString('default', { month: 'short' }),
         balance: monthlyBalance,
       });
-
-      // Update running balance for next month
-      runningBalance = monthlyBalance;
     }
 
     return data;
