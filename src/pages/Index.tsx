@@ -7,6 +7,8 @@ import FinancialAnalysis from '@/components/FinancialAnalysis';
 import LanguageMenu from '@/components/LanguageMenu';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Trash2 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { Transaction, RecurringTransaction } from '@/types/transactions';
@@ -15,6 +17,11 @@ const Index = () => {
   const { t } = useLanguage();
   const { toast } = useToast();
   const [selectedMonth, setSelectedMonth] = React.useState('0');
+  const [bankBalance, setBankBalance] = React.useState(() => {
+    const saved = localStorage.getItem('bankBalance');
+    return saved ? parseFloat(saved) : 0;
+  });
+
   const [transactions, setTransactions] = React.useState<Transaction[]>(() => {
     const saved = localStorage.getItem('transactions');
     if (saved) {
@@ -39,11 +46,6 @@ const Index = () => {
     return [];
   });
 
-  const [currentBalance, setCurrentBalance] = React.useState(() => {
-    const saved = localStorage.getItem('currentBalance');
-    return saved ? parseFloat(saved) : 0;
-  });
-
   React.useEffect(() => {
     localStorage.setItem('transactions', JSON.stringify(transactions));
   }, [transactions]);
@@ -53,12 +55,11 @@ const Index = () => {
   }, [recurringTransactions]);
 
   React.useEffect(() => {
-    localStorage.setItem('currentBalance', currentBalance.toString());
-  }, [currentBalance]);
+    localStorage.setItem('bankBalance', bankBalance.toString());
+  }, [bankBalance]);
 
   const handleAddTransaction = (transaction: Transaction) => {
     setTransactions([...transactions, transaction]);
-    setCurrentBalance(prev => prev + (transaction.isIncome ? transaction.amount : -transaction.amount));
   };
 
   const handleAddRecurringTransaction = (transaction: RecurringTransaction) => {
@@ -72,14 +73,10 @@ const Index = () => {
         title: t('recurring.deleted'),
       });
     } else {
-      const transaction = transactions.find(t => t.id === id);
-      if (transaction) {
-        setCurrentBalance(prev => prev - (transaction.isIncome ? transaction.amount : -transaction.amount));
-        setTransactions(prev => prev.filter(t => t.id !== id));
-        toast({
-          title: t('transaction.deleted'),
-        });
-      }
+      setTransactions(prev => prev.filter(t => t.id !== id));
+      toast({
+        title: t('transaction.deleted'),
+      });
     }
   };
 
@@ -87,7 +84,7 @@ const Index = () => {
     localStorage.clear();
     setTransactions([]);
     setRecurringTransactions([]);
-    setCurrentBalance(0);
+    setBankBalance(0);
     toast({
       title: t('reset.complete'),
       description: t('data.cleared'),
@@ -95,44 +92,38 @@ const Index = () => {
   };
 
   const calculateRunway = () => {
-    const monthlyRecurringIncome = recurringTransactions
-      .filter(t => t.isIncome)
-      .reduce((sum, t) => sum + t.amount, 0);
-
-    const monthlyRecurringExpenses = recurringTransactions
-      .filter(t => !t.isIncome)
-      .reduce((sum, t) => sum + t.amount, 0);
-
     const data = [];
     const currentDate = new Date();
+    let runningBalance = bankBalance;
     
     for (let i = 0; i < 12; i++) {
       const monthStart = new Date(currentDate.getFullYear(), currentDate.getMonth() + i, 1);
       const monthEnd = new Date(currentDate.getFullYear(), currentDate.getMonth() + i + 1, 0);
 
-      const monthlyNet = recurringTransactions
+      // Calculate recurring transactions for this month
+      const monthlyRecurring = recurringTransactions
         .filter(t => new Date(t.startDate) <= monthEnd)
         .reduce((sum, t) => sum + (t.isIncome ? t.amount : -t.amount), 0);
 
-      const monthTransactions = transactions.filter(
-        t => t.date >= monthStart && t.date <= monthEnd
-      );
-      
-      const monthlyBalance = monthTransactions.reduce(
-        (acc, t) => acc + (t.isIncome ? t.amount : -t.amount),
-        monthlyNet
-      );
+      // Calculate one-time transactions for this month
+      const monthlyOneTime = transactions
+        .filter(t => {
+          const transactionDate = new Date(t.date);
+          return transactionDate >= monthStart && transactionDate <= monthEnd;
+        })
+        .reduce((sum, t) => sum + (t.isIncome ? t.amount : -t.amount), 0);
+
+      runningBalance += monthlyRecurring + monthlyOneTime;
 
       data.push({
         month: monthStart.toLocaleString('default', { month: 'short' }),
-        balance: monthlyBalance,
+        balance: runningBalance,
       });
     }
 
     return data;
   };
 
-  // Create mapped transactions with correct types for TransactionHistory
   const mappedTransactionsForHistory = [
     ...transactions.map(t => ({ ...t, isRecurring: false })),
     ...recurringTransactions.map(rt => ({
@@ -142,7 +133,6 @@ const Index = () => {
     }))
   ] as Transaction[];
 
-  // Create mapped transactions for MonthlyStats
   const mappedRecurringTransactionsForStats = recurringTransactions.map(rt => ({
     ...rt,
     date: rt.startDate
@@ -160,6 +150,17 @@ const Index = () => {
           </Button>
         </div>
       </div>
+
+      <div className="mb-8">
+        <Label htmlFor="bankBalance">{t('current.bank.balance')}</Label>
+        <Input
+          id="bankBalance"
+          type="number"
+          value={bankBalance}
+          onChange={(e) => setBankBalance(parseFloat(e.target.value) || 0)}
+          className="max-w-xs"
+        />
+      </div>
       
       <TransactionManager
         onAddTransaction={handleAddTransaction}
@@ -176,14 +177,14 @@ const Index = () => {
 
       <TransactionHistory
         transactions={mappedTransactionsForHistory}
-        recurringTransactions={[]} // Pass empty array since recurring transactions are already included in mappedTransactionsForHistory
+        recurringTransactions={[]}
         onDeleteTransaction={handleDeleteTransaction}
       />
 
       <FinancialAnalysis
         transactions={transactions}
         recurringTransactions={recurringTransactions}
-        currentBalance={currentBalance}
+        currentBalance={bankBalance}
       />
 
       <RunwayChart data={calculateRunway()} />
