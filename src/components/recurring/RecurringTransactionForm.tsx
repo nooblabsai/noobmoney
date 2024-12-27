@@ -2,8 +2,12 @@ import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, CalendarIcon } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface RecurringTransactionFormProps {
   amount: string;
@@ -12,6 +16,8 @@ interface RecurringTransactionFormProps {
   setDescription: (value: string) => void;
   isIncome: boolean;
   setIsIncome: (value: boolean) => void;
+  startDate: Date;
+  setStartDate: (date: Date) => void;
   onSubmit: (e: React.FormEvent) => void;
 }
 
@@ -22,6 +28,8 @@ const RecurringTransactionForm: React.FC<RecurringTransactionFormProps> = ({
   setDescription,
   isIncome,
   setIsIncome,
+  startDate,
+  setStartDate,
   onSubmit,
 }) => {
   const { t } = useLanguage();
@@ -50,6 +58,31 @@ const RecurringTransactionForm: React.FC<RecurringTransactionFormProps> = ({
           placeholder={t('enter.description')}
           className="w-full"
         />
+      </div>
+      <div className="space-y-2">
+        <Label>{t('start.date')}</Label>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant={"outline"}
+              className={cn(
+                "w-full justify-start text-left font-normal",
+                !startDate && "text-muted-foreground"
+              )}
+            >
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {startDate ? format(startDate, "PPP") : <span>{t('pick.date')}</span>}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <Calendar
+              mode="single"
+              selected={startDate}
+              onSelect={(date) => date && setStartDate(date)}
+              initialFocus
+            />
+          </PopoverContent>
+        </Popover>
       </div>
       <div className="flex items-center space-x-2">
         <Button

@@ -9,6 +9,7 @@ interface RecurringTransaction {
   amount: number;
   description: string;
   isIncome: boolean;
+  startDate: Date;
 }
 
 interface RecurringTransactionsProps {
@@ -26,6 +27,7 @@ const RecurringTransactions: React.FC<RecurringTransactionsProps> = ({
   const [amount, setAmount] = React.useState('');
   const [description, setDescription] = React.useState('');
   const [isIncome, setIsIncome] = React.useState(false);
+  const [startDate, setStartDate] = React.useState<Date>(new Date());
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,6 +36,7 @@ const RecurringTransactions: React.FC<RecurringTransactionsProps> = ({
       amount: parseFloat(amount),
       description,
       isIncome,
+      startDate,
     });
     setAmount('');
     setDescription('');
@@ -53,6 +56,8 @@ const RecurringTransactions: React.FC<RecurringTransactionsProps> = ({
         setDescription={setDescription}
         isIncome={isIncome}
         setIsIncome={setIsIncome}
+        startDate={startDate}
+        setStartDate={setStartDate}
         onSubmit={handleSubmit}
       />
     </Card>

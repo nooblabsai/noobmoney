@@ -12,6 +12,7 @@ interface Transaction {
   isIncome: boolean;
   date: Date;
   isRecurring?: boolean;
+  startDate?: Date; // Added startDate for recurring transactions
 }
 
 interface TransactionHistoryProps {
@@ -29,7 +30,11 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
 
   const allTransactions = [
     ...transactions,
-    ...recurringTransactions.map(t => ({ ...t, isRecurring: true }))
+    ...recurringTransactions.map(t => ({ 
+      ...t, 
+      isRecurring: true,
+      date: t.startDate // Use startDate for recurring transactions
+    }))
   ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   return (
@@ -55,7 +60,7 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
               <div>
                 <p className="font-medium">{transaction.description}</p>
                 <p className="text-sm text-gray-500">
-                  {format(new Date(transaction.date), 'PPP')}
+                  {transaction.isRecurring ? t('recurring.from') : ''} {format(new Date(transaction.date), 'PPP')}
                 </p>
               </div>
             </div>

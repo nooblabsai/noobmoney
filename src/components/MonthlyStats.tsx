@@ -58,15 +58,20 @@ const MonthlyStats: React.FC<MonthlyStatsProps> = ({
     const oneTimeBalance = monthTransactions.reduce((acc, t) => 
       acc + (t.isIncome ? t.amount : -t.amount), 0);
 
-    const recurringBalance = recurringTransactions.reduce((acc, t) => 
-      acc + (t.isIncome ? t.amount : -t.amount), 0);
+    const recurringBalance = recurringTransactions
+      .filter(t => {
+        const startDate = new Date(t.startDate);
+        return startDate <= targetDate;
+      })
+      .reduce((acc, t) => acc + (t.isIncome ? t.amount : -t.amount), 0);
 
     return oneTimeBalance + recurringBalance;
   };
 
   const getRecurringTotalForMonth = (isIncome: boolean) => {
+    const targetDate = addMonths(new Date(), parseInt(selectedMonth));
     return recurringTransactions
-      .filter(t => t.isIncome === isIncome)
+      .filter(t => t.isIncome === isIncome && new Date(t.startDate) <= targetDate)
       .reduce((sum, t) => sum + t.amount, 0);
   };
 
