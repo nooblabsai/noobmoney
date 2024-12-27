@@ -132,9 +132,9 @@ const Index = () => {
     return data;
   };
 
-  // Create mapped transactions with correct types
+  // Create mapped transactions with correct types for TransactionHistory
   const mappedTransactionsForHistory = [
-    ...transactions,
+    ...transactions.map(t => ({ ...t, isRecurring: false })),
     ...recurringTransactions.map(rt => ({
       ...rt,
       date: rt.startDate,
@@ -142,6 +142,7 @@ const Index = () => {
     }))
   ] as Transaction[];
 
+  // Create mapped transactions for MonthlyStats
   const mappedRecurringTransactionsForStats = recurringTransactions.map(rt => ({
     ...rt,
     date: rt.startDate
@@ -175,7 +176,7 @@ const Index = () => {
 
       <TransactionHistory
         transactions={mappedTransactionsForHistory}
-        recurringTransactions={recurringTransactions}
+        recurringTransactions={[]} // Pass empty array since recurring transactions are already included in mappedTransactionsForHistory
         onDeleteTransaction={handleDeleteTransaction}
       />
 
