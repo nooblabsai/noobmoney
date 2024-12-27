@@ -45,6 +45,8 @@ const translations = {
     'data.cleared': 'Όλα τα δεδομένα έχουν διαγραφεί',
     'monthly': 'μηνιαία',
     'balance.for': 'Υπόλοιπο για',
+    'recurring.from': 'επαναλαμβανόμενη από',
+    'financial.runway': 'Οικονομική Διάρκεια',
   },
   en: {
     'financial.runway.calculator': 'Financial Runway Calculator',

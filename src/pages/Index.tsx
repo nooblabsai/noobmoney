@@ -103,15 +103,16 @@ const Index = () => {
       .filter(t => !t.isIncome)
       .reduce((sum, t) => sum + t.amount, 0);
 
-    const monthlyNet = monthlyRecurringIncome - monthlyRecurringExpenses;
     const data = [];
-
     const currentDate = new Date();
-    const startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-
+    
     for (let i = 0; i < 12; i++) {
-      const monthStart = new Date(startDate.getFullYear(), startDate.getMonth() + i, 1);
-      const monthEnd = new Date(startDate.getFullYear(), startDate.getMonth() + i + 1, 0);
+      const monthStart = new Date(currentDate.getFullYear(), currentDate.getMonth() + i, 1);
+      const monthEnd = new Date(currentDate.getFullYear(), currentDate.getMonth() + i + 1, 0);
+
+      const monthlyNet = recurringTransactions
+        .filter(t => new Date(t.startDate) <= monthEnd)
+        .reduce((sum, t) => sum + (t.isIncome ? t.amount : -t.amount), 0);
 
       const monthTransactions = transactions.filter(
         t => t.date >= monthStart && t.date <= monthEnd
@@ -134,7 +135,7 @@ const Index = () => {
   const mappedRecurringTransactions = recurringTransactions.map(rt => ({
     ...rt,
     date: rt.startDate
-  }));
+  })) as Transaction[];
 
   return (
     <div className="container mx-auto py-8 px-4">
