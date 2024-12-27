@@ -131,6 +131,11 @@ const Index = () => {
     return data;
   };
 
+  const mappedRecurringTransactions = recurringTransactions.map(rt => ({
+    ...rt,
+    date: rt.startDate
+  }));
+
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="flex justify-between items-center mb-8">
@@ -152,20 +157,14 @@ const Index = () => {
 
       <MonthlyStats
         transactions={transactions}
-        recurringTransactions={recurringTransactions.map(rt => ({
-          ...rt,
-          date: rt.startDate
-        }))}
+        recurringTransactions={mappedRecurringTransactions}
         selectedMonth={selectedMonth}
         onMonthSelect={setSelectedMonth}
       />
 
       <TransactionHistory
         transactions={transactions}
-        recurringTransactions={recurringTransactions.map(rt => ({
-          ...rt,
-          date: rt.startDate
-        }))}
+        recurringTransactions={mappedRecurringTransactions}
         onDeleteTransaction={handleDeleteTransaction}
       />
 
