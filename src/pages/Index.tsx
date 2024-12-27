@@ -2,19 +2,12 @@ import React from 'react';
 import ExpenseForm from '@/components/ExpenseForm';
 import RecurringTransactions from '@/components/RecurringTransactions';
 import RunwayChart from '@/components/RunwayChart';
-import { Card } from '@/components/ui/card';
+import TransactionHistory from '@/components/TransactionHistory';
+import MonthlyStats from '@/components/MonthlyStats';
+import FinancialAnalysis from '@/components/FinancialAnalysis';
 import { useToast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
-import { Trash2, ArrowUpCircle, ArrowDownCircle } from 'lucide-react';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { format, addMonths } from 'date-fns';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { Trash2 } from 'lucide-react';
 
 interface Transaction {
   id: string;
@@ -33,7 +26,7 @@ interface RecurringTransaction {
 
 const Index = () => {
   const { toast } = useToast();
-  const [selectedMonth, setSelectedMonth] = React.useState('0'); // 0 is current month
+  const [selectedMonth, setSelectedMonth] = React.useState('0');
   const [transactions, setTransactions] = React.useState<Transaction[]>(() => {
     const saved = localStorage.getItem('transactions');
     if (saved) {
@@ -99,11 +92,22 @@ const Index = () => {
     });
   };
 
-  const handleDeleteRecurringTransaction = (id: string) => {
-    setRecurringTransactions(prev => prev.filter(t => t.id !== id));
-    toast({
-      title: 'Recurring Transaction Deleted',
-    });
+  const handleDeleteTransaction = (id: string, isRecurring: boolean) => {
+    if (isRecurring) {
+      setRecurringTransactions(prev => prev.filter(t => t.id !== id));
+      toast({
+        title: 'Recurring Transaction Deleted',
+      });
+    } else {
+      const transaction = transactions.find(t => t.id === id);
+      if (transaction) {
+        setCurrentBalance(prev => prev - (transaction.isIncome ? transaction.amount : -transaction.amount));
+        setTransactions(prev => prev.filter(t => t.id !== id));
+        toast({
+          title: 'Transaction Deleted',
+        });
+      }
+    }
   };
 
   const handleReset = () => {
@@ -115,29 +119,6 @@ const Index = () => {
       title: 'Reset Complete',
       description: 'All data has been cleared.',
     });
-  };
-
-  const getBalanceForMonth = (monthOffset: number) => {
-    const targetDate = addMonths(new Date(), monthOffset);
-    const targetMonth = targetDate.getMonth();
-    const targetYear = targetDate.getFullYear();
-
-    // Filter transactions for the specific month
-    const monthTransactions = transactions.filter(t => {
-      const transactionDate = new Date(t.date);
-      return transactionDate.getMonth() === targetMonth && 
-             transactionDate.getFullYear() === targetYear;
-    });
-
-    // Calculate balance from transactions
-    return monthTransactions.reduce((acc, t) => 
-      acc + (t.isIncome ? t.amount : -t.amount), 0);
-  };
-
-  const getRecurringTotalForMonth = (isIncome: boolean) => {
-    return recurringTransactions
-      .filter(t => t.isIncome === isIncome)
-      .reduce((sum, t) => sum + t.amount, 0);
   };
 
   const calculateRunway = () => {
@@ -152,9 +133,6 @@ const Index = () => {
     const monthlyNet = monthlyRecurringIncome - monthlyRecurringExpenses;
     const data = [];
 
-    // Sort transactions by date
-    const sortedTransactions = [...transactions].sort((a, b) => a.date.getTime() - b.date.getTime());
-
     // Get the current month
     const currentDate = new Date();
     const startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
@@ -164,20 +142,16 @@ const Index = () => {
       const monthStart = new Date(startDate.getFullYear(), startDate.getMonth() + i, 1);
       const monthEnd = new Date(startDate.getFullYear(), startDate.getMonth() + i + 1, 0);
 
-      // Start with 0 balance for each month
-      let monthlyBalance = 0;
-
-      // Add recurring transactions for this month
-      monthlyBalance += monthlyNet;
-
-      // Only add one-time transactions that occur in this specific month
-      const monthTransactions = sortedTransactions.filter(
+      // Get one-time transactions for this month
+      const monthTransactions = transactions.filter(
         t => t.date >= monthStart && t.date <= monthEnd
       );
       
-      for (const transaction of monthTransactions) {
-        monthlyBalance += transaction.isIncome ? transaction.amount : -transaction.amount;
-      }
+      // Calculate balance for this month
+      const monthlyBalance = monthTransactions.reduce(
+        (acc, t) => acc + (t.isIncome ? t.amount : -t.amount),
+        monthlyNet
+      );
 
       data.push({
         month: monthStart.toLocaleString('default', { month: 'short' }),
@@ -186,18 +160,6 @@ const Index = () => {
     }
 
     return data;
-  };
-
-  const getMonthOptions = () => {
-    const options = [];
-    for (let i = 0; i < 12; i++) {
-      const date = addMonths(new Date(), i);
-      options.push({
-        value: i.toString(),
-        label: format(date, 'MMMM yyyy')
-      });
-    }
-    return options;
   };
 
   return (
@@ -219,79 +181,32 @@ const Index = () => {
           <RecurringTransactions
             onAdd={handleAddRecurringTransaction}
             transactions={recurringTransactions}
-            onDelete={handleDeleteRecurringTransaction}
+            onDelete={handleDeleteTransaction}
           />
         </div>
       </div>
 
-      <div className="mb-4">
-        <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Select month" />
-          </SelectTrigger>
-          <SelectContent>
-            {getMonthOptions().map(option => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      <MonthlyStats
+        transactions={transactions}
+        recurringTransactions={recurringTransactions}
+        selectedMonth={selectedMonth}
+        onMonthSelect={setSelectedMonth}
+      />
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <Card className="p-6">
-          <h3 className="text-lg font-medium mb-2">Balance for {format(addMonths(new Date(), parseInt(selectedMonth)), 'MMMM yyyy')}</h3>
-          <p className={`text-2xl font-bold ${getBalanceForMonth(parseInt(selectedMonth)) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-            €{getBalanceForMonth(parseInt(selectedMonth)).toFixed(2)}
-          </p>
-        </Card>
-        <Card className="p-6">
-          <h3 className="text-lg font-medium mb-2">Monthly Income</h3>
-          <p className="text-2xl font-bold text-green-600">
-            €{getRecurringTotalForMonth(true).toFixed(2)}
-          </p>
-        </Card>
-        <Card className="p-6">
-          <h3 className="text-lg font-medium mb-2">Monthly Expenses</h3>
-          <p className="text-2xl font-bold text-red-600">
-            €{getRecurringTotalForMonth(false).toFixed(2)}
-          </p>
-        </Card>
-      </div>
+      <TransactionHistory
+        transactions={transactions}
+        recurringTransactions={recurringTransactions.map(t => ({
+          ...t,
+          date: new Date(),
+        }))}
+        onDeleteTransaction={handleDeleteTransaction}
+      />
 
-      <Card className="p-6 mb-8">
-        <h2 className="text-xl font-semibold mb-4">Transaction History</h2>
-        <ScrollArea className="h-[300px] w-full rounded-md border p-4">
-          {transactions
-            .sort((a, b) => b.date.getTime() - a.date.getTime())
-            .map((transaction) => (
-              <div
-                key={transaction.id}
-                className="flex items-center justify-between p-3 mb-2 bg-gray-50 rounded-lg"
-              >
-                <div className="flex items-center gap-3">
-                  {transaction.isIncome ? (
-                    <ArrowUpCircle className="h-5 w-5 text-green-500" />
-                  ) : (
-                    <ArrowDownCircle className="h-5 w-5 text-red-500" />
-                  )}
-                  <div>
-                    <p className="font-medium">{transaction.description}</p>
-                    <p className="text-sm text-gray-500">
-                      {format(transaction.date, 'PPP')}
-                    </p>
-                  </div>
-                </div>
-                <span className={`font-medium ${
-                  transaction.isIncome ? 'text-green-600' : 'text-red-600'
-                }`}>
-                  €{transaction.amount.toFixed(2)}
-                </span>
-              </div>
-            ))}
-        </ScrollArea>
-      </Card>
+      <FinancialAnalysis
+        transactions={transactions}
+        recurringTransactions={recurringTransactions}
+        currentBalance={currentBalance}
+      />
 
       <RunwayChart data={calculateRunway()} />
     </div>
