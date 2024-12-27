@@ -21,8 +21,8 @@ const translations = {
     'reset.data': 'Επαναφορά Δεδομένων',
     'monthly.stats': 'Μηνιαία Στατιστικά',
     'balance': 'Υπόλοιπο',
-    'monthly.income': 'Μηνιαίο Εισόδημα',
-    'monthly.expenses': 'Μηνιαία Έξοδα',
+    'monthly.recurring.income': 'Μηνιαία Επαναλαμβανόμενα Έσοδα',
+    'monthly.recurring.expenses': 'Μηνιαία Επαναλαμβανόμενα Έξοδα',
     'transaction.history': 'Ιστορικό Συναλλαγών',
     'financial.analysis': 'Οικονομική Ανάλυση',
     'generate.analysis': 'Δημιουργία Ανάλυσης',
@@ -43,7 +43,8 @@ const translations = {
     'recurring.deleted': 'Η Επαναλαμβανόμενη Συναλλαγή Διαγράφηκε',
     'reset.complete': 'Η Επαναφορά Ολοκληρώθηκε',
     'data.cleared': 'Όλα τα δεδομένα έχουν διαγραφεί',
-    'monthly': 'μηνιαία'
+    'monthly': 'μηνιαία',
+    'balance.for': 'Υπόλοιπο για',
   },
   en: {
     'financial.runway.calculator': 'Financial Runway Calculator',

@@ -3,6 +3,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card } from '@/components/ui/card';
 import { ArrowUpCircle, ArrowDownCircle, Repeat, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface Transaction {
   id: string;
@@ -24,7 +25,8 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
   recurringTransactions,
   onDeleteTransaction,
 }) => {
-  // Combine and sort transactions
+  const { t } = useLanguage();
+
   const allTransactions = [
     ...transactions,
     ...recurringTransactions.map(t => ({ ...t, isRecurring: true }))
@@ -32,7 +34,7 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
 
   return (
     <Card className="p-6 mb-8">
-      <h2 className="text-xl font-semibold mb-4">Transaction History</h2>
+      <h2 className="text-xl font-semibold mb-4">{t('transaction.history')}</h2>
       <ScrollArea className="h-[300px] w-full rounded-md border p-4">
         {allTransactions.map((transaction) => (
           <div
@@ -66,6 +68,7 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
               <button
                 onClick={() => onDeleteTransaction(transaction.id, !!transaction.isRecurring)}
                 className="text-gray-400 hover:text-red-500 transition-colors"
+                aria-label={t('delete')}
               >
                 <Trash2 className="h-4 w-4" />
               </button>

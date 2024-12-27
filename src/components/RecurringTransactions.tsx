@@ -2,7 +2,6 @@ import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Repeat } from 'lucide-react';
 import RecurringTransactionForm from './recurring/RecurringTransactionForm';
-import RecurringTransactionItem from './recurring/RecurringTransactionItem';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface RecurringTransaction {
@@ -56,16 +55,6 @@ const RecurringTransactions: React.FC<RecurringTransactionsProps> = ({
         setIsIncome={setIsIncome}
         onSubmit={handleSubmit}
       />
-
-      <div className="space-y-2">
-        {transactions.map((transaction) => (
-          <RecurringTransactionItem
-            key={transaction.id}
-            transaction={transaction}
-            onDelete={onDelete}
-          />
-        ))}
-      </div>
     </Card>
   );
 };
