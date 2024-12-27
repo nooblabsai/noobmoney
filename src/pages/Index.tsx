@@ -124,23 +124,21 @@ const Index = () => {
   };
 
   // Map recurring transactions to regular transactions for history display
-  const mappedRecurringTransactionsForHistory = recurringTransactions.map(rt => ({
-    ...rt,
-    date: rt.startDate,
+  const mappedRecurringTransactionsForHistory: Transaction[] = recurringTransactions.map(rt => ({
     id: rt.id,
     amount: rt.amount,
     description: rt.description,
-    isIncome: rt.isIncome
+    isIncome: rt.isIncome,
+    date: rt.startDate
   }));
 
   // Map regular transactions to recurring transactions for monthly stats
-  const mappedTransactionsForStats = transactions.map(t => ({
-    ...t,
-    startDate: t.date,
+  const mappedTransactionsForStats: RecurringTransaction[] = transactions.map(t => ({
     id: t.id,
     amount: t.amount,
     description: t.description,
-    isIncome: t.isIncome
+    isIncome: t.isIncome,
+    startDate: t.date
   }));
 
   return (
@@ -192,13 +190,13 @@ const Index = () => {
         onDeleteTransaction={handleDeleteTransaction}
       />
 
+      <RunwayChart data={calculateRunway()} />
+
       <FinancialAnalysis
         transactions={transactions}
         recurringTransactions={recurringTransactions}
         currentBalance={bankBalance}
       />
-
-      <RunwayChart data={calculateRunway()} />
     </div>
   );
 };

@@ -112,7 +112,7 @@ const FinancialAnalysis: React.FC<FinancialAnalysisProps> = ({
     <>
       <Card className="p-6 mb-8">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">Financial Analysis</h2>
+          <h2 className="text-xl font-semibold">AI Financial Analysis</h2>
           <Button onClick={generateAnalysis} disabled={loading}>
             <Brain className="mr-2 h-4 w-4" />
             {loading ? 'Analyzing...' : 'Generate Analysis'}
