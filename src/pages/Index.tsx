@@ -22,9 +22,40 @@ interface RecurringTransaction {
 
 const Index = () => {
   const { toast } = useToast();
-  const [transactions, setTransactions] = React.useState<Transaction[]>([]);
-  const [recurringTransactions, setRecurringTransactions] = React.useState<RecurringTransaction[]>([]);
-  const [currentBalance, setCurrentBalance] = React.useState(0);
+  const [transactions, setTransactions] = React.useState<Transaction[]>(() => {
+    const saved = localStorage.getItem('transactions');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      return parsed.map((t: any) => ({
+        ...t,
+        date: new Date(t.date)
+      }));
+    }
+    return [];
+  });
+
+  const [recurringTransactions, setRecurringTransactions] = React.useState<RecurringTransaction[]>(() => {
+    const saved = localStorage.getItem('recurringTransactions');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const [currentBalance, setCurrentBalance] = React.useState(() => {
+    const saved = localStorage.getItem('currentBalance');
+    return saved ? parseFloat(saved) : 0;
+  });
+
+  // Save to localStorage whenever state changes
+  React.useEffect(() => {
+    localStorage.setItem('transactions', JSON.stringify(transactions));
+  }, [transactions]);
+
+  React.useEffect(() => {
+    localStorage.setItem('recurringTransactions', JSON.stringify(recurringTransactions));
+  }, [recurringTransactions]);
+
+  React.useEffect(() => {
+    localStorage.setItem('currentBalance', currentBalance.toString());
+  }, [currentBalance]);
 
   const handleAddTransaction = (amount: number, description: string, isIncome: boolean) => {
     const newTransaction = {
