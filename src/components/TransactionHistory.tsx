@@ -20,11 +20,14 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
   const { t } = useLanguage();
 
   const allTransactions = [
-    ...transactions,
+    ...transactions.map(t => ({ ...t, isRecurring: false })),
     ...recurringTransactions.map(t => ({ 
-      ...t, 
-      isRecurring: true,
-      date: t.startDate
+      id: t.id,
+      amount: t.amount,
+      description: t.description,
+      isIncome: t.isIncome,
+      date: t.startDate,
+      isRecurring: true 
     }))
   ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
@@ -58,14 +61,14 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
                 ) : (
                   <ArrowDownCircle className="h-5 w-5 text-red-500" />
                 )}
-                {'isRecurring' in transaction && (
+                {transaction.isRecurring && (
                   <Repeat className="h-4 w-4 text-blue-500" />
                 )}
               </div>
               <div>
                 <p className="font-medium">{transaction.description}</p>
                 <p className="text-sm text-gray-500">
-                  {'isRecurring' in transaction ? t('recurring.from') : ''} {formatDate(transaction.date)}
+                  {transaction.isRecurring ? t('recurring.from') : ''} {formatDate(transaction.date)}
                 </p>
               </div>
             </div>
@@ -76,7 +79,7 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
                 €{transaction.amount.toFixed(2)}
               </span>
               <button
-                onClick={() => onDeleteTransaction(transaction.id, 'isRecurring' in transaction)}
+                onClick={() => onDeleteTransaction(transaction.id, transaction.isRecurring)}
                 className="text-gray-400 hover:text-red-500 transition-colors"
                 aria-label={t('delete')}
               >

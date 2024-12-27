@@ -11,8 +11,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Trash2, Wallet } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
-import { Transaction, RecurringTransaction } from '@/types/transactions';
 import { Card } from '@/components/ui/card';
+import { useTransactions } from '@/hooks/useTransactions';
 
 const Index = () => {
   const { t } = useLanguage();
@@ -23,69 +23,21 @@ const Index = () => {
     return saved ? parseFloat(saved) : 0;
   });
 
-  const [transactions, setTransactions] = React.useState<Transaction[]>(() => {
-    const saved = localStorage.getItem('transactions');
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      return parsed.map((t: any) => ({
-        ...t,
-        date: new Date(t.date)
-      }));
-    }
-    return [];
-  });
-
-  const [recurringTransactions, setRecurringTransactions] = React.useState<RecurringTransaction[]>(() => {
-    const saved = localStorage.getItem('recurringTransactions');
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      return parsed.map((t: any) => ({
-        ...t,
-        startDate: new Date(t.startDate)
-      }));
-    }
-    return [];
-  });
-
-  React.useEffect(() => {
-    localStorage.setItem('transactions', JSON.stringify(transactions));
-  }, [transactions]);
-
-  React.useEffect(() => {
-    localStorage.setItem('recurringTransactions', JSON.stringify(recurringTransactions));
-  }, [recurringTransactions]);
+  const {
+    transactions,
+    recurringTransactions,
+    handleAddTransaction,
+    handleAddRecurringTransaction,
+    handleDeleteTransaction,
+  } = useTransactions();
 
   React.useEffect(() => {
     localStorage.setItem('bankBalance', bankBalance.toString());
   }, [bankBalance]);
 
-  const handleAddTransaction = (transaction: Transaction) => {
-    setTransactions([...transactions, transaction]);
-  };
-
-  const handleAddRecurringTransaction = (transaction: RecurringTransaction) => {
-    setRecurringTransactions([...recurringTransactions, transaction]);
-  };
-
-  const handleDeleteTransaction = (id: string, isRecurring: boolean) => {
-    if (isRecurring) {
-      setRecurringTransactions(prev => prev.filter(t => t.id !== id));
-      toast({
-        title: t('recurring.deleted'),
-      });
-    } else {
-      setTransactions(prev => prev.filter(t => t.id !== id));
-      toast({
-        title: t('transaction.deleted'),
-      });
-    }
-  };
-
   const handleReset = () => {
     localStorage.clear();
-    setTransactions([]);
-    setRecurringTransactions([]);
-    setBankBalance(0);
+    window.location.reload();
     toast({
       title: t('reset.complete'),
       description: t('data.cleared'),
@@ -123,24 +75,6 @@ const Index = () => {
     return data;
   };
 
-  // Map recurring transactions to regular transactions for history display
-  const mappedRecurringTransactionsForHistory: Transaction[] = recurringTransactions.map(rt => ({
-    id: rt.id,
-    amount: rt.amount,
-    description: rt.description,
-    isIncome: rt.isIncome,
-    date: rt.startDate
-  }));
-
-  // Map regular transactions to recurring transactions for monthly stats
-  const mappedTransactionsForStats: RecurringTransaction[] = transactions.map(t => ({
-    id: t.id,
-    amount: t.amount,
-    description: t.description,
-    isIncome: t.isIncome,
-    startDate: t.date
-  }));
-
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="flex justify-between items-center mb-8">
@@ -160,13 +94,13 @@ const Index = () => {
           <Label htmlFor="bankBalance" className="text-xl font-semibold">{t('current.bank.balance')}</Label>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-3xl font-bold text-primary">€</span>
+          <span className="text-4xl font-bold text-primary">€</span>
           <Input
             id="bankBalance"
             type="number"
             value={bankBalance}
             onChange={(e) => setBankBalance(parseFloat(e.target.value) || 0)}
-            className="text-3xl font-bold h-14 max-w-xs"
+            className="text-4xl font-bold h-16 max-w-xs"
           />
         </div>
       </Card>
@@ -178,15 +112,15 @@ const Index = () => {
       />
 
       <MonthlyStats
-        transactions={mappedTransactionsForStats}
+        transactions={transactions}
         recurringTransactions={recurringTransactions}
         selectedMonth={selectedMonth}
         onMonthSelect={setSelectedMonth}
       />
 
       <TransactionHistory
-        transactions={[...transactions, ...mappedRecurringTransactionsForHistory]}
-        recurringTransactions={[]}
+        transactions={transactions}
+        recurringTransactions={recurringTransactions}
         onDeleteTransaction={handleDeleteTransaction}
       />
 
