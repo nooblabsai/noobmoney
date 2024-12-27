@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Repeat } from 'lucide-react';
 import RecurringTransactionForm from './recurring/RecurringTransactionForm';
 import RecurringTransactionItem from './recurring/RecurringTransactionItem';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface RecurringTransaction {
   id: string;
@@ -22,6 +23,7 @@ const RecurringTransactions: React.FC<RecurringTransactionsProps> = ({
   transactions,
   onDelete,
 }) => {
+  const { t } = useLanguage();
   const [amount, setAmount] = React.useState('');
   const [description, setDescription] = React.useState('');
   const [isIncome, setIsIncome] = React.useState(false);
@@ -42,7 +44,7 @@ const RecurringTransactions: React.FC<RecurringTransactionsProps> = ({
     <Card className="p-6 animate-fade-in">
       <div className="flex items-center mb-4">
         <Repeat className="mr-2 h-5 w-5" />
-        <h2 className="text-xl font-semibold">Recurring Transactions</h2>
+        <h2 className="text-xl font-semibold">{t('recurring.transactions')}</h2>
       </div>
       
       <RecurringTransactionForm

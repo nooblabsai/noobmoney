@@ -3,6 +3,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { PlusCircle } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface RecurringTransactionFormProps {
   amount: string;
@@ -23,28 +24,30 @@ const RecurringTransactionForm: React.FC<RecurringTransactionFormProps> = ({
   setIsIncome,
   onSubmit,
 }) => {
+  const { t } = useLanguage();
+
   return (
     <form onSubmit={onSubmit} className="space-y-4 mb-6">
       <div className="space-y-2">
-        <Label htmlFor="recurring-amount">Monthly Amount</Label>
+        <Label htmlFor="recurring-amount">{t('monthly.amount')}</Label>
         <Input
           id="recurring-amount"
           type="number"
           step="0.01"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
-          placeholder="Enter monthly amount"
+          placeholder={t('enter.monthly.amount')}
           className="w-full"
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="recurring-description">Description</Label>
+        <Label htmlFor="recurring-description">{t('description')}</Label>
         <Input
           id="recurring-description"
           type="text"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          placeholder="Enter description"
+          placeholder={t('enter.description')}
           className="w-full"
         />
       </div>
@@ -55,7 +58,7 @@ const RecurringTransactionForm: React.FC<RecurringTransactionFormProps> = ({
           onClick={() => setIsIncome(true)}
           className="w-1/2"
         >
-          Income
+          {t('income')}
         </Button>
         <Button
           type="button"
@@ -63,12 +66,12 @@ const RecurringTransactionForm: React.FC<RecurringTransactionFormProps> = ({
           onClick={() => setIsIncome(false)}
           className="w-1/2"
         >
-          Expense
+          {t('expense')}
         </Button>
       </div>
       <Button type="submit" className="w-full">
         <PlusCircle className="mr-2 h-4 w-4" />
-        Add Recurring {isIncome ? 'Income' : 'Expense'}
+        {t('add.recurring')} {isIncome ? t('income') : t('expense')}
       </Button>
     </form>
   );

@@ -52,7 +52,6 @@ const Index = () => {
     return saved ? parseFloat(saved) : 0;
   });
 
-  // Save to localStorage whenever state changes
   React.useEffect(() => {
     localStorage.setItem('transactions', JSON.stringify(transactions));
   }, [transactions]);
@@ -77,7 +76,7 @@ const Index = () => {
     setCurrentBalance(prev => prev + (isIncome ? amount : -amount));
     
     toast({
-      title: `${isIncome ? 'Income' : 'Expense'} Added`,
+      title: isIncome ? t('income.added') : t('expense.added'),
       description: `${description}: €${amount.toFixed(2)}`,
     });
   };
@@ -90,8 +89,8 @@ const Index = () => {
     setRecurringTransactions([...recurringTransactions, newTransaction]);
     
     toast({
-      title: 'Recurring Transaction Added',
-      description: `${transaction.description}: €${transaction.amount.toFixed(2)} monthly`,
+      title: t('recurring.added'),
+      description: `${transaction.description}: €${transaction.amount.toFixed(2)}`,
     });
   };
 
@@ -99,7 +98,7 @@ const Index = () => {
     if (isRecurring) {
       setRecurringTransactions(prev => prev.filter(t => t.id !== id));
       toast({
-        title: 'Recurring Transaction Deleted',
+        title: t('recurring.deleted'),
       });
     } else {
       const transaction = transactions.find(t => t.id === id);
@@ -107,7 +106,7 @@ const Index = () => {
         setCurrentBalance(prev => prev - (transaction.isIncome ? transaction.amount : -transaction.amount));
         setTransactions(prev => prev.filter(t => t.id !== id));
         toast({
-          title: 'Transaction Deleted',
+          title: t('transaction.deleted'),
         });
       }
     }
@@ -119,8 +118,8 @@ const Index = () => {
     setRecurringTransactions([]);
     setCurrentBalance(0);
     toast({
-      title: 'Reset Complete',
-      description: 'All data has been cleared.',
+      title: t('reset.complete'),
+      description: t('data.cleared'),
     });
   };
 
@@ -136,21 +135,17 @@ const Index = () => {
     const monthlyNet = monthlyRecurringIncome - monthlyRecurringExpenses;
     const data = [];
 
-    // Get the current month
     const currentDate = new Date();
     const startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
 
-    // Calculate balance for the next 12 months
     for (let i = 0; i < 12; i++) {
       const monthStart = new Date(startDate.getFullYear(), startDate.getMonth() + i, 1);
       const monthEnd = new Date(startDate.getFullYear(), startDate.getMonth() + i + 1, 0);
 
-      // Get one-time transactions for this month
       const monthTransactions = transactions.filter(
         t => t.date >= monthStart && t.date <= monthEnd
       );
       
-      // Calculate balance for this month
       const monthlyBalance = monthTransactions.reduce(
         (acc, t) => acc + (t.isIncome ? t.amount : -t.amount),
         monthlyNet
@@ -167,7 +162,7 @@ const Index = () => {
 
   const recurringTransactionsWithDate: Transaction[] = recurringTransactions.map(t => ({
     ...t,
-    date: new Date(), // Set current date for recurring transactions
+    date: new Date(),
   }));
 
   return (
