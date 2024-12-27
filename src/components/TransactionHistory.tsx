@@ -30,9 +30,14 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
 
   const formatDate = (date: Date) => {
     try {
-      return format(new Date(date), 'PPP');
+      const dateObj = new Date(date);
+      if (isNaN(dateObj.getTime())) {
+        console.error('Invalid date:', date);
+        return 'Invalid date';
+      }
+      return format(dateObj, 'PPP');
     } catch (error) {
-      console.error('Invalid date:', date);
+      console.error('Error formatting date:', error);
       return 'Invalid date';
     }
   };

@@ -2,6 +2,8 @@ import React from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { Transaction, RecurringTransaction } from '@/types/transactions';
 import { useLanguage } from '@/contexts/LanguageContext';
+import ExpenseForm from './ExpenseForm';
+import RecurringTransactions from './RecurringTransactions';
 
 interface TransactionManagerProps {
   onAddTransaction: (transaction: Transaction) => void;
