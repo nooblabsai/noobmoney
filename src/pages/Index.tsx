@@ -1,15 +1,14 @@
 import React from 'react';
-import ExpenseForm from '@/components/ExpenseForm';
-import RecurringTransactions from '@/components/RecurringTransactions';
+import TransactionManager from '@/components/TransactionManager';
 import RunwayChart from '@/components/RunwayChart';
 import TransactionHistory from '@/components/TransactionHistory';
 import MonthlyStats from '@/components/MonthlyStats';
 import FinancialAnalysis from '@/components/FinancialAnalysis';
 import LanguageMenu from '@/components/LanguageMenu';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useToast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
 import { Transaction, RecurringTransaction } from '@/types/transactions';
 
 const Index = () => {
@@ -57,34 +56,13 @@ const Index = () => {
     localStorage.setItem('currentBalance', currentBalance.toString());
   }, [currentBalance]);
 
-  const handleAddTransaction = (amount: number, description: string, isIncome: boolean, date: Date) => {
-    const newTransaction = {
-      id: Math.random().toString(),
-      amount,
-      description,
-      isIncome,
-      date,
-    };
-    setTransactions([...transactions, newTransaction]);
-    setCurrentBalance(prev => prev + (isIncome ? amount : -amount));
-    
-    toast({
-      title: isIncome ? t('income.added') : t('expense.added'),
-      description: `${description}: €${amount.toFixed(2)}`,
-    });
+  const handleAddTransaction = (transaction: Transaction) => {
+    setTransactions([...transactions, transaction]);
+    setCurrentBalance(prev => prev + (transaction.isIncome ? transaction.amount : -transaction.amount));
   };
 
-  const handleAddRecurringTransaction = (transaction: Omit<RecurringTransaction, 'id'>) => {
-    const newTransaction = {
-      ...transaction,
-      id: Math.random().toString(),
-    };
-    setRecurringTransactions([...recurringTransactions, newTransaction]);
-    
-    toast({
-      title: t('recurring.added'),
-      description: `${transaction.description}: €${transaction.amount.toFixed(2)}`,
-    });
+  const handleAddRecurringTransaction = (transaction: RecurringTransaction) => {
+    setRecurringTransactions([...recurringTransactions, transaction]);
   };
 
   const handleDeleteTransaction = (id: string, isRecurring: boolean) => {
@@ -153,11 +131,6 @@ const Index = () => {
     return data;
   };
 
-  const recurringTransactionsWithDate: Transaction[] = recurringTransactions.map(t => ({
-    ...t,
-    date: new Date(),
-  }));
-
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="flex justify-between items-center mb-8">
@@ -171,36 +144,28 @@ const Index = () => {
         </div>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <div>
-          <h2 className="text-xl font-semibold mb-4">{t('add.transaction')}</h2>
-          <ExpenseForm onSubmit={handleAddTransaction} />
-        </div>
-        <div>
-          <RecurringTransactions
-            onAdd={handleAddRecurringTransaction}
-            transactions={recurringTransactions}
-            onDelete={handleDeleteTransaction}
-          />
-        </div>
-      </div>
+      <TransactionManager
+        onAddTransaction={handleAddTransaction}
+        onAddRecurringTransaction={handleAddRecurringTransaction}
+        onDeleteTransaction={handleDeleteTransaction}
+      />
 
       <MonthlyStats
         transactions={transactions}
-        recurringTransactions={recurringTransactionsWithDate}
+        recurringTransactions={recurringTransactions}
         selectedMonth={selectedMonth}
         onMonthSelect={setSelectedMonth}
       />
 
       <TransactionHistory
         transactions={transactions}
-        recurringTransactions={recurringTransactionsWithDate}
+        recurringTransactions={recurringTransactions}
         onDeleteTransaction={handleDeleteTransaction}
       />
 
       <FinancialAnalysis
         transactions={transactions}
-        recurringTransactions={recurringTransactionsWithDate}
+        recurringTransactions={recurringTransactions}
         currentBalance={currentBalance}
       />
 
