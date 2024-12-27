@@ -10,6 +10,15 @@ interface RunwayChartProps {
 }
 
 const RunwayChart: React.FC<RunwayChartProps> = ({ data }) => {
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'EUR',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(value);
+  };
+
   return (
     <Card className="p-6 h-[400px] animate-fade-in">
       <h2 className="text-xl font-semibold mb-4">Financial Runway</h2>
@@ -25,9 +34,12 @@ const RunwayChart: React.FC<RunwayChartProps> = ({ data }) => {
         >
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="month" />
-          <YAxis />
+          <YAxis
+            tickFormatter={(value) => formatCurrency(value)}
+          />
           <Tooltip
-            formatter={(value: number) => [`$${value.toFixed(2)}`, 'Balance']}
+            formatter={(value: number) => [formatCurrency(value), 'Balance']}
+            labelFormatter={(label) => `Month: ${label}`}
           />
           <Line
             type="monotone"
