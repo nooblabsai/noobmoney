@@ -4,6 +4,10 @@ import RecurringTransactions from '@/components/RecurringTransactions';
 import RunwayChart from '@/components/RunwayChart';
 import { Card } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
+import { Button } from '@/components/ui/button';
+import { Trash2, ArrowUpCircle, ArrowDownCircle } from 'lucide-react';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { format } from 'date-fns';
 
 interface Transaction {
   id: string;
@@ -94,6 +98,17 @@ const Index = () => {
     });
   };
 
+  const handleReset = () => {
+    localStorage.clear();
+    setTransactions([]);
+    setRecurringTransactions([]);
+    setCurrentBalance(0);
+    toast({
+      title: 'Reset Complete',
+      description: 'All data has been cleared.',
+    });
+  };
+
   const calculateRunway = () => {
     const monthlyRecurringIncome = recurringTransactions
       .filter(t => t.isIncome)
@@ -142,7 +157,13 @@ const Index = () => {
 
   return (
     <div className="container mx-auto py-8 px-4">
-      <h1 className="text-3xl font-bold mb-8 text-center">Financial Runway Calculator</h1>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-center">Financial Runway Calculator</h1>
+        <Button variant="destructive" onClick={handleReset} className="flex items-center gap-2">
+          <Trash2 className="h-4 w-4" />
+          Reset Data
+        </Button>
+      </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <div>
@@ -178,6 +199,39 @@ const Index = () => {
           </p>
         </Card>
       </div>
+
+      <Card className="p-6 mb-8">
+        <h2 className="text-xl font-semibold mb-4">Transaction History</h2>
+        <ScrollArea className="h-[300px] w-full rounded-md border p-4">
+          {transactions
+            .sort((a, b) => b.date.getTime() - a.date.getTime())
+            .map((transaction) => (
+              <div
+                key={transaction.id}
+                className="flex items-center justify-between p-3 mb-2 bg-gray-50 rounded-lg"
+              >
+                <div className="flex items-center gap-3">
+                  {transaction.isIncome ? (
+                    <ArrowUpCircle className="h-5 w-5 text-green-500" />
+                  ) : (
+                    <ArrowDownCircle className="h-5 w-5 text-red-500" />
+                  )}
+                  <div>
+                    <p className="font-medium">{transaction.description}</p>
+                    <p className="text-sm text-gray-500">
+                      {format(transaction.date, 'PPP')}
+                    </p>
+                  </div>
+                </div>
+                <span className={`font-medium ${
+                  transaction.isIncome ? 'text-green-600' : 'text-red-600'
+                }`}>
+                  ${transaction.amount.toFixed(2)}
+                </span>
+              </div>
+            ))}
+        </ScrollArea>
+      </Card>
 
       <RunwayChart data={calculateRunway()} />
     </div>
