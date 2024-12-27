@@ -23,14 +23,14 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
 
   const selectedDate = addMonths(new Date(), parseInt(selectedMonth));
 
-  // Filter one-time transactions for the selected month
+  // Filter one-time transactions for the selected month only
   const filteredTransactions = transactions.filter(t => 
     isSameMonth(new Date(t.date), selectedDate)
   );
 
-  // Filter recurring transactions that started before or during the selected month
+  // Filter recurring transactions that are active in the selected month
   const filteredRecurringTransactions = recurringTransactions.filter(t => 
-    new Date(t.startDate) <= selectedDate
+    isSameMonth(new Date(t.startDate), selectedDate)
   );
 
   // Combine and sort all transactions
