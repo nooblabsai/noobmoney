@@ -10,21 +10,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useToast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
-
-interface Transaction {
-  id: string;
-  amount: number;
-  description: string;
-  isIncome: boolean;
-  date: Date;
-}
-
-interface RecurringTransaction {
-  id: string;
-  amount: number;
-  description: string;
-  isIncome: boolean;
-}
+import { Transaction, RecurringTransaction } from '@/types/transactions';
 
 const Index = () => {
   const { t } = useLanguage();
@@ -44,7 +30,14 @@ const Index = () => {
 
   const [recurringTransactions, setRecurringTransactions] = React.useState<RecurringTransaction[]>(() => {
     const saved = localStorage.getItem('recurringTransactions');
-    return saved ? JSON.parse(saved) : [];
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      return parsed.map((t: any) => ({
+        ...t,
+        startDate: new Date(t.startDate)
+      }));
+    }
+    return [];
   });
 
   const [currentBalance, setCurrentBalance] = React.useState(() => {

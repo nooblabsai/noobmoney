@@ -9,17 +9,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-interface Transaction {
-  amount: number;
-  description: string;
-  isIncome: boolean;
-  date: Date;
-}
+import { Transaction, RecurringTransaction } from '@/types/transactions';
 
 interface MonthlyStatsProps {
   transactions: Transaction[];
-  recurringTransactions: Transaction[];
+  recurringTransactions: RecurringTransaction[];
   selectedMonth: string;
   onMonthSelect: (month: string) => void;
 }

@@ -4,20 +4,11 @@ import { Card } from '@/components/ui/card';
 import { ArrowUpCircle, ArrowDownCircle, Repeat, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useLanguage } from '@/contexts/LanguageContext';
-
-interface Transaction {
-  id: string;
-  amount: number;
-  description: string;
-  isIncome: boolean;
-  date: Date;
-  isRecurring?: boolean;
-  startDate?: Date; // Added startDate for recurring transactions
-}
+import { Transaction, RecurringTransaction } from '@/types/transactions';
 
 interface TransactionHistoryProps {
   transactions: Transaction[];
-  recurringTransactions: Transaction[];
+  recurringTransactions: RecurringTransaction[];
   onDeleteTransaction: (id: string, isRecurring: boolean) => void;
 }
 
@@ -33,9 +24,18 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
     ...recurringTransactions.map(t => ({ 
       ...t, 
       isRecurring: true,
-      date: t.startDate // Use startDate for recurring transactions
+      date: t.startDate
     }))
   ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+  const formatDate = (date: Date) => {
+    try {
+      return format(new Date(date), 'PPP');
+    } catch (error) {
+      console.error('Invalid date:', date);
+      return 'Invalid date';
+    }
+  };
 
   return (
     <Card className="p-6 mb-8">
@@ -53,14 +53,14 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
                 ) : (
                   <ArrowDownCircle className="h-5 w-5 text-red-500" />
                 )}
-                {transaction.isRecurring && (
+                {'isRecurring' in transaction && (
                   <Repeat className="h-4 w-4 text-blue-500" />
                 )}
               </div>
               <div>
                 <p className="font-medium">{transaction.description}</p>
                 <p className="text-sm text-gray-500">
-                  {transaction.isRecurring ? t('recurring.from') : ''} {format(new Date(transaction.date), 'PPP')}
+                  {'isRecurring' in transaction ? t('recurring.from') : ''} {formatDate(transaction.date)}
                 </p>
               </div>
             </div>
@@ -71,7 +71,7 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
                 €{transaction.amount.toFixed(2)}
               </span>
               <button
-                onClick={() => onDeleteTransaction(transaction.id, !!transaction.isRecurring)}
+                onClick={() => onDeleteTransaction(transaction.id, 'isRecurring' in transaction)}
                 className="text-gray-400 hover:text-red-500 transition-colors"
                 aria-label={t('delete')}
               >
