@@ -20,11 +20,11 @@ const Index = () => {
   const [selectedMonth, setSelectedMonth] = React.useState('0');
   const [bankBalance, setBankBalance] = React.useState(() => {
     const saved = localStorage.getItem('bankBalance');
-    return saved ? parseFloat(saved) : 0;
+    return saved ? saved : '0';
   });
   const [debtBalance, setDebtBalance] = React.useState(() => {
     const saved = localStorage.getItem('debtBalance');
-    return saved ? parseFloat(saved) : 0;
+    return saved ? saved : '0';
   });
 
   const {
@@ -36,11 +36,11 @@ const Index = () => {
   } = useTransactions();
 
   React.useEffect(() => {
-    localStorage.setItem('bankBalance', bankBalance.toString());
+    localStorage.setItem('bankBalance', bankBalance);
   }, [bankBalance]);
 
   React.useEffect(() => {
-    localStorage.setItem('debtBalance', debtBalance.toString());
+    localStorage.setItem('debtBalance', debtBalance);
   }, [debtBalance]);
 
   const handleReset = () => {
@@ -55,28 +55,43 @@ const Index = () => {
   const calculateRunway = (includeInitialBalances: boolean) => {
     const data = [];
     const currentDate = new Date();
-    let runningBalance = includeInitialBalances ? bankBalance - debtBalance : 0;
+    let runningBalance = includeInitialBalances ? parseFloat(bankBalance) - parseFloat(debtBalance) : 0;
     
     for (let i = 0; i < 12; i++) {
       const monthStart = new Date(currentDate.getFullYear(), currentDate.getMonth() + i, 1);
       const monthEnd = new Date(currentDate.getFullYear(), currentDate.getMonth() + i + 1, 0);
 
-      const monthlyRecurring = recurringTransactions
-        .filter(t => new Date(t.startDate) <= monthEnd)
-        .reduce((sum, t) => sum + (t.isIncome ? t.amount : -t.amount), 0);
+      const monthlyRecurringIncome = recurringTransactions
+        .filter(t => t.isIncome && new Date(t.startDate) <= monthEnd)
+        .reduce((sum, t) => sum + t.amount, 0);
 
-      const monthlyOneTime = transactions
+      const monthlyRecurringExpenses = recurringTransactions
+        .filter(t => !t.isIncome && new Date(t.startDate) <= monthEnd)
+        .reduce((sum, t) => sum + t.amount, 0);
+
+      const monthlyOneTimeIncome = transactions
         .filter(t => {
           const transactionDate = new Date(t.date);
-          return transactionDate >= monthStart && transactionDate <= monthEnd;
+          return t.isIncome && transactionDate >= monthStart && transactionDate <= monthEnd;
         })
-        .reduce((sum, t) => sum + (t.isIncome ? t.amount : -t.amount), 0);
+        .reduce((sum, t) => sum + t.amount, 0);
 
-      runningBalance += monthlyRecurring + monthlyOneTime;
+      const monthlyOneTimeExpenses = transactions
+        .filter(t => {
+          const transactionDate = new Date(t.date);
+          return !t.isIncome && transactionDate >= monthStart && transactionDate <= monthEnd;
+        })
+        .reduce((sum, t) => sum + t.amount, 0);
+
+      const totalIncome = monthlyRecurringIncome + monthlyOneTimeIncome;
+      const totalExpenses = monthlyRecurringExpenses + monthlyOneTimeExpenses;
+      runningBalance += totalIncome - totalExpenses;
 
       data.push({
         month: monthStart.toLocaleString('default', { month: 'short' }),
         balance: runningBalance,
+        income: totalIncome,
+        expenses: totalExpenses,
       });
     }
 
@@ -107,9 +122,9 @@ const Index = () => {
               <span className="text-4xl font-bold text-primary">€</span>
               <Input
                 id="bankBalance"
-                type="number"
+                type="text"
                 value={bankBalance}
-                onChange={(e) => setBankBalance(parseFloat(e.target.value) || 0)}
+                onChange={(e) => setBankBalance(e.target.value)}
                 className="text-4xl font-bold h-16 max-w-xs"
               />
             </div>
@@ -124,9 +139,9 @@ const Index = () => {
               <span className="text-4xl font-bold text-red-500">€</span>
               <Input
                 id="debtBalance"
-                type="number"
+                type="text"
                 value={debtBalance}
-                onChange={(e) => setDebtBalance(parseFloat(e.target.value) || 0)}
+                onChange={(e) => setDebtBalance(e.target.value)}
                 className="text-4xl font-bold h-16 max-w-xs"
               />
             </div>
@@ -157,17 +172,19 @@ const Index = () => {
         <RunwayChart 
           data={calculateRunway(true)} 
           title="Financial Runway (with initial balances)"
+          showIncomeExpenses={false}
         />
         <RunwayChart 
           data={calculateRunway(false)} 
           title="Financial Runway (without initial balances)"
+          showIncomeExpenses={true}
         />
       </div>
 
       <FinancialAnalysis
         transactions={transactions}
         recurringTransactions={recurringTransactions}
-        currentBalance={bankBalance}
+        currentBalance={parseFloat(bankBalance)}
       />
     </div>
   );

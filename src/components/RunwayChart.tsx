@@ -1,16 +1,19 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 interface RunwayChartProps {
   data: {
     month: string;
     balance: number;
+    income?: number;
+    expenses?: number;
   }[];
   title: string;
+  showIncomeExpenses?: boolean;
 }
 
-const RunwayChart: React.FC<RunwayChartProps> = ({ data, title }) => {
+const RunwayChart: React.FC<RunwayChartProps> = ({ data, title, showIncomeExpenses = false }) => {
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -39,17 +42,39 @@ const RunwayChart: React.FC<RunwayChartProps> = ({ data, title }) => {
             tickFormatter={(value) => formatCurrency(value)}
           />
           <Tooltip
-            formatter={(value: number) => [formatCurrency(value), 'Balance']}
+            formatter={(value: number) => [formatCurrency(value), 'Amount']}
             labelFormatter={(label) => `Month: ${label}`}
           />
+          <Legend />
           <Line
             type="monotone"
             dataKey="balance"
+            name="Balance"
             stroke="#1e3a8a"
             strokeWidth={2}
             dot={{ r: 4 }}
             activeDot={{ r: 8 }}
           />
+          {showIncomeExpenses && (
+            <>
+              <Line
+                type="monotone"
+                dataKey="income"
+                name="Income"
+                stroke="#16a34a"
+                strokeWidth={2}
+                dot={{ r: 4 }}
+              />
+              <Line
+                type="monotone"
+                dataKey="expenses"
+                name="Expenses"
+                stroke="#dc2626"
+                strokeWidth={2}
+                dot={{ r: 4 }}
+              />
+            </>
+          )}
         </LineChart>
       </ResponsiveContainer>
     </Card>
