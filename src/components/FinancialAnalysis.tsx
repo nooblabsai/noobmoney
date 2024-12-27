@@ -56,6 +56,14 @@ const FinancialAnalysis: React.FC<FinancialAnalysisProps> = ({
         .filter(t => !t.isIncome)
         .reduce((sum, t) => sum + t.amount, 0);
 
+      const oneTimeIncome = transactions
+        .filter(t => t.isIncome)
+        .reduce((sum, t) => sum + t.amount, 0);
+
+      const oneTimeExpenses = transactions
+        .filter(t => !t.isIncome)
+        .reduce((sum, t) => sum + t.amount, 0);
+
       const systemPrompt = language === 'el' 
         ? 'Είσαι ένας οικονομικός σύμβουλος. Ανάλυσε την οικονομική κατάσταση και δώσε συμβουλές στα Ελληνικά.'
         : 'You are a financial advisor. Analyze the financial situation and provide advice in English.';
@@ -65,14 +73,22 @@ const FinancialAnalysis: React.FC<FinancialAnalysisProps> = ({
           Τρέχον Υπόλοιπο: €${currentBalance}
           Μηνιαία Επαναλαμβανόμενα Έσοδα: €${monthlyRecurringIncome}
           Μηνιαία Επαναλαμβανόμενα Έξοδα: €${monthlyRecurringExpenses}
+          Συνολικά Έκτακτα Έσοδα: €${oneTimeIncome}
+          Συνολικά Έκτακτα Έξοδα: €${oneTimeExpenses}
           Αριθμός μη επαναλαμβανόμενων συναλλαγών: ${transactions.length}
+          Αριθμός επαναλαμβανόμενων συναλλαγών: ${recurringTransactions.length}
+          Καθαρή Μηνιαία Ροή: €${monthlyRecurringIncome - monthlyRecurringExpenses}
           
           Παρακαλώ δώσε μια σύντομη ανάλυση της οικονομικής υγείας και διάρκειας, μαζί με εφαρμόσιμες συμβουλές για βελτίωση. Κράτησε την απάντηση συνοπτική και εστιασμένη στα πιο σημαντικά σημεία.`
         : `As a financial advisor, analyze this financial situation:
           Current Balance: €${currentBalance}
           Monthly Recurring Income: €${monthlyRecurringIncome}
           Monthly Recurring Expenses: €${monthlyRecurringExpenses}
+          Total One-time Income: €${oneTimeIncome}
+          Total One-time Expenses: €${oneTimeExpenses}
           Number of one-time transactions: ${transactions.length}
+          Number of recurring transactions: ${recurringTransactions.length}
+          Net Monthly Cash Flow: €${monthlyRecurringIncome - monthlyRecurringExpenses}
           
           Please provide a brief analysis of the financial health and runway, along with actionable advice for improvement. Keep the response concise and focused on the most important points.`;
 
@@ -83,7 +99,7 @@ const FinancialAnalysis: React.FC<FinancialAnalysisProps> = ({
           'Authorization': `Bearer ${storedApiKey}`,
         },
         body: JSON.stringify({
-          model: 'gpt-4',
+          model: 'gpt-4o',
           messages: [
             {
               role: 'system',
