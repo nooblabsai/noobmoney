@@ -10,12 +10,21 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Trash2, Wallet, PiggyBank, FileDown } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { Card } from '@/components/ui/card';
 import { useTransactions } from '@/hooks/useTransactions';
 import { Transaction, RecurringTransaction } from '@/types/transactions';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { exportToPDF } from '@/utils/pdfExport';
 
 const Index = () => {
@@ -142,10 +151,26 @@ const Index = () => {
             Export PDF
           </Button>
           <LanguageMenu />
-          <Button variant="destructive" onClick={handleReset} className="flex items-center gap-2">
-            <Trash2 className="h-4 w-4" />
-            {t('reset.data')}
-          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive" className="flex items-center gap-2">
+                <Trash2 className="h-4 w-4" />
+                {t('reset.data')}
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will wipe out all data. Proceed?
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>No</AlertDialogCancel>
+                <AlertDialogAction onClick={handleReset}>Yes, proceed</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
 
