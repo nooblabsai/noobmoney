@@ -152,14 +152,20 @@ const Index = () => {
 
       <MonthlyStats
         transactions={transactions}
-        recurringTransactions={recurringTransactions}
+        recurringTransactions={recurringTransactions.map(rt => ({
+          ...rt,
+          date: rt.startDate
+        }))}
         selectedMonth={selectedMonth}
         onMonthSelect={setSelectedMonth}
       />
 
       <TransactionHistory
         transactions={transactions}
-        recurringTransactions={recurringTransactions}
+        recurringTransactions={recurringTransactions.map(rt => ({
+          ...rt,
+          date: rt.startDate
+        }))}
         onDeleteTransaction={handleDeleteTransaction}
       />
 
