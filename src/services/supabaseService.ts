@@ -7,6 +7,7 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 export const supabase = createClient(supabaseUrl, supabaseKey);
 
 export const signUpUser = async (email: string, password: string, name: string) => {
+  console.log('Attempting to sign up user:', email);
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
@@ -17,32 +18,54 @@ export const signUpUser = async (email: string, password: string, name: string) 
     },
   });
   
-  if (error) throw error;
+  if (error) {
+    console.error('Sign up error:', error);
+    throw error;
+  }
+  console.log('User signed up successfully:', data);
   return data;
 };
 
 export const saveTransactions = async (userId: string, transactions: Transaction[], recurringTransactions: RecurringTransaction[]) => {
-  const { error: transactionError } = await supabase
-    .from('transactions')
-    .upsert(
-      transactions.map(t => ({
-        ...t,
-        user_id: userId,
-        created_at: new Date().toISOString(),
-      }))
-    );
+  console.log('Saving transactions for user:', userId);
+  console.log('Regular transactions:', transactions);
+  console.log('Recurring transactions:', recurringTransactions);
 
-  if (transactionError) throw transactionError;
+  // Save regular transactions
+  if (transactions.length > 0) {
+    const { error: transactionError } = await supabase
+      .from('transactions')
+      .upsert(
+        transactions.map(t => ({
+          ...t,
+          user_id: userId,
+          created_at: new Date().toISOString(),
+        }))
+      );
 
-  const { error: recurringError } = await supabase
-    .from('recurring_transactions')
-    .upsert(
-      recurringTransactions.map(t => ({
-        ...t,
-        user_id: userId,
-        created_at: new Date().toISOString(),
-      }))
-    );
+    if (transactionError) {
+      console.error('Error saving transactions:', transactionError);
+      throw transactionError;
+    }
+    console.log('Regular transactions saved successfully');
+  }
 
-  if (recurringError) throw recurringError;
+  // Save recurring transactions
+  if (recurringTransactions.length > 0) {
+    const { error: recurringError } = await supabase
+      .from('recurring_transactions')
+      .upsert(
+        recurringTransactions.map(t => ({
+          ...t,
+          user_id: userId,
+          created_at: new Date().toISOString(),
+        }))
+      );
+
+    if (recurringError) {
+      console.error('Error saving recurring transactions:', recurringError);
+      throw recurringError;
+    }
+    console.log('Recurring transactions saved successfully');
+  }
 };

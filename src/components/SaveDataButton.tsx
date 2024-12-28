@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Save } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { signUpUser, saveTransactions } from '@/services/supabaseService';
 import { Transaction, RecurringTransaction } from '@/types/transactions';
 
@@ -15,6 +15,11 @@ const SaveDataButton: React.FC<SaveDataButtonProps> = ({ transactions, recurring
 
   const handleSave = async () => {
     try {
+      toast({
+        title: 'Saving Data',
+        description: 'Please wait while we save your data...',
+      });
+
       // Sign up the user with the provided credentials
       const { user } = await signUpUser('giwrgws@gmail.com', 'gefgef1414', 'Georgios');
       
@@ -29,11 +34,11 @@ const SaveDataButton: React.FC<SaveDataButtonProps> = ({ transactions, recurring
         title: 'Success',
         description: 'Data saved successfully!',
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving data:', error);
       toast({
         title: 'Error',
-        description: 'Failed to save data. Please try again.',
+        description: error.message || 'Failed to save data. Please try again.',
         variant: 'destructive',
       });
     }
