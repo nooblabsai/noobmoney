@@ -5,6 +5,7 @@ import TransactionHistory from '@/components/TransactionHistory';
 import MonthlyStats from '@/components/MonthlyStats';
 import FinancialAnalysis from '@/components/FinancialAnalysis';
 import LanguageMenu from '@/components/LanguageMenu';
+import SaveDataButton from '@/components/SaveDataButton';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,7 +14,6 @@ import { Trash2, Wallet, PiggyBank, FileDown } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Card } from '@/components/ui/card';
 import { useTransactions } from '@/hooks/useTransactions';
-import { Transaction, RecurringTransaction } from '@/types/transactions';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,6 +26,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { exportToPDF } from '@/utils/pdfExport';
+import { BalanceSection } from '@/components/BalanceSection';
+import { HeaderSection } from '@/components/HeaderSection';
 
 const Index = () => {
   const { t } = useLanguage();
@@ -143,95 +145,47 @@ const Index = () => {
 
   return (
     <div className="container mx-auto py-8 px-4">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-center">{t('financial.runway.calculator')}</h1>
-        <div className="flex items-center gap-4">
-          <Button onClick={handleExportPDF} className="flex items-center gap-2">
-            <FileDown className="h-4 w-4" />
-            Export PDF
-          </Button>
-          <LanguageMenu />
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="destructive" className="flex items-center gap-2">
-                <Trash2 className="h-4 w-4" />
-                {t('reset.data')}
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This will wipe out all data. Proceed?
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>No</AlertDialogCancel>
-                <AlertDialogAction onClick={handleReset}>Yes, proceed</AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
-      </div>
+      <HeaderSection
+        t={t}
+        handleExportPDF={handleExportPDF}
+        handleReset={handleReset}
+      />
 
       <div id="financial-report">
-        <Card className="p-6 mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                <Wallet className="h-6 w-6 text-primary" />
-                <Label htmlFor="bankBalance" className="text-xl font-semibold">{t('current.bank.balance')}</Label>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-4xl font-bold text-primary">€</span>
-                <Input
-                  id="bankBalance"
-                  type="text"
-                  value={bankBalance}
-                  onChange={(e) => setBankBalance(e.target.value)}
-                  className="text-4xl font-bold h-16 max-w-xs"
-                />
-              </div>
-            </div>
-            
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                <PiggyBank className="h-6 w-6 text-red-500" />
-                <Label htmlFor="debtBalance" className="text-xl font-semibold">Current Debt Balance</Label>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-4xl font-bold text-red-500">€</span>
-                <Input
-                  id="debtBalance"
-                  type="text"
-                  value={debtBalance}
-                  onChange={(e) => setDebtBalance(e.target.value)}
-                  className="text-4xl font-bold h-16 max-w-xs"
-                />
-              </div>
-            </div>
-          </div>
-        </Card>
+        <BalanceSection
+          bankBalance={bankBalance}
+          setBankBalance={setBankBalance}
+          debtBalance={debtBalance}
+          setDebtBalance={setDebtBalance}
+          t={t}
+        />
       
-      <TransactionManager
-        onAddTransaction={handleAddTransaction}
-        onAddRecurringTransaction={handleAddRecurringTransaction}
-        onDeleteTransaction={handleDeleteTransaction}
-      />
+        <div className="flex justify-end mb-4">
+          <SaveDataButton
+            transactions={transactions}
+            recurringTransactions={recurringTransactions}
+          />
+        </div>
 
-      <MonthlyStats
-        transactions={transactions}
-        recurringTransactions={recurringTransactions}
-        selectedMonth={selectedMonth}
-        onMonthSelect={setSelectedMonth}
-      />
+        <TransactionManager
+          onAddTransaction={handleAddTransaction}
+          onAddRecurringTransaction={handleAddRecurringTransaction}
+          onDeleteTransaction={handleDeleteTransaction}
+        />
 
-      <TransactionHistory
-        transactions={transactions}
-        recurringTransactions={recurringTransactions}
-        onDeleteTransaction={handleDeleteTransaction}
-        selectedMonth={selectedMonth}
-      />
+        <MonthlyStats
+          transactions={transactions}
+          recurringTransactions={recurringTransactions}
+          selectedMonth={selectedMonth}
+          onMonthSelect={setSelectedMonth}
+        />
+
+        <TransactionHistory
+          transactions={transactions}
+          recurringTransactions={recurringTransactions}
+          onDeleteTransaction={handleDeleteTransaction}
+          selectedMonth={selectedMonth}
+        />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           <RunwayChart 
