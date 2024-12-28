@@ -44,9 +44,16 @@ const Index = () => {
     localStorage.setItem('debtBalance', debtBalance);
   }, [debtBalance]);
 
-  const handleDataLoaded = (loadedTransactions: any[], loadedRecurringTransactions: any[]) => {
+  const handleDataLoaded = (
+    loadedTransactions: any[], 
+    loadedRecurringTransactions: any[],
+    loadedBankBalance: string,
+    loadedDebtBalance: string
+  ) => {
     setTransactions(loadedTransactions);
     setRecurringTransactions(loadedRecurringTransactions);
+    setBankBalance(loadedBankBalance);
+    setDebtBalance(loadedDebtBalance);
     toast({
       title: t('data.loaded'),
       description: t('data.loaded.success'),
@@ -150,6 +157,8 @@ const Index = () => {
           <SaveDataButton
             transactions={transactions}
             recurringTransactions={recurringTransactions}
+            bankBalance={bankBalance}
+            debtBalance={debtBalance}
           />
         </div>
 

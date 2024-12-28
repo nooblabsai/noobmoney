@@ -120,13 +120,32 @@ export const loadTransactions = async (userId: string) => {
     throw recurringError;
   }
 
+  // Load balances
+  const { data: balanceData, error: balanceError } = await supabase
+    .from('user_balances')
+    .select('*')
+    .eq('user_id', userId)
+    .single();
+
+  if (balanceError && balanceError.code !== 'PGRST116') { // Ignore not found error
+    throw balanceError;
+  }
+
   return {
     transactions: transactionsData.map(transformDBToTransaction),
     recurringTransactions: recurringData.map(transformDBToRecurringTransaction),
+    bankBalance: balanceData?.bank_balance || '0',
+    debtBalance: balanceData?.debt_balance || '0',
   };
 };
 
-export const saveTransactions = async (userId: string, transactions: Transaction[], recurringTransactions: RecurringTransaction[]) => {
+export const saveTransactions = async (
+  userId: string, 
+  transactions: Transaction[], 
+  recurringTransactions: RecurringTransaction[],
+  bankBalance: string,
+  debtBalance: string,
+) => {
   console.log('Saving transactions for user:', userId);
   
   // Verify we have an active session
@@ -168,4 +187,20 @@ export const saveTransactions = async (userId: string, transactions: Transaction
     }
     console.log('Recurring transactions saved successfully');
   }
+
+  // Save balances
+  const { error: balanceError } = await supabase
+    .from('user_balances')
+    .upsert({
+      user_id: userId,
+      bank_balance: bankBalance,
+      debt_balance: debtBalance,
+      updated_at: new Date().toISOString(),
+    });
+
+  if (balanceError) {
+    console.error('Error saving balances:', balanceError);
+    throw balanceError;
+  }
+  console.log('Balances saved successfully');
 };

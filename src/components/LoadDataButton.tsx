@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 interface LoadDataButtonProps {
-  onDataLoaded: (transactions: any[], recurringTransactions: any[]) => void;
+  onDataLoaded: (transactions: any[], recurringTransactions: any[], bankBalance: string, debtBalance: string) => void;
 }
 
 const LoadDataButton: React.FC<LoadDataButtonProps> = ({ onDataLoaded }) => {
@@ -37,8 +37,8 @@ const LoadDataButton: React.FC<LoadDataButtonProps> = ({ onDataLoaded }) => {
         throw new Error('Invalid credentials');
       }
 
-      const { transactions, recurringTransactions } = await loadTransactions(user.id);
-      onDataLoaded(transactions, recurringTransactions);
+      const { transactions, recurringTransactions, bankBalance, debtBalance } = await loadTransactions(user.id);
+      onDataLoaded(transactions, recurringTransactions, bankBalance, debtBalance);
 
       toast({
         title: 'Success',
