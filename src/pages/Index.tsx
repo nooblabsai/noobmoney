@@ -4,14 +4,14 @@ import RunwayChart from '@/components/RunwayChart';
 import TransactionHistory from '@/components/TransactionHistory';
 import MonthlyStats from '@/components/MonthlyStats';
 import FinancialAnalysis from '@/components/FinancialAnalysis';
-import LanguageMenu from '@/components/LanguageMenu';
-import SaveDataButton from '@/components/SaveDataButton';
 import LoadDataButton from '@/components/LoadDataButton';
+import SaveDataButton from '@/components/SaveDataButton';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
 import { useTransactions } from '@/hooks/useTransactions';
 import { BalanceSection } from '@/components/BalanceSection';
 import { HeaderSection } from '@/components/HeaderSection';
+import { exportToPDF } from '@/utils/pdfExport';
 
 const Index = () => {
   const { t } = useLanguage();
@@ -50,6 +50,35 @@ const Index = () => {
     toast({
       title: t('data.loaded'),
       description: t('data.loaded.success'),
+    });
+  };
+
+  const handleExportPDF = async () => {
+    const success = await exportToPDF('financial-report');
+    if (success) {
+      toast({
+        title: t('pdf.exported'),
+        description: t('pdf.exported.success'),
+      });
+    } else {
+      toast({
+        title: t('pdf.export.failed'),
+        description: t('pdf.export.failed.description'),
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleReset = () => {
+    setTransactions([]);
+    setRecurringTransactions([]);
+    setBankBalance('0');
+    setDebtBalance('0');
+    localStorage.removeItem('bankBalance');
+    localStorage.removeItem('debtBalance');
+    toast({
+      title: t('data.reset'),
+      description: t('data.reset.success'),
     });
   };
 

@@ -9,7 +9,7 @@ interface StyleModification {
 
 export const exportToPDF = async (elementId: string) => {
   const element = document.getElementById(elementId);
-  if (!element) return;
+  if (!element) return false;
 
   const styleModifications: StyleModification[] = [];
 
@@ -63,7 +63,7 @@ export const exportToPDF = async (elementId: string) => {
       });
     };
 
-    // Restore original styles
+    // Restore original styles function
     const restoreStyles = () => {
       styleModifications.forEach(({ element, originalStyle, originalColor }) => {
         if (originalColor) {
