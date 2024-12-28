@@ -26,6 +26,26 @@ export const signUpUser = async (email: string, password: string, name: string) 
   return data;
 };
 
+const transformTransactionForDB = (transaction: Transaction, userId: string) => ({
+  id: transaction.id,
+  amount: transaction.amount,
+  description: transaction.description,
+  is_income: transaction.isIncome,
+  date: transaction.date,
+  user_id: userId,
+  created_at: new Date().toISOString(),
+});
+
+const transformRecurringTransactionForDB = (transaction: RecurringTransaction, userId: string) => ({
+  id: transaction.id,
+  amount: transaction.amount,
+  description: transaction.description,
+  is_income: transaction.isIncome,
+  start_date: transaction.startDate,
+  user_id: userId,
+  created_at: new Date().toISOString(),
+});
+
 export const saveTransactions = async (userId: string, transactions: Transaction[], recurringTransactions: RecurringTransaction[]) => {
   console.log('Saving transactions for user:', userId);
   console.log('Regular transactions:', transactions);
@@ -33,15 +53,12 @@ export const saveTransactions = async (userId: string, transactions: Transaction
 
   // Save regular transactions
   if (transactions.length > 0) {
+    const transformedTransactions = transactions.map(t => transformTransactionForDB(t, userId));
+    console.log('Transformed transactions:', transformedTransactions);
+
     const { error: transactionError } = await supabase
       .from('transactions')
-      .upsert(
-        transactions.map(t => ({
-          ...t,
-          user_id: userId,
-          created_at: new Date().toISOString(),
-        }))
-      );
+      .upsert(transformedTransactions);
 
     if (transactionError) {
       console.error('Error saving transactions:', transactionError);
@@ -52,15 +69,14 @@ export const saveTransactions = async (userId: string, transactions: Transaction
 
   // Save recurring transactions
   if (recurringTransactions.length > 0) {
+    const transformedRecurringTransactions = recurringTransactions.map(t => 
+      transformRecurringTransactionForDB(t, userId)
+    );
+    console.log('Transformed recurring transactions:', transformedRecurringTransactions);
+
     const { error: recurringError } = await supabase
       .from('recurring_transactions')
-      .upsert(
-        recurringTransactions.map(t => ({
-          ...t,
-          user_id: userId,
-          created_at: new Date().toISOString(),
-        }))
-      );
+      .upsert(transformedRecurringTransactions);
 
     if (recurringError) {
       console.error('Error saving recurring transactions:', recurringError);
