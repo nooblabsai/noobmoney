@@ -8,6 +8,19 @@ export const supabase = createClient(supabaseUrl, supabaseKey);
 
 export const signUpUser = async (email: string, password: string, name: string) => {
   console.log('Attempting to sign up user:', email);
+  
+  // First check if user exists
+  const { data: existingUser } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  if (existingUser.user) {
+    console.log('User already exists, signing in:', existingUser.user);
+    return existingUser;
+  }
+
+  // If user doesn't exist, sign them up
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
@@ -22,7 +35,11 @@ export const signUpUser = async (email: string, password: string, name: string) 
     console.error('Sign up error:', error);
     throw error;
   }
-  console.log('User signed up successfully:', data);
+
+  // Wait for session to be established
+  const { data: session } = await supabase.auth.getSession();
+  console.log('Session established:', session);
+
   return data;
 };
 
@@ -48,8 +65,12 @@ const transformRecurringTransactionForDB = (transaction: RecurringTransaction, u
 
 export const saveTransactions = async (userId: string, transactions: Transaction[], recurringTransactions: RecurringTransaction[]) => {
   console.log('Saving transactions for user:', userId);
-  console.log('Regular transactions:', transactions);
-  console.log('Recurring transactions:', recurringTransactions);
+  
+  // Verify we have an active session
+  const { data: session } = await supabase.auth.getSession();
+  if (!session.session) {
+    throw new Error('No active session. Please sign in again.');
+  }
 
   // Save regular transactions
   if (transactions.length > 0) {
