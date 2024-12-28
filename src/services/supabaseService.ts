@@ -67,21 +67,30 @@ export const signInUser = async (email: string, password: string) => {
 
   // Create initial user data if it doesn't exist
   if (data.user) {
-    const { error: initError } = await supabase
+    const { data: existingData, error: checkError } = await supabase
       .from('user_data')
-      .insert([
-        { 
-          user_id: data.user.id,
-          bank_balance: '0',
-          debt_balance: '0',
-        }
-      ])
-      .select()
+      .select('*')
+      .eq('user_id', data.user.id)
+      .order('created_at', { ascending: false })
+      .limit(1)
       .maybeSingle();
 
-    // Ignore error if it's a duplicate (user data already exists)
-    if (initError && !initError.message.includes('duplicate')) {
-      throw initError;
+    if (!existingData && !checkError) {
+      const { error: initError } = await supabase
+        .from('user_data')
+        .insert([
+          { 
+            user_id: data.user.id,
+            bank_balance: '0',
+            debt_balance: '0',
+          }
+        ])
+        .select()
+        .maybeSingle();
+
+      if (initError && !initError.message.includes('duplicate')) {
+        throw initError;
+      }
     }
   }
 
@@ -149,11 +158,13 @@ export const loadTransactions = async (userId: string) => {
     throw recurringError;
   }
 
-  // Load user data, create if doesn't exist
+  // Load user data, get most recent entry
   const { data: userData, error: userDataError } = await supabase
     .from('user_data')
     .select('*')
     .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(1)
     .maybeSingle();
 
   if (userDataError) {
@@ -237,10 +248,10 @@ export const saveTransactions = async (
     }
   }
 
-  // Update user data, create if doesn't exist
+  // Update user data, always create a new entry to maintain history
   const { error: userDataError } = await supabase
     .from('user_data')
-    .upsert({
+    .insert({
       user_id: userId,
       bank_balance: bankBalance,
       debt_balance: debtBalance,
