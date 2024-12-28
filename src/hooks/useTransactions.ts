@@ -67,5 +67,7 @@ export const useTransactions = () => {
     handleAddTransaction,
     handleAddRecurringTransaction,
     handleDeleteTransaction,
+    setTransactions,
+    setRecurringTransactions,
   };
 };

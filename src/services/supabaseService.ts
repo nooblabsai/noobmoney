@@ -43,6 +43,19 @@ export const signUpUser = async (email: string, password: string, name: string) 
   return data;
 };
 
+export const signInUser = async (email: string, password: string) => {
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+};
+
 const transformTransactionForDB = (transaction: Transaction, userId: string) => ({
   id: transaction.id,
   amount: transaction.amount,
@@ -62,6 +75,56 @@ const transformRecurringTransactionForDB = (transaction: RecurringTransaction, u
   user_id: userId,
   created_at: new Date().toISOString(),
 });
+
+const transformDBToTransaction = (dbTransaction: any): Transaction => ({
+  id: dbTransaction.id,
+  amount: dbTransaction.amount,
+  description: dbTransaction.description,
+  isIncome: dbTransaction.is_income,
+  date: new Date(dbTransaction.date),
+});
+
+const transformDBToRecurringTransaction = (dbTransaction: any): RecurringTransaction => ({
+  id: dbTransaction.id,
+  amount: dbTransaction.amount,
+  description: dbTransaction.description,
+  isIncome: dbTransaction.is_income,
+  date: new Date(dbTransaction.start_date),
+  startDate: new Date(dbTransaction.start_date),
+});
+
+export const loadTransactions = async (userId: string) => {
+  // Verify we have an active session
+  const { data: session } = await supabase.auth.getSession();
+  if (!session.session) {
+    throw new Error('No active session. Please sign in again.');
+  }
+
+  // Load regular transactions
+  const { data: transactionsData, error: transactionsError } = await supabase
+    .from('transactions')
+    .select('*')
+    .eq('user_id', userId);
+
+  if (transactionsError) {
+    throw transactionsError;
+  }
+
+  // Load recurring transactions
+  const { data: recurringData, error: recurringError } = await supabase
+    .from('recurring_transactions')
+    .select('*')
+    .eq('user_id', userId);
+
+  if (recurringError) {
+    throw recurringError;
+  }
+
+  return {
+    transactions: transactionsData.map(transformDBToTransaction),
+    recurringTransactions: recurringData.map(transformDBToRecurringTransaction),
+  };
+};
 
 export const saveTransactions = async (userId: string, transactions: Transaction[], recurringTransactions: RecurringTransaction[]) => {
   console.log('Saving transactions for user:', userId);

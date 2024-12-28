@@ -6,26 +6,10 @@ import MonthlyStats from '@/components/MonthlyStats';
 import FinancialAnalysis from '@/components/FinancialAnalysis';
 import LanguageMenu from '@/components/LanguageMenu';
 import SaveDataButton from '@/components/SaveDataButton';
+import LoadDataButton from '@/components/LoadDataButton';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Trash2, Wallet, PiggyBank, FileDown } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { Card } from '@/components/ui/card';
 import { useTransactions } from '@/hooks/useTransactions';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { exportToPDF } from '@/utils/pdfExport';
 import { BalanceSection } from '@/components/BalanceSection';
 import { HeaderSection } from '@/components/HeaderSection';
 
@@ -48,6 +32,8 @@ const Index = () => {
     handleAddTransaction,
     handleAddRecurringTransaction,
     handleDeleteTransaction,
+    setTransactions,
+    setRecurringTransactions,
   } = useTransactions();
 
   React.useEffect(() => {
@@ -58,43 +44,13 @@ const Index = () => {
     localStorage.setItem('debtBalance', debtBalance);
   }, [debtBalance]);
 
-  const handleReset = () => {
-    localStorage.clear();
-    window.location.reload();
+  const handleDataLoaded = (loadedTransactions: any[], loadedRecurringTransactions: any[]) => {
+    setTransactions(loadedTransactions);
+    setRecurringTransactions(loadedRecurringTransactions);
     toast({
-      title: t('reset.complete'),
-      description: t('data.cleared'),
+      title: t('data.loaded'),
+      description: t('data.loaded.success'),
     });
-  };
-
-  const handleExportPDF = async () => {
-    const element = document.getElementById('financial-report');
-    if (!element) return;
-
-    try {
-      toast({
-        title: "Generating PDF",
-        description: "Please wait while we generate your financial report...",
-      });
-
-      const success = await exportToPDF('financial-report');
-
-      if (success) {
-        toast({
-          title: "Export Complete",
-          description: "Your financial report has been downloaded.",
-        });
-      } else {
-        throw new Error('PDF export failed');
-      }
-    } catch (error) {
-      console.error('PDF export error:', error);
-      toast({
-        title: "Export Failed",
-        description: "Failed to generate PDF. Please try again.",
-        variant: "destructive",
-      });
-    }
   };
 
   const calculateRunway = (includeInitialBalances: boolean) => {
@@ -160,7 +116,8 @@ const Index = () => {
           t={t}
         />
       
-        <div className="flex justify-end mb-4">
+        <div className="flex justify-end gap-4 mb-4">
+          <LoadDataButton onDataLoaded={handleDataLoaded} />
           <SaveDataButton
             transactions={transactions}
             recurringTransactions={recurringTransactions}
