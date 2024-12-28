@@ -36,9 +36,21 @@ export const signUpUser = async (email: string, password: string, name: string) 
     throw error;
   }
 
-  // Wait for session to be established
-  const { data: session } = await supabase.auth.getSession();
-  console.log('Session established:', session);
+  // Create initial user_data entry
+  const { error: profileError } = await supabase
+    .from('user_data')
+    .insert([
+      { 
+        user_id: data.user?.id,
+        bank_balance: '0',
+        debt_balance: '0',
+      }
+    ]);
+
+  if (profileError) {
+    console.error('Error creating user profile:', profileError);
+    throw profileError;
+  }
 
   return data;
 };
@@ -63,7 +75,6 @@ const transformTransactionForDB = (transaction: Transaction, userId: string) => 
   is_income: transaction.isIncome,
   date: transaction.date,
   user_id: userId,
-  created_at: new Date().toISOString(),
 });
 
 const transformRecurringTransactionForDB = (transaction: RecurringTransaction, userId: string) => ({
@@ -73,7 +84,6 @@ const transformRecurringTransactionForDB = (transaction: RecurringTransaction, u
   is_income: transaction.isIncome,
   start_date: transaction.startDate,
   user_id: userId,
-  created_at: new Date().toISOString(),
 });
 
 const transformDBToTransaction = (dbTransaction: any): Transaction => ({
@@ -120,22 +130,23 @@ export const loadTransactions = async (userId: string) => {
     throw recurringError;
   }
 
-  // Load balances
-  const { data: balanceData, error: balanceError } = await supabase
-    .from('user_balances')
+  // Load user data (including balances)
+  const { data: userData, error: userDataError } = await supabase
+    .from('user_data')
     .select('*')
     .eq('user_id', userId)
     .single();
 
-  if (balanceError && balanceError.code !== 'PGRST116') { // Ignore not found error
-    throw balanceError;
+  if (userDataError) {
+    console.error('Error loading user data:', userDataError);
+    throw userDataError;
   }
 
   return {
     transactions: transactionsData.map(transformDBToTransaction),
     recurringTransactions: recurringData.map(transformDBToRecurringTransaction),
-    bankBalance: balanceData?.bank_balance || '0',
-    debtBalance: balanceData?.debt_balance || '0',
+    bankBalance: userData?.bank_balance || '0',
+    debtBalance: userData?.debt_balance || '0',
   };
 };
 
@@ -157,17 +168,16 @@ export const saveTransactions = async (
   // Save regular transactions
   if (transactions.length > 0) {
     const transformedTransactions = transactions.map(t => transformTransactionForDB(t, userId));
-    console.log('Transformed transactions:', transformedTransactions);
-
     const { error: transactionError } = await supabase
       .from('transactions')
-      .upsert(transformedTransactions);
+      .upsert(transformedTransactions, {
+        onConflict: 'id'
+      });
 
     if (transactionError) {
       console.error('Error saving transactions:', transactionError);
       throw transactionError;
     }
-    console.log('Regular transactions saved successfully');
   }
 
   // Save recurring transactions
@@ -175,32 +185,32 @@ export const saveTransactions = async (
     const transformedRecurringTransactions = recurringTransactions.map(t => 
       transformRecurringTransactionForDB(t, userId)
     );
-    console.log('Transformed recurring transactions:', transformedRecurringTransactions);
-
     const { error: recurringError } = await supabase
       .from('recurring_transactions')
-      .upsert(transformedRecurringTransactions);
+      .upsert(transformedRecurringTransactions, {
+        onConflict: 'id'
+      });
 
     if (recurringError) {
       console.error('Error saving recurring transactions:', recurringError);
       throw recurringError;
     }
-    console.log('Recurring transactions saved successfully');
   }
 
-  // Save balances
-  const { error: balanceError } = await supabase
-    .from('user_balances')
+  // Update user data (including balances)
+  const { error: userDataError } = await supabase
+    .from('user_data')
     .upsert({
       user_id: userId,
       bank_balance: bankBalance,
       debt_balance: debtBalance,
       updated_at: new Date().toISOString(),
+    }, {
+      onConflict: 'user_id'
     });
 
-  if (balanceError) {
-    console.error('Error saving balances:', balanceError);
-    throw balanceError;
+  if (userDataError) {
+    console.error('Error saving user data:', userDataError);
+    throw userDataError;
   }
-  console.log('Balances saved successfully');
 };
