@@ -65,6 +65,26 @@ export const signInUser = async (email: string, password: string) => {
     throw error;
   }
 
+  // Create initial user data if it doesn't exist
+  if (data.user) {
+    const { error: initError } = await supabase
+      .from('user_data')
+      .insert([
+        { 
+          user_id: data.user.id,
+          bank_balance: '0',
+          debt_balance: '0',
+        }
+      ])
+      .select()
+      .maybeSingle();
+
+    // Ignore error if it's a duplicate (user data already exists)
+    if (initError && !initError.message.includes('duplicate')) {
+      throw initError;
+    }
+  }
+
   return data;
 };
 
@@ -104,7 +124,6 @@ const transformDBToRecurringTransaction = (dbTransaction: any): RecurringTransac
 });
 
 export const loadTransactions = async (userId: string) => {
-  // Verify we have an active session
   const { data: session } = await supabase.auth.getSession();
   if (!session.session) {
     throw new Error('No active session. Please sign in again.');
@@ -130,23 +149,49 @@ export const loadTransactions = async (userId: string) => {
     throw recurringError;
   }
 
-  // Load user data (including balances)
+  // Load user data, create if doesn't exist
   const { data: userData, error: userDataError } = await supabase
     .from('user_data')
     .select('*')
     .eq('user_id', userId)
-    .single();
+    .maybeSingle();
 
   if (userDataError) {
     console.error('Error loading user data:', userDataError);
     throw userDataError;
   }
 
+  // If no user data exists, create default entry
+  if (!userData) {
+    const { data: newUserData, error: createError } = await supabase
+      .from('user_data')
+      .insert([
+        { 
+          user_id: userId,
+          bank_balance: '0',
+          debt_balance: '0',
+        }
+      ])
+      .select()
+      .single();
+
+    if (createError) {
+      throw createError;
+    }
+
+    return {
+      transactions: transactionsData.map(transformDBToTransaction),
+      recurringTransactions: recurringData.map(transformDBToRecurringTransaction),
+      bankBalance: '0',
+      debtBalance: '0',
+    };
+  }
+
   return {
     transactions: transactionsData.map(transformDBToTransaction),
     recurringTransactions: recurringData.map(transformDBToRecurringTransaction),
-    bankBalance: userData?.bank_balance || '0',
-    debtBalance: userData?.debt_balance || '0',
+    bankBalance: userData.bank_balance,
+    debtBalance: userData.debt_balance,
   };
 };
 
@@ -159,7 +204,6 @@ export const saveTransactions = async (
 ) => {
   console.log('Saving transactions for user:', userId);
   
-  // Verify we have an active session
   const { data: session } = await supabase.auth.getSession();
   if (!session.session) {
     throw new Error('No active session. Please sign in again.');
@@ -170,9 +214,7 @@ export const saveTransactions = async (
     const transformedTransactions = transactions.map(t => transformTransactionForDB(t, userId));
     const { error: transactionError } = await supabase
       .from('transactions')
-      .upsert(transformedTransactions, {
-        onConflict: 'id'
-      });
+      .upsert(transformedTransactions);
 
     if (transactionError) {
       console.error('Error saving transactions:', transactionError);
@@ -187,9 +229,7 @@ export const saveTransactions = async (
     );
     const { error: recurringError } = await supabase
       .from('recurring_transactions')
-      .upsert(transformedRecurringTransactions, {
-        onConflict: 'id'
-      });
+      .upsert(transformedRecurringTransactions);
 
     if (recurringError) {
       console.error('Error saving recurring transactions:', recurringError);
@@ -197,7 +237,7 @@ export const saveTransactions = async (
     }
   }
 
-  // Update user data (including balances)
+  // Update user data, create if doesn't exist
   const { error: userDataError } = await supabase
     .from('user_data')
     .upsert({
@@ -205,9 +245,9 @@ export const saveTransactions = async (
       bank_balance: bankBalance,
       debt_balance: debtBalance,
       updated_at: new Date().toISOString(),
-    }, {
-      onConflict: 'user_id'
-    });
+    })
+    .select()
+    .maybeSingle();
 
   if (userDataError) {
     console.error('Error saving user data:', userDataError);
