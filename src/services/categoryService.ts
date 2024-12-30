@@ -1,137 +1,146 @@
 import { ExpenseCategory } from '@/types/categories';
+import { supabase } from './supabaseService';
 
-const keywordMap: Record<string, ExpenseCategory> = {
-  // Housing related
-  'rent': ExpenseCategory.Housing,
-  'mortgage': ExpenseCategory.Housing,
-  'apartment': ExpenseCategory.Housing,
-  'house': ExpenseCategory.Housing,
-  'maintenance': ExpenseCategory.Housing,
-  'repair': ExpenseCategory.Housing,
-  'ενοίκιο': ExpenseCategory.Housing,
-  'σπίτι': ExpenseCategory.Housing,
-  'διαμέρισμα': ExpenseCategory.Housing,
-  'συντήρηση': ExpenseCategory.Housing,
-  'επισκευή': ExpenseCategory.Housing,
-  
-  // Food related
-  'food': ExpenseCategory.Food,
-  'grocery': ExpenseCategory.Food,
-  'groceries': ExpenseCategory.Food,
-  'restaurant': ExpenseCategory.Food,
-  'dining': ExpenseCategory.Food,
-  'meal': ExpenseCategory.Food,
-  'lunch': ExpenseCategory.Food,
-  'dinner': ExpenseCategory.Food,
-  'φαγητό': ExpenseCategory.Food,
-  'σούπερ μάρκετ': ExpenseCategory.Food,
-  'εστιατόριο': ExpenseCategory.Food,
-  'γεύμα': ExpenseCategory.Food,
-  'μεσημεριανό': ExpenseCategory.Food,
-  'βραδινό': ExpenseCategory.Food,
-  
-  // Transportation
-  'uber': ExpenseCategory.Transportation,
-  'taxi': ExpenseCategory.Transportation,
-  'bus': ExpenseCategory.Transportation,
-  'train': ExpenseCategory.Transportation,
-  'metro': ExpenseCategory.Transportation,
-  'gas': ExpenseCategory.Transportation,
-  'fuel': ExpenseCategory.Transportation,
-  'car': ExpenseCategory.Transportation,
-  'ταξί': ExpenseCategory.Transportation,
-  'λεωφορείο': ExpenseCategory.Transportation,
-  'τρένο': ExpenseCategory.Transportation,
-  'μετρό': ExpenseCategory.Transportation,
-  'βενζίνη': ExpenseCategory.Transportation,
-  'καύσιμα': ExpenseCategory.Transportation,
-  'αυτοκίνητο': ExpenseCategory.Transportation,
-  
-  // Healthcare
-  'doctor': ExpenseCategory.Healthcare,
-  'medical': ExpenseCategory.Healthcare,
-  'pharmacy': ExpenseCategory.Healthcare,
-  'health': ExpenseCategory.Healthcare,
-  'dental': ExpenseCategory.Healthcare,
-  'medicine': ExpenseCategory.Healthcare,
-  'γιατρός': ExpenseCategory.Healthcare,
-  'ιατρικά': ExpenseCategory.Healthcare,
-  'φαρμακείο': ExpenseCategory.Healthcare,
-  'υγεία': ExpenseCategory.Healthcare,
-  'οδοντίατρος': ExpenseCategory.Healthcare,
-  'φάρμακα': ExpenseCategory.Healthcare,
-  
-  // Entertainment
-  'movie': ExpenseCategory.Entertainment,
-  'netflix': ExpenseCategory.Entertainment,
-  'spotify': ExpenseCategory.Entertainment,
-  'hbo': ExpenseCategory.Entertainment,
-  'disney': ExpenseCategory.Entertainment,
-  'cinema': ExpenseCategory.Entertainment,
-  'game': ExpenseCategory.Entertainment,
-  'subscription': ExpenseCategory.Entertainment,
-  'ταινία': ExpenseCategory.Entertainment,
-  'σινεμά': ExpenseCategory.Entertainment,
-  'παιχνίδι': ExpenseCategory.Entertainment,
-  'συνδρομή': ExpenseCategory.Entertainment,
-  
-  // Shopping
-  'clothes': ExpenseCategory.Shopping,
-  'amazon': ExpenseCategory.Shopping,
-  'shopping': ExpenseCategory.Shopping,
-  'store': ExpenseCategory.Shopping,
-  'mall': ExpenseCategory.Shopping,
-  'ρούχα': ExpenseCategory.Shopping,
-  'αγορές': ExpenseCategory.Shopping,
-  'κατάστημα': ExpenseCategory.Shopping,
-  'εμπορικό': ExpenseCategory.Shopping,
-  
-  // Utilities
-  'electric': ExpenseCategory.Utilities,
-  'water': ExpenseCategory.Utilities,
-  'internet': ExpenseCategory.Utilities,
-  'phone': ExpenseCategory.Utilities,
-  'wifi': ExpenseCategory.Utilities,
-  'bill': ExpenseCategory.Utilities,
-  'utility': ExpenseCategory.Utilities,
-  'ρεύμα': ExpenseCategory.Utilities,
-  'νερό': ExpenseCategory.Utilities,
-  'τηλέφωνο': ExpenseCategory.Utilities,
-  'λογαριασμός': ExpenseCategory.Utilities,
-  
-  // Education
-  'school': ExpenseCategory.Education,
-  'course': ExpenseCategory.Education,
-  'books': ExpenseCategory.Education,
-  'tuition': ExpenseCategory.Education,
-  'class': ExpenseCategory.Education,
-  'education': ExpenseCategory.Education,
-  'training': ExpenseCategory.Education,
-  'σχολείο': ExpenseCategory.Education,
-  'μάθημα': ExpenseCategory.Education,
-  'βιβλία': ExpenseCategory.Education,
-  'δίδακτρα': ExpenseCategory.Education,
-  'εκπαίδευση': ExpenseCategory.Education,
-  
-  // Travel
-  'flight': ExpenseCategory.Travel,
-  'hotel': ExpenseCategory.Travel,
-  'vacation': ExpenseCategory.Travel,
-  'airbnb': ExpenseCategory.Travel,
-  'trip': ExpenseCategory.Travel,
-  'travel': ExpenseCategory.Travel,
-  'πτήση': ExpenseCategory.Travel,
-  'ξενοδοχείο': ExpenseCategory.Travel,
-  'διακοπές': ExpenseCategory.Travel,
-  'ταξίδι': ExpenseCategory.Travel,
+const getStoredApiKey = async () => {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return null;
+
+    const { data, error } = await supabase
+      .from('user_settings')
+      .select('openai_api_key')
+      .eq('user_id', session.user.id)
+      .single();
+
+    if (error) throw error;
+    return data?.openai_api_key;
+  } catch (error) {
+    console.error('Error fetching API key:', error);
+    return null;
+  }
 };
 
 export const autoTagExpense = async (description: string): Promise<ExpenseCategory> => {
+  try {
+    const apiKey = await getStoredApiKey();
+    
+    if (!apiKey) {
+      console.log('No OpenAI API key found, using fallback categorization');
+      return fallbackCategorization(description);
+    }
+
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-4',
+        messages: [
+          {
+            role: 'system',
+            content: `You are a financial categorization assistant. Categorize the expense into exactly one of these categories: ${Object.values(ExpenseCategory).join(', ')}. Respond with only the category name in lowercase.`
+          },
+          {
+            role: 'user',
+            content: `Categorize this expense: "${description}"`
+          }
+        ],
+        temperature: 0.3,
+        max_tokens: 50,
+      }),
+    });
+
+    if (!response.ok) {
+      console.log('OpenAI API error, using fallback categorization');
+      return fallbackCategorization(description);
+    }
+
+    const data = await response.json();
+    const suggestedCategory = data.choices[0].message.content.toLowerCase().trim();
+    
+    if (Object.values(ExpenseCategory).includes(suggestedCategory as ExpenseCategory)) {
+      console.log(`OpenAI categorized "${description}" as ${suggestedCategory}`);
+      return suggestedCategory as ExpenseCategory;
+    }
+
+    console.log('Invalid category from OpenAI, using fallback categorization');
+    return fallbackCategorization(description);
+  } catch (error) {
+    console.error('Error in OpenAI categorization:', error);
+    return fallbackCategorization(description);
+  }
+};
+
+const fallbackCategorization = (description: string): ExpenseCategory => {
   const lowerDesc = description.toLowerCase();
   
+  const keywordMap: Record<string, ExpenseCategory> = {
+    // Housing related
+    'rent': ExpenseCategory.Housing,
+    'mortgage': ExpenseCategory.Housing,
+    'apartment': ExpenseCategory.Housing,
+    'house': ExpenseCategory.Housing,
+    'maintenance': ExpenseCategory.Housing,
+    'repair': ExpenseCategory.Housing,
+    
+    // Food related
+    'food': ExpenseCategory.Food,
+    'grocery': ExpenseCategory.Food,
+    'restaurant': ExpenseCategory.Food,
+    'dining': ExpenseCategory.Food,
+    'meal': ExpenseCategory.Food,
+    
+    // Transportation
+    'uber': ExpenseCategory.Transportation,
+    'taxi': ExpenseCategory.Transportation,
+    'bus': ExpenseCategory.Transportation,
+    'train': ExpenseCategory.Transportation,
+    'gas': ExpenseCategory.Transportation,
+    'fuel': ExpenseCategory.Transportation,
+    
+    // Healthcare
+    'doctor': ExpenseCategory.Healthcare,
+    'medical': ExpenseCategory.Healthcare,
+    'pharmacy': ExpenseCategory.Healthcare,
+    'health': ExpenseCategory.Healthcare,
+    'dental': ExpenseCategory.Healthcare,
+    
+    // Entertainment
+    'movie': ExpenseCategory.Entertainment,
+    'netflix': ExpenseCategory.Entertainment,
+    'spotify': ExpenseCategory.Entertainment,
+    'game': ExpenseCategory.Entertainment,
+    
+    // Shopping
+    'clothes': ExpenseCategory.Shopping,
+    'amazon': ExpenseCategory.Shopping,
+    'shopping': ExpenseCategory.Shopping,
+    'store': ExpenseCategory.Shopping,
+    
+    // Utilities
+    'electric': ExpenseCategory.Utilities,
+    'water': ExpenseCategory.Utilities,
+    'internet': ExpenseCategory.Utilities,
+    'phone': ExpenseCategory.Utilities,
+    
+    // Education
+    'school': ExpenseCategory.Education,
+    'course': ExpenseCategory.Education,
+    'books': ExpenseCategory.Education,
+    'tuition': ExpenseCategory.Education,
+    
+    // Travel
+    'flight': ExpenseCategory.Travel,
+    'hotel': ExpenseCategory.Travel,
+    'vacation': ExpenseCategory.Travel,
+    'trip': ExpenseCategory.Travel,
+  };
+
   for (const [keyword, category] of Object.entries(keywordMap)) {
     if (lowerDesc.includes(keyword)) {
-      console.log(`Categorized "${description}" as ${category} based on keyword "${keyword}"`);
+      console.log(`Fallback categorized "${description}" as ${category} based on keyword "${keyword}"`);
       return category;
     }
   }
