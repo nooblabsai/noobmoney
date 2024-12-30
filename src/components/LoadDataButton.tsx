@@ -41,10 +41,10 @@ const LoadDataButton: React.FC<LoadDataButtonProps> = ({ onDataLoaded }) => {
         description: 'Please wait while we load your data...',
       });
 
-      const { user, error: signInError } = await signInUser(email, password);
+      const { user, session } = await signInUser(email, password);
       
-      if (signInError || !user) {
-        throw new Error(signInError?.message || 'Invalid credentials');
+      if (!user || !session) {
+        throw new Error('Invalid credentials');
       }
 
       const { transactions, recurringTransactions, bankBalance, debtBalance } = await loadTransactions(user.id);
