@@ -1,10 +1,48 @@
 import { ExpenseCategory } from '@/types/categories';
 import { supabase } from './supabaseService';
 
+// Simple keyword-based categorization as fallback
+const categorizeByKeywords = (description: string): ExpenseCategory => {
+  const lowerDesc = description.toLowerCase();
+  
+  if (lowerDesc.includes('rent') || lowerDesc.includes('mortgage') || lowerDesc.includes('house')) {
+    return ExpenseCategory.Housing;
+  }
+  if (lowerDesc.includes('food') || lowerDesc.includes('grocery') || lowerDesc.includes('restaurant')) {
+    return ExpenseCategory.Food;
+  }
+  if (lowerDesc.includes('bus') || lowerDesc.includes('train') || lowerDesc.includes('taxi') || lowerDesc.includes('uber')) {
+    return ExpenseCategory.Transportation;
+  }
+  if (lowerDesc.includes('doctor') || lowerDesc.includes('medicine') || lowerDesc.includes('hospital')) {
+    return ExpenseCategory.Healthcare;
+  }
+  if (lowerDesc.includes('movie') || lowerDesc.includes('netflix') || lowerDesc.includes('spotify')) {
+    return ExpenseCategory.Entertainment;
+  }
+  if (lowerDesc.includes('clothes') || lowerDesc.includes('shoes') || lowerDesc.includes('amazon')) {
+    return ExpenseCategory.Shopping;
+  }
+  if (lowerDesc.includes('electric') || lowerDesc.includes('water') || lowerDesc.includes('gas') || lowerDesc.includes('internet')) {
+    return ExpenseCategory.Utilities;
+  }
+  if (lowerDesc.includes('school') || lowerDesc.includes('course') || lowerDesc.includes('book')) {
+    return ExpenseCategory.Education;
+  }
+  if (lowerDesc.includes('flight') || lowerDesc.includes('hotel') || lowerDesc.includes('vacation')) {
+    return ExpenseCategory.Travel;
+  }
+  
+  return ExpenseCategory.Other;
+};
+
 export const autoTagExpense = async (description: string): Promise<ExpenseCategory> => {
   try {
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session) throw new Error('No active session');
+    if (!session) {
+      console.log('No active session, using keyword-based categorization');
+      return categorizeByKeywords(description);
+    }
 
     const { data: settings } = await supabase
       .from('user_settings')
@@ -13,7 +51,8 @@ export const autoTagExpense = async (description: string): Promise<ExpenseCatego
       .single();
 
     if (!settings?.openai_api_key) {
-      return ExpenseCategory.Other;
+      console.log('No OpenAI API key found, using keyword-based categorization');
+      return categorizeByKeywords(description);
     }
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -40,8 +79,8 @@ export const autoTagExpense = async (description: string): Promise<ExpenseCatego
     });
 
     if (!response.ok) {
-      console.error('Failed to auto-tag expense');
-      return ExpenseCategory.Other;
+      console.error('Failed to auto-tag expense, using keyword-based categorization');
+      return categorizeByKeywords(description);
     }
 
     const data = await response.json();
@@ -49,9 +88,9 @@ export const autoTagExpense = async (description: string): Promise<ExpenseCatego
     
     return Object.values(ExpenseCategory).includes(suggestedCategory as ExpenseCategory)
       ? suggestedCategory as ExpenseCategory
-      : ExpenseCategory.Other;
+      : categorizeByKeywords(description);
   } catch (error) {
     console.error('Error auto-tagging expense:', error);
-    return ExpenseCategory.Other;
+    return categorizeByKeywords(description);
   }
 };
