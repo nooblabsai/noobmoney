@@ -6,6 +6,7 @@ import { signUpUser, signInUser, saveTransactions } from '@/services/supabaseSer
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -36,22 +37,39 @@ const SaveDataButton: React.FC<SaveDataButtonProps> = ({
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      if (!email || !password || (isSignUp && !name)) {
+        toast({
+          title: 'Error',
+          description: 'Please fill in all required fields',
+          variant: 'destructive',
+        });
+        return;
+      }
+
       toast({
         title: 'Saving Data',
         description: 'Please wait while we save your data...',
       });
 
       let user;
-      if (isSignUp) {
-        const result = await signUpUser(email, password, name);
-        user = result.user;
-      } else {
-        const result = await signInUser(email, password);
-        user = result.user;
-      }
-      
-      if (!user) {
-        throw new Error('Failed to authenticate');
+      try {
+        if (isSignUp) {
+          const result = await signUpUser(email, password, name);
+          user = result.user;
+          if (!user) throw new Error('Failed to create account');
+        } else {
+          const result = await signInUser(email, password);
+          user = result.user;
+          if (!user) throw new Error('Invalid credentials');
+        }
+      } catch (authError: any) {
+        if (authError.message === 'User already registered') {
+          throw new Error('An account with this email already exists. Please sign in instead.');
+        }
+        if (authError.message === 'Invalid login credentials') {
+          throw new Error('Invalid email or password. Please try again.');
+        }
+        throw authError;
       }
 
       // Save the transactions along with balances
@@ -83,6 +101,12 @@ const SaveDataButton: React.FC<SaveDataButtonProps> = ({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{isSignUp ? 'Create Account' : 'Sign In'}</DialogTitle>
+          <DialogDescription>
+            {isSignUp 
+              ? 'Create an account to save your data'
+              : 'Sign in to save your data to your account'
+            }
+          </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSave} className="space-y-4">
           {isSignUp && (
@@ -93,6 +117,7 @@ const SaveDataButton: React.FC<SaveDataButtonProps> = ({
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Enter your name"
+                required={isSignUp}
               />
             </div>
           )}
@@ -104,6 +129,7 @@ const SaveDataButton: React.FC<SaveDataButtonProps> = ({
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
+              required
             />
           </div>
           <div className="space-y-2">
@@ -114,6 +140,7 @@ const SaveDataButton: React.FC<SaveDataButtonProps> = ({
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
+              required
             />
           </div>
           <Button type="submit" className="w-full">
