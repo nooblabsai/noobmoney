@@ -16,9 +16,8 @@ interface TransactionHistoryProps {
   selectedMonth: string;
 }
 
-interface CombinedTransaction extends Omit<Transaction, 'category'> {
+interface CombinedTransaction extends Transaction {
   isRecurring: boolean;
-  category?: ExpenseCategory;
 }
 
 const TransactionHistory: React.FC<TransactionHistoryProps> = ({
@@ -89,7 +88,7 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
           allTransactions.map((transaction) => (
             <div
               key={transaction.id}
-              className="flex items-center justify-between p-3 mb-2 bg-gray-50 rounded-lg"
+              className="flex items-center justify-between p-3 mb-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
             >
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2">
@@ -104,7 +103,7 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
                 </div>
                 <div>
                   <p className="font-medium">{transaction.description}</p>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 mt-1">
                     <p className="text-sm text-gray-500">
                       {transaction.isRecurring ? t('recurring.from') : ''} {formatDate(transaction.date)}
                     </p>
