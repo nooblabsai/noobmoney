@@ -41,6 +41,7 @@ const TransactionManager: React.FC<TransactionManagerProps> = ({
     const newTransaction: RecurringTransaction = {
       ...transaction,
       id: Math.random().toString(),
+      date: transaction.startDate, // Set the date to match the startDate for recurring transactions
     };
     onAddRecurringTransaction(newTransaction);
     
