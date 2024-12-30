@@ -25,7 +25,9 @@ export const BalanceSection: React.FC<BalanceSectionProps> = ({
         <div>
           <div className="flex items-center gap-3 mb-4">
             <Wallet className="h-6 w-6 text-primary" />
-            <Label htmlFor="bankBalance" className="text-xl font-semibold">{t('current.bank.balance')}</Label>
+            <Label htmlFor="bankBalance" className="text-xl font-semibold">
+              {t('current.bank.balance')}
+            </Label>
           </div>
           <div className="flex items-center gap-2">
             <span className="text-4xl font-bold text-primary">€</span>
@@ -42,7 +44,9 @@ export const BalanceSection: React.FC<BalanceSectionProps> = ({
         <div>
           <div className="flex items-center gap-3 mb-4">
             <PiggyBank className="h-6 w-6 text-red-500" />
-            <Label htmlFor="debtBalance" className="text-xl font-semibold">Current Debt Balance</Label>
+            <Label htmlFor="debtBalance" className="text-xl font-semibold">
+              {t('current.debt.balance')}
+            </Label>
           </div>
           <div className="flex items-center gap-2">
             <span className="text-4xl font-bold text-red-500">€</span>
