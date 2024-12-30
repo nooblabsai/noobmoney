@@ -37,7 +37,7 @@ const TransactionManager: React.FC<TransactionManagerProps> = ({
     });
   };
 
-  const handleAddRecurringTransaction = (transaction: Omit<RecurringTransaction, 'id'>) => {
+  const handleAddRecurringTransaction = (transaction: Omit<RecurringTransaction, 'id' | 'date'>) => {
     const newTransaction: RecurringTransaction = {
       ...transaction,
       id: Math.random().toString(),

@@ -12,11 +12,12 @@ interface RecurringTransaction {
   description: string;
   isIncome: boolean;
   startDate: Date;
+  date: Date;  // Added this to match the type
   category?: ExpenseCategory;
 }
 
 interface RecurringTransactionsProps {
-  onAdd: (transaction: Omit<RecurringTransaction, 'id'>) => void;
+  onAdd: (transaction: Omit<RecurringTransaction, 'id' | 'date'>) => void;  // Updated type
   transactions: RecurringTransaction[];
   onDelete: (id: string, isRecurring: boolean) => void;
 }
