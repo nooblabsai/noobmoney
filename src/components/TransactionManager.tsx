@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { Transaction, RecurringTransaction } from '@/types/transactions';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { ExpenseCategory } from '@/types/categories';
 import ExpenseForm from './ExpenseForm';
 import RecurringTransactions from './RecurringTransactions';
+import FirstTimeUserDialog from './FirstTimeUserDialog';
+import OpenAIKeyButton from './OpenAIKeyButton';
 
 interface TransactionManagerProps {
   onAddTransaction: (transaction: Transaction) => void;
@@ -19,6 +21,7 @@ const TransactionManager: React.FC<TransactionManagerProps> = ({
 }) => {
   const { t } = useLanguage();
   const { toast } = useToast();
+  const [showFirstTimeDialog, setShowFirstTimeDialog] = useState(!localStorage.getItem('hasCompletedOnboarding'));
 
   const handleAddTransaction = (amount: number, description: string, isIncome: boolean, date: Date, category?: ExpenseCategory) => {
     const newTransaction: Transaction = {
@@ -41,7 +44,7 @@ const TransactionManager: React.FC<TransactionManagerProps> = ({
     const newTransaction: RecurringTransaction = {
       ...transaction,
       id: Math.random().toString(),
-      date: transaction.startDate, // Set the date to match the startDate for recurring transactions
+      date: transaction.startDate,
     };
     onAddRecurringTransaction(newTransaction);
     
@@ -51,20 +54,36 @@ const TransactionManager: React.FC<TransactionManagerProps> = ({
     });
   };
 
+  const handleFirstTimeComplete = () => {
+    localStorage.setItem('hasCompletedOnboarding', 'true');
+    setShowFirstTimeDialog(false);
+  };
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-      <div>
-        <h2 className="text-xl font-semibold mb-4">{t('add.transaction')}</h2>
-        <ExpenseForm onSubmit={handleAddTransaction} />
+    <>
+      <FirstTimeUserDialog
+        isOpen={showFirstTimeDialog}
+        onClose={() => setShowFirstTimeDialog(false)}
+        onComplete={handleFirstTimeComplete}
+      />
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold">{t('add.transaction')}</h2>
+            <OpenAIKeyButton />
+          </div>
+          <ExpenseForm onSubmit={handleAddTransaction} />
+        </div>
+        <div>
+          <RecurringTransactions
+            onAdd={handleAddRecurringTransaction}
+            transactions={[]}
+            onDelete={onDeleteTransaction}
+          />
+        </div>
       </div>
-      <div>
-        <RecurringTransactions
-          onAdd={handleAddRecurringTransaction}
-          transactions={[]}
-          onDelete={onDeleteTransaction}
-        />
-      </div>
-    </div>
+    </>
   );
 };
 
