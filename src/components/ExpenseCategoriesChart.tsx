@@ -4,18 +4,28 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recha
 import { ExpenseCategory, getCategoryColor } from '@/types/categories';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Transaction } from '@/types/transactions';
+import { isSameMonth, addMonths } from 'date-fns';
 
 interface ExpenseCategoriesChartProps {
   transactions: Transaction[];
+  selectedMonth?: string;
 }
 
-const ExpenseCategoriesChart: React.FC<ExpenseCategoriesChartProps> = ({ transactions }) => {
+const ExpenseCategoriesChart: React.FC<ExpenseCategoriesChartProps> = ({ 
+  transactions,
+  selectedMonth = '0'
+}) => {
   const { t } = useLanguage();
 
   const expensesByCategory = React.useMemo(() => {
+    const selectedDate = addMonths(new Date(), parseInt(selectedMonth));
+    const filteredTransactions = selectedMonth 
+      ? transactions.filter(t => isSameMonth(new Date(t.date), selectedDate))
+      : transactions;
+
     const categories = Object.values(ExpenseCategory);
     const expenses = categories.map(category => {
-      const total = transactions
+      const total = filteredTransactions
         .filter(t => !t.isIncome && t.category === category)
         .reduce((sum, t) => sum + t.amount, 0);
       
@@ -29,7 +39,7 @@ const ExpenseCategoriesChart: React.FC<ExpenseCategoriesChartProps> = ({ transac
 
     console.log('Expenses by category:', expenses);
     return expenses;
-  }, [transactions, t]);
+  }, [transactions, selectedMonth, t]);
 
   if (expensesByCategory.length === 0) {
     return (
