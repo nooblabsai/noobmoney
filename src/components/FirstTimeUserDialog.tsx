@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { signUpUser } from '@/services/supabaseService';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { supabase } from '@/lib/supabaseClient'; // Add this import
 
 interface FirstTimeUserDialogProps {
   isOpen: boolean;
@@ -30,7 +31,7 @@ const FirstTimeUserDialog: React.FC<FirstTimeUserDialogProps> = ({ isOpen, onClo
       if (!name || !email || !password || !openaiKey) {
         toast({
           title: t('error'),
-          description: t('fill.all.fields'),
+          description: t('fill_all_fields'),
           variant: 'destructive',
         });
         return;
@@ -53,7 +54,7 @@ const FirstTimeUserDialog: React.FC<FirstTimeUserDialogProps> = ({ isOpen, onClo
 
       toast({
         title: t('success'),
-        description: t('account.created'),
+        description: t('account_created'),
       });
       
       onComplete();
@@ -61,7 +62,7 @@ const FirstTimeUserDialog: React.FC<FirstTimeUserDialogProps> = ({ isOpen, onClo
       console.error('Error creating account:', error);
       toast({
         title: t('error'),
-        description: error.message || t('account.creation.failed'),
+        description: error.message || t('account_creation_failed'),
         variant: 'destructive',
       });
     } finally {
@@ -75,7 +76,7 @@ const FirstTimeUserDialog: React.FC<FirstTimeUserDialogProps> = ({ isOpen, onClo
         <DialogHeader>
           <DialogTitle>{t('welcome')}</DialogTitle>
           <DialogDescription>
-            {t('first.time.setup')}
+            {t('first_time_setup')}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -85,7 +86,7 @@ const FirstTimeUserDialog: React.FC<FirstTimeUserDialogProps> = ({ isOpen, onClo
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder={t('enter.name')}
+              placeholder={t('enter_name')}
               disabled={isLoading}
               required
             />
@@ -97,7 +98,7 @@ const FirstTimeUserDialog: React.FC<FirstTimeUserDialogProps> = ({ isOpen, onClo
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder={t('enter.email')}
+              placeholder={t('enter_email')}
               disabled={isLoading}
               required
             />
@@ -109,25 +110,25 @@ const FirstTimeUserDialog: React.FC<FirstTimeUserDialogProps> = ({ isOpen, onClo
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder={t('enter.password')}
+              placeholder={t('enter_password')}
               disabled={isLoading}
               required
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="openai-key">{t('openai.key')}</Label>
+            <Label htmlFor="openai-key">{t('openai_key')}</Label>
             <Input
               id="openai-key"
               type="password"
               value={openaiKey}
               onChange={(e) => setOpenaiKey(e.target.value)}
-              placeholder={t('enter.openai.key')}
+              placeholder={t('enter_openai_key')}
               disabled={isLoading}
               required
             />
           </div>
           <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? t('creating.account') : t('create.account')}
+            {isLoading ? t('creating_account') : t('create_account')}
           </Button>
         </form>
       </DialogContent>
