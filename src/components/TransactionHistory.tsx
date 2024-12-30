@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card } from '@/components/ui/card';
 import { ArrowUpCircle, ArrowDownCircle, Repeat, Trash2, Tag } from 'lucide-react';
@@ -7,6 +7,8 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Transaction, RecurringTransaction } from '@/types/transactions';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useTransactions } from '@/hooks/useTransactions';
+import { updateTransactionCategories } from '@/services/supabaseService';
 
 interface TransactionHistoryProps {
   transactions: Transaction[];
@@ -50,6 +52,16 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
       isRecurring: true 
     }))
   ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+  useEffect(() => {
+    const updateCategories = async () => {
+      const session = await supabase.auth.getSession();
+      if (session?.user?.id) {
+        await updateTransactionCategories(session.user.id);
+      }
+    };
+    updateCategories();
+  }, []);
 
   return (
     <Card className="p-6 mb-8">

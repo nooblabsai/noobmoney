@@ -1,101 +1,11 @@
 import { createClient } from '@supabase/supabase-js';
 import { Transaction, RecurringTransaction } from '@/types/transactions';
+import { autoTagExpense } from '@/services/categoryService';
 
 const supabaseUrl = 'https://lwdnnudfamnwhgkliors.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx3ZG5udWRmYW1ud2hna2xpb3JzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzUzNzgyODgsImV4cCI6MjA1MDk1NDI4OH0.v_3j4EViANIti2x7atSaUrhp5e7BcfLEmCuq8UO9Ep0';
 
 export const supabase = createClient(supabaseUrl, supabaseKey);
-
-export const signUpUser = async (email: string, password: string, name: string) => {
-  console.log('Attempting to sign up user:', email);
-  
-  // First check if user exists
-  const { data: existingUser } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
-
-  if (existingUser.user) {
-    console.log('User already exists, signing in:', existingUser.user);
-    return existingUser;
-  }
-
-  // If user doesn't exist, sign them up
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: {
-        name,
-      },
-    },
-  });
-  
-  if (error) {
-    console.error('Sign up error:', error);
-    throw error;
-  }
-
-  // Create initial user_data entry
-  const { error: profileError } = await supabase
-    .from('user_data')
-    .insert([
-      { 
-        user_id: data.user?.id,
-        bank_balance: '0',
-        debt_balance: '0',
-      }
-    ]);
-
-  if (profileError) {
-    console.error('Error creating user profile:', profileError);
-    throw profileError;
-  }
-
-  return data;
-};
-
-export const signInUser = async (email: string, password: string) => {
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
-
-  if (error) {
-    throw error;
-  }
-
-  // Create initial user data if it doesn't exist
-  if (data.user) {
-    const { data: existingData, error: checkError } = await supabase
-      .from('user_data')
-      .select('*')
-      .eq('user_id', data.user.id)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    if (!existingData && !checkError) {
-      const { error: initError } = await supabase
-        .from('user_data')
-        .insert([
-          { 
-            user_id: data.user.id,
-            bank_balance: '0',
-            debt_balance: '0',
-          }
-        ])
-        .select()
-        .maybeSingle();
-
-      if (initError && !initError.message.includes('duplicate')) {
-        throw initError;
-      }
-    }
-  }
-
-  return data;
-};
 
 const transformTransactionForDB = (transaction: Transaction, userId: string) => ({
   id: transaction.id,
@@ -103,6 +13,7 @@ const transformTransactionForDB = (transaction: Transaction, userId: string) => 
   description: transaction.description,
   is_income: transaction.isIncome,
   date: transaction.date,
+  category: transaction.category,
   user_id: userId,
 });
 
@@ -121,6 +32,7 @@ const transformDBToTransaction = (dbTransaction: any): Transaction => ({
   description: dbTransaction.description,
   isIncome: dbTransaction.is_income,
   date: new Date(dbTransaction.date),
+  category: dbTransaction.category,
 });
 
 const transformDBToRecurringTransaction = (dbTransaction: any): RecurringTransaction => ({
@@ -138,7 +50,6 @@ export const loadTransactions = async (userId: string) => {
     throw new Error('No active session. Please sign in again.');
   }
 
-  // Load regular transactions
   const { data: transactionsData, error: transactionsError } = await supabase
     .from('transactions')
     .select('*')
@@ -148,7 +59,6 @@ export const loadTransactions = async (userId: string) => {
     throw transactionsError;
   }
 
-  // Load recurring transactions
   const { data: recurringData, error: recurringError } = await supabase
     .from('recurring_transactions')
     .select('*')
@@ -158,7 +68,6 @@ export const loadTransactions = async (userId: string) => {
     throw recurringError;
   }
 
-  // Load user data, get most recent entry
   const { data: userData, error: userDataError } = await supabase
     .from('user_data')
     .select('*')
@@ -172,7 +81,6 @@ export const loadTransactions = async (userId: string) => {
     throw userDataError;
   }
 
-  // If no user data exists, create default entry
   if (!userData) {
     const { data: newUserData, error: createError } = await supabase
       .from('user_data')
@@ -220,7 +128,6 @@ export const saveTransactions = async (
     throw new Error('No active session. Please sign in again.');
   }
 
-  // Save regular transactions
   if (transactions.length > 0) {
     const transformedTransactions = transactions.map(t => transformTransactionForDB(t, userId));
     const { error: transactionError } = await supabase
@@ -233,7 +140,6 @@ export const saveTransactions = async (
     }
   }
 
-  // Save recurring transactions
   if (recurringTransactions.length > 0) {
     const transformedRecurringTransactions = recurringTransactions.map(t => 
       transformRecurringTransactionForDB(t, userId)
@@ -248,7 +154,6 @@ export const saveTransactions = async (
     }
   }
 
-  // Update user data, always create a new entry to maintain history
   const { error: userDataError } = await supabase
     .from('user_data')
     .insert({
@@ -263,5 +168,41 @@ export const saveTransactions = async (
   if (userDataError) {
     console.error('Error saving user data:', userDataError);
     throw userDataError;
+  }
+};
+
+export const updateTransactionCategories = async (userId: string) => {
+  const { data: session } = await supabase.auth.getSession();
+  if (!session.session) {
+    throw new Error('No active session');
+  }
+
+  const { data: transactions, error: fetchError } = await supabase
+    .from('transactions')
+    .select('*')
+    .eq('user_id', userId)
+    .is('category', null);
+
+  if (fetchError) throw fetchError;
+
+  if (transactions && transactions.length > 0) {
+    const updatedTransactions = await Promise.all(
+      transactions.map(async (transaction) => {
+        if (!transaction.is_income) {
+          const category = await autoTagExpense(transaction.description);
+          return {
+            ...transaction,
+            category,
+          };
+        }
+        return transaction;
+      })
+    );
+
+    const { error: updateError } = await supabase
+      .from('transactions')
+      .upsert(updatedTransactions);
+
+    if (updateError) throw updateError;
   }
 };
