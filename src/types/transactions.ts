@@ -1,4 +1,5 @@
 import { ExpenseCategory } from './categories';
+import { IncomeCategory } from './incomeCategories';
 
 export interface Transaction {
   id: string;
@@ -6,7 +7,7 @@ export interface Transaction {
   description: string;
   isIncome: boolean;
   date: Date;
-  category?: ExpenseCategory;
+  category?: ExpenseCategory | IncomeCategory;
 }
 
 export interface RecurringTransaction extends Transaction {

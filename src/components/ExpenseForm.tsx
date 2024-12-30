@@ -11,11 +11,13 @@ import { cn } from "@/lib/utils";
 import { CalendarIcon } from "lucide-react";
 import { useLanguage } from '@/contexts/LanguageContext';
 import { autoTagExpense } from '@/services/categoryService';
+import { autoTagIncome } from '@/services/incomeCategoryService';
 import { ExpenseCategory } from '@/types/categories';
+import { IncomeCategory } from '@/types/incomeCategories';
 import { useToast } from '@/hooks/use-toast';
 
 interface ExpenseFormProps {
-  onSubmit: (amount: number, description: string, isIncome: boolean, date: Date, category?: ExpenseCategory) => void;
+  onSubmit: (amount: number, description: string, isIncome: boolean, date: Date, category?: ExpenseCategory | IncomeCategory) => void;
 }
 
 const ExpenseForm: React.FC<ExpenseFormProps> = ({ onSubmit }) => {
@@ -33,15 +35,20 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ onSubmit }) => {
     
     setIsSubmitting(true);
     try {
-      let category: ExpenseCategory | undefined;
-      if (!isIncome) {
+      let category: ExpenseCategory | IncomeCategory | undefined;
+      
+      if (isIncome) {
+        category = await autoTagIncome(description);
+      } else {
         category = await autoTagExpense(description);
-        console.log('Category assigned:', category);
-        toast({
-          title: t('expense.categorized'),
-          description: `${t('category')}: ${t(category)}`,
-        });
       }
+      
+      console.log('Category assigned:', category);
+      toast({
+        title: isIncome ? t('income.categorized') : t('expense.categorized'),
+        description: `${t('category')}: ${t(category)}`,
+      });
+      
       onSubmit(parseFloat(amount), description, isIncome, date, category);
       setAmount('');
       setDescription('');

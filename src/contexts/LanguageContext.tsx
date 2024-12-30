@@ -78,7 +78,15 @@ const translations = {
     'other': 'Άλλα',
     'category': 'Κατηγορία',
     'expense.categorized': 'Η δαπάνη κατηγοριοποιήθηκε',
-    'no.categorized.expenses': 'Δεν υπάρχουν κατηγοριοποιημένα έξοδα'
+    'income.categorized': 'Το έσοδο κατηγοριοποιήθηκε',
+    'salary': 'Μισθός',
+    'freelance': 'Freelance',
+    'investments': 'Επενδύσεις',
+    'rent': 'Ενοίκιο',
+    'business': 'Επιχείρηση',
+    'customer.payment': 'Πληρωμή Πελάτη',
+    'refund': 'Επιστροφή Χρημάτων',
+    'gift': 'Δώρο',
   },
   en: {
     'financial.runway.calculator': 'Financial Runway Calculator',
@@ -149,7 +157,15 @@ const translations = {
     'other': 'Other',
     'category': 'Category',
     'expense.categorized': 'The expense has been categorized',
-    'no.categorized.expenses': 'No categorized expenses'
+    'income.categorized': 'The income has been categorized',
+    'salary': 'Salary',
+    'freelance': 'Freelance',
+    'investments': 'Investments',
+    'rent': 'Rent',
+    'business': 'Business',
+    'customer.payment': 'Customer Payment',
+    'refund': 'Refund',
+    'gift': 'Gift',
   }
 };
 
