@@ -7,12 +7,18 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Transaction, RecurringTransaction } from '@/types/transactions';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { ExpenseCategory } from '@/types/categories';
 
 interface TransactionHistoryProps {
   transactions: Transaction[];
   recurringTransactions: RecurringTransaction[];
   onDeleteTransaction: (id: string, isRecurring: boolean) => void;
   selectedMonth: string;
+}
+
+interface CombinedTransaction extends Omit<Transaction, 'category'> {
+  isRecurring: boolean;
+  category?: ExpenseCategory;
 }
 
 const TransactionHistory: React.FC<TransactionHistoryProps> = ({
@@ -26,18 +32,15 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
 
   const selectedDate = addMonths(new Date(), parseInt(selectedMonth));
 
-  // Filter transactions based on showAllTransactions state
   const filteredTransactions = showAllTransactions 
     ? transactions 
     : transactions.filter(t => isSameMonth(new Date(t.date), selectedDate));
 
-  // Filter recurring transactions based on showAllTransactions state
   const filteredRecurringTransactions = showAllTransactions
     ? recurringTransactions
     : recurringTransactions.filter(t => isSameMonth(new Date(t.startDate), selectedDate));
 
-  // Combine and sort all transactions
-  const allTransactions = [
+  const allTransactions: CombinedTransaction[] = [
     ...filteredTransactions.map(t => ({ ...t, isRecurring: false })),
     ...filteredRecurringTransactions.map(t => ({ 
       id: t.id,
@@ -106,8 +109,8 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
                       {transaction.isRecurring ? t('recurring.from') : ''} {formatDate(transaction.date)}
                     </p>
                     {!transaction.isIncome && transaction.category && (
-                      <Badge variant="outline" className="text-xs">
-                        <Tag className="h-3 w-3 mr-1" />
+                      <Badge variant="outline" className="text-xs flex items-center gap-1">
+                        <Tag className="h-3 w-3" />
                         {t(transaction.category)}
                       </Badge>
                     )}
