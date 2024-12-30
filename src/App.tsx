@@ -10,19 +10,19 @@ const App = () => {
   const queryClient = new QueryClient();
   
   return (
-    <QueryClientProvider client={queryClient}>
-      <LanguageProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
+    <BrowserRouter>
+      <QueryClientProvider client={queryClient}>
+        <LanguageProvider>
+          <TooltipProvider>
             <Routes>
               <Route path="/" element={<Index />} />
             </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </LanguageProvider>
-    </QueryClientProvider>
+            <Toaster />
+            <Sonner />
+          </TooltipProvider>
+        </LanguageProvider>
+      </QueryClientProvider>
+    </BrowserRouter>
   );
 };
 
