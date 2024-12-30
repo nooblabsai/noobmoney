@@ -45,6 +45,7 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
       description: t.description,
       isIncome: t.isIncome,
       date: t.startDate,
+      category: t.category,
       isRecurring: true 
     }))
   ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
