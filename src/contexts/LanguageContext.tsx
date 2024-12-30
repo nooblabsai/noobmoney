@@ -78,8 +78,7 @@ const translations = {
     'other': 'Άλλα',
     'category': 'Κατηγορία',
     'expense.categorized': 'Η δαπάνη κατηγοριοποιήθηκε',
-    'no.categorized.expenses': 'Δεν υπάρχουν κατηγοριοποιημένα έξοδα',
-    'expenses.by.category': 'Έξοδα ανά κατηγορία',
+    'no.categorized.expenses': 'Δεν υπάρχουν κατηγοριοποιημένα έξοδα'
   },
   en: {
     'financial.runway.calculator': 'Financial Runway Calculator',
@@ -150,8 +149,7 @@ const translations = {
     'other': 'Other',
     'category': 'Category',
     'expense.categorized': 'The expense has been categorized',
-    'no.categorized.expenses': 'No categorized expenses',
-    'expenses.by.category': 'Expenses by Category',
+    'no.categorized.expenses': 'No categorized expenses'
   }
 };
 
