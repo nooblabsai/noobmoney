@@ -12,6 +12,8 @@ import { useTransactions } from '@/hooks/useTransactions';
 import { BalanceSection } from '@/components/BalanceSection';
 import { HeaderSection } from '@/components/HeaderSection';
 import { exportToPDF } from '@/utils/pdfExport';
+import ExpenseCategoriesChart from '@/components/ExpenseCategoriesChart';
+import { ExpenseCategory } from '@/types/categories';
 
 const Index = () => {
   const { t } = useLanguage();
@@ -135,6 +137,23 @@ const Index = () => {
     return data;
   };
 
+  const handleAddTransaction = (
+    amount: number, 
+    description: string, 
+    isIncome: boolean, 
+    date: Date,
+    category?: ExpenseCategory
+  ) => {
+    handleAddTransaction({
+      id: Math.random().toString(),
+      amount,
+      description,
+      isIncome,
+      date,
+      category
+    });
+  };
+
   return (
     <div className="container mx-auto py-8 px-4">
       <HeaderSection
@@ -181,6 +200,8 @@ const Index = () => {
           onDeleteTransaction={handleDeleteTransaction}
           selectedMonth={selectedMonth}
         />
+
+        <ExpenseCategoriesChart transactions={transactions} />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           <RunwayChart 

@@ -10,9 +10,11 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { CalendarIcon } from "lucide-react";
 import { useLanguage } from '@/contexts/LanguageContext';
+import { autoTagExpense } from '@/services/categoryService';
+import { ExpenseCategory } from '@/types/categories';
 
 interface ExpenseFormProps {
-  onSubmit: (amount: number, description: string, isIncome: boolean, date: Date) => void;
+  onSubmit: (amount: number, description: string, isIncome: boolean, date: Date, category?: ExpenseCategory) => void;
 }
 
 const ExpenseForm: React.FC<ExpenseFormProps> = ({ onSubmit }) => {
@@ -21,13 +23,21 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ onSubmit }) => {
   const [description, setDescription] = React.useState('');
   const [isIncome, setIsIncome] = React.useState(false);
   const [date, setDate] = React.useState<Date>(new Date());
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!amount || !description) return;
-    onSubmit(parseFloat(amount), description, isIncome, date);
-    setAmount('');
-    setDescription('');
+    if (!amount || !description || isSubmitting) return;
+    
+    setIsSubmitting(true);
+    try {
+      const category = !isIncome ? await autoTagExpense(description) : undefined;
+      onSubmit(parseFloat(amount), description, isIncome, date, category);
+      setAmount('');
+      setDescription('');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -99,9 +109,9 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ onSubmit }) => {
             {t('expense')}
           </Button>
         </div>
-        <Button type="submit" className="w-full">
+        <Button type="submit" className="w-full" disabled={isSubmitting}>
           <PlusCircle className="mr-2 h-4 w-4" />
-          {isIncome ? t('add.income') : t('add.expense')}
+          {isSubmitting ? t('processing') : (isIncome ? t('add.income') : t('add.expense'))}
         </Button>
       </form>
     </Card>
