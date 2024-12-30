@@ -75,7 +75,14 @@ const translations = {
     'utilities': 'Λογαριασμοί',
     'education': 'Εκπαίδευση',
     'travel': 'Ταξίδια',
-    'other': 'Άλλα'
+    'other': 'Άλλα',
+    'recurring.transactions': 'Επαναλαμβανόμενες Συναλλαγές',
+    'monthly.amount': 'Μηνιαίο Ποσό',
+    'enter.monthly.amount': 'Εισάγετε μηνιαίο ποσό',
+    'start.date': 'Ημερομηνία Έναρξης',
+    'add.recurring': 'Προσθήκη Επαναλαμβανόμενης',
+    'add.recurring.income': 'Προσθήκη Επαναλαμβανόμενου Εσόδου',
+    'add.recurring.expense': 'Προσθήκη Επαναλαμβανόμενου Εξόδου'
   },
   en: {
     'financial.runway.calculator': 'Financial Runway Calculator',
@@ -143,7 +150,14 @@ const translations = {
     'utilities': 'Utilities',
     'education': 'Education',
     'travel': 'Travel',
-    'other': 'Other'
+    'other': 'Other',
+    'recurring.transactions': 'Recurring Transactions',
+    'monthly.amount': 'Monthly Amount',
+    'enter.monthly.amount': 'Enter monthly amount',
+    'start.date': 'Start Date',
+    'add.recurring': 'Add Recurring',
+    'add.recurring.income': 'Add Recurring Income',
+    'add.recurring.expense': 'Add Recurring Expense'
   }
 };
 
