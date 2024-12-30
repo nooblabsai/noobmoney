@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { signUpUser } from '@/services/supabaseService';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { supabase } from '@/lib/supabaseClient'; // Add this import
+import { supabase } from '@/lib/supabaseClient';
 
 interface FirstTimeUserDialogProps {
   isOpen: boolean;
@@ -43,12 +43,17 @@ const FirstTimeUserDialog: React.FC<FirstTimeUserDialogProps> = ({ isOpen, onClo
         throw new Error('Failed to create account');
       }
 
-      // Store OpenAI key in Supabase
-      const { error: secretError } = await supabase.functions.invoke('set-secret', {
-        body: { key: 'OPENAI_API_KEY', value: openaiKey },
-      });
+      // Store OpenAI key in Supabase user_settings table
+      const { error: settingsError } = await supabase
+        .from('user_settings')
+        .upsert({
+          user_id: data.user.id,
+          openai_api_key: openaiKey
+        }, {
+          onConflict: 'user_id'
+        });
 
-      if (secretError) {
+      if (settingsError) {
         throw new Error('Failed to save OpenAI key');
       }
 
