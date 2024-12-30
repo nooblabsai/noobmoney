@@ -7,6 +7,32 @@ import {
   transformDBToRecurringTransaction
 } from './transactionTransformers';
 
+export const updateTransactionCategories = async (userId: string) => {
+  const { data: transactions, error: transactionsError } = await supabase
+    .from('transactions')
+    .select('*')
+    .eq('user_id', userId);
+
+  if (transactionsError) {
+    console.error('Error fetching transactions:', transactionsError);
+    return;
+  }
+
+  // Update transactions that don't have categories
+  const transactionsToUpdate = transactions.filter(t => !t.category);
+  
+  for (const transaction of transactionsToUpdate) {
+    const { error: updateError } = await supabase
+      .from('transactions')
+      .update({ category: 'other' })
+      .eq('id', transaction.id);
+
+    if (updateError) {
+      console.error('Error updating transaction category:', updateError);
+    }
+  }
+};
+
 export const loadTransactions = async (userId: string) => {
   const { data: session } = await supabase.auth.getSession();
   if (!session.session) {
