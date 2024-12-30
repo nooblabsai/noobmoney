@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Brain } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { supabase } from '@/services/supabaseService';
 import {
   Dialog,
   DialogContent,
@@ -40,8 +41,49 @@ const FinancialAnalysis: React.FC<FinancialAnalysisProps> = ({
   const [showApiKeyDialog, setShowApiKeyDialog] = React.useState(false);
   const [apiKey, setApiKey] = React.useState('');
 
+  const getStoredApiKey = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return null;
+
+      const { data, error } = await supabase
+        .from('user_settings')
+        .select('openai_api_key')
+        .eq('user_id', session.user.id)
+        .single();
+
+      if (error) throw error;
+      return data?.openai_api_key;
+    } catch (error) {
+      console.error('Error fetching API key:', error);
+      return null;
+    }
+  };
+
+  const saveApiKey = async (key: string) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('No active session');
+
+      const { error } = await supabase
+        .from('user_settings')
+        .upsert({
+          user_id: session.user.id,
+          openai_api_key: key
+        }, {
+          onConflict: 'user_id'
+        });
+
+      if (error) throw error;
+      return true;
+    } catch (error) {
+      console.error('Error saving API key:', error);
+      return false;
+    }
+  };
+
   const generateAnalysis = async () => {
-    const storedApiKey = localStorage.getItem('openai_api_key');
+    const storedApiKey = await getStoredApiKey();
     
     if (!storedApiKey) {
       setShowApiKeyDialog(true);
@@ -105,7 +147,7 @@ const FinancialAnalysis: React.FC<FinancialAnalysisProps> = ({
           'Authorization': `Bearer ${storedApiKey}`,
         },
         body: JSON.stringify({
-          model: 'gpt-4o',
+          model: 'gpt-4',
           messages: [
             {
               role: 'system',
@@ -139,12 +181,20 @@ const FinancialAnalysis: React.FC<FinancialAnalysisProps> = ({
     }
   };
 
-  const handleApiKeySubmit = () => {
+  const handleApiKeySubmit = async () => {
     if (apiKey.trim()) {
-      localStorage.setItem('openai_api_key', apiKey.trim());
-      setShowApiKeyDialog(false);
-      setApiKey('');
-      generateAnalysis();
+      const saved = await saveApiKey(apiKey.trim());
+      if (saved) {
+        setShowApiKeyDialog(false);
+        setApiKey('');
+        generateAnalysis();
+      } else {
+        toast({
+          title: 'Error',
+          description: 'Failed to save API key. Please try again.',
+          variant: 'destructive',
+        });
+      }
     }
   };
 
@@ -168,9 +218,9 @@ const FinancialAnalysis: React.FC<FinancialAnalysisProps> = ({
       <Dialog open={showApiKeyDialog} onOpenChange={setShowApiKeyDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Enter OpenAI API Key</DialogTitle>
+            <DialogTitle>{t('openai.api.key.title')}</DialogTitle>
             <DialogDescription>
-              Please enter your OpenAI API key to generate financial analysis. This will be stored securely in your browser.
+              {t('openai.api.key.description')}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -181,7 +231,7 @@ const FinancialAnalysis: React.FC<FinancialAnalysisProps> = ({
               onKeyDown={(e) => e.key === 'Enter' && handleApiKeySubmit()}
             />
             <Button onClick={handleApiKeySubmit} disabled={!apiKey.trim()}>
-              Save and Continue
+              {t('save.and.continue')}
             </Button>
           </div>
         </DialogContent>
