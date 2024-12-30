@@ -22,6 +22,7 @@ const ExpenseCategoriesChart: React.FC<ExpenseCategoriesChartProps> = ({ transac
     }))
     .filter(category => category.value > 0);
 
+    console.log('Expenses by category:', expenses);
     return expenses;
   }, [transactions, t]);
 

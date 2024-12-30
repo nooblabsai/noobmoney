@@ -12,7 +12,7 @@ import { CalendarIcon } from "lucide-react";
 import { useLanguage } from '@/contexts/LanguageContext';
 import { autoTagExpense } from '@/services/categoryService';
 import { ExpenseCategory } from '@/types/categories';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 interface ExpenseFormProps {
   onSubmit: (amount: number, description: string, isIncome: boolean, date: Date, category?: ExpenseCategory) => void;
@@ -36,6 +36,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ onSubmit }) => {
       let category: ExpenseCategory | undefined;
       if (!isIncome) {
         category = await autoTagExpense(description);
+        console.log('Category assigned:', category);
         toast({
           title: t('expense.categorized'),
           description: `${t('category')}: ${t(category)}`,
