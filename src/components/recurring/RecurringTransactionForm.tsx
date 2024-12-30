@@ -8,6 +8,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { autoTagExpense } from '@/services/categoryService';
+import { useToast } from '@/hooks/use-toast';
 
 interface RecurringTransactionFormProps {
   amount: string;
@@ -33,9 +35,25 @@ const RecurringTransactionForm: React.FC<RecurringTransactionFormProps> = ({
   onSubmit,
 }) => {
   const { t } = useLanguage();
+  const { toast } = useToast();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!amount || !description) return;
+
+    if (!isIncome) {
+      const category = await autoTagExpense(description);
+      toast({
+        title: t('expense.categorized'),
+        description: `${t('category')}: ${t(category)}`,
+      });
+    }
+
+    onSubmit(e);
+  };
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4 mb-6">
+    <form onSubmit={handleSubmit} className="space-y-4 mb-6">
       <div className="space-y-2">
         <Label htmlFor="recurring-amount">{t('monthly.amount')}</Label>
         <Input
