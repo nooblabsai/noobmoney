@@ -1,12 +1,22 @@
 import React from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import OpenAIKeyButton from './OpenAIKeyButton';
-import { supabase } from '@/lib/supabaseClient';
+import { supabase } from '@/services/auth/authService';
 
 const UserMenu = () => {
   const { t } = useLanguage();
-  const user = supabase.auth.getUser();
-  const userName = user?.data?.user?.user_metadata?.name || '';
+  const [userName, setUserName] = React.useState<string>('');
+
+  React.useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user?.user_metadata?.name) {
+        setUserName(user.user_metadata.name);
+      }
+    };
+    
+    getUser();
+  }, []);
 
   return (
     <div className="flex items-center gap-4">
