@@ -32,6 +32,64 @@ export const signInUser = async (email: string, password: string) => {
   return data;
 };
 
+export const updateTransactionCategories = async (userId: string) => {
+  try {
+    // First, check if the category column exists
+    const { data: columnsData, error: columnsError } = await supabase
+      .from('transactions')
+      .select()
+      .limit(1);
+
+    if (columnsError) {
+      console.error('Error checking columns:', columnsError);
+      return;
+    }
+
+    // If the sample data doesn't have a category property, the column doesn't exist
+    if (!columnsData || !columnsData[0]?.hasOwnProperty('category')) {
+      console.log('Category column does not exist, skipping category update');
+      return;
+    }
+
+    // If we reach here, the category column exists, so we can proceed with the update
+    const { data: transactions, error: fetchError } = await supabase
+      .from('transactions')
+      .select('*')
+      .eq('user_id', userId)
+      .is('category', null);
+
+    if (fetchError) {
+      console.error('Error fetching transactions:', fetchError);
+      return;
+    }
+
+    if (transactions && transactions.length > 0) {
+      const updatedTransactions = await Promise.all(
+        transactions.map(async (transaction) => {
+          if (!transaction.is_income) {
+            const category = await autoTagExpense(transaction.description);
+            return {
+              ...transaction,
+              category,
+            };
+          }
+          return transaction;
+        })
+      );
+
+      const { error: updateError } = await supabase
+        .from('transactions')
+        .upsert(updatedTransactions);
+
+      if (updateError) {
+        console.error('Error updating transactions:', updateError);
+      }
+    }
+  } catch (error) {
+    console.error('Error in updateTransactionCategories:', error);
+  }
+};
+
 const transformTransactionForDB = (transaction: Transaction, userId: string) => ({
   id: transaction.id,
   amount: transaction.amount,
@@ -193,41 +251,5 @@ export const saveTransactions = async (
   if (userDataError) {
     console.error('Error saving user data:', userDataError);
     throw userDataError;
-  }
-};
-
-export const updateTransactionCategories = async (userId: string) => {
-  const { data: session } = await supabase.auth.getSession();
-  if (!session.session) {
-    throw new Error('No active session');
-  }
-
-  const { data: transactions, error: fetchError } = await supabase
-    .from('transactions')
-    .select('*')
-    .eq('user_id', userId)
-    .is('category', null);
-
-  if (fetchError) throw fetchError;
-
-  if (transactions && transactions.length > 0) {
-    const updatedTransactions = await Promise.all(
-      transactions.map(async (transaction) => {
-        if (!transaction.is_income) {
-          const category = await autoTagExpense(transaction.description);
-          return {
-            ...transaction,
-            category,
-          };
-        }
-        return transaction;
-      })
-    );
-
-    const { error: updateError } = await supabase
-      .from('transactions')
-      .upsert(updatedTransactions);
-
-    if (updateError) throw updateError;
   }
 };
