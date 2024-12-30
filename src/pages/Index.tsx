@@ -31,7 +31,7 @@ const Index = () => {
   const {
     transactions,
     recurringTransactions,
-    handleAddTransaction,
+    handleAddTransaction: addTransaction,
     handleAddRecurringTransaction,
     handleDeleteTransaction,
     setTransactions,
@@ -144,7 +144,7 @@ const Index = () => {
     date: Date,
     category?: ExpenseCategory
   ) => {
-    handleAddTransaction({
+    addTransaction({
       id: Math.random().toString(),
       amount,
       description,
