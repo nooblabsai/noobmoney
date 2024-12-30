@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card } from '@/components/ui/card';
-import { ArrowUpCircle, ArrowDownCircle, Repeat, Trash2 } from 'lucide-react';
+import { ArrowUpCircle, ArrowDownCircle, Repeat, Trash2, Tag } from 'lucide-react';
 import { format, addMonths, isSameMonth } from 'date-fns';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Transaction, RecurringTransaction } from '@/types/transactions';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 interface TransactionHistoryProps {
   transactions: Transaction[];
@@ -99,9 +100,17 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
                 </div>
                 <div>
                   <p className="font-medium">{transaction.description}</p>
-                  <p className="text-sm text-gray-500">
-                    {transaction.isRecurring ? t('recurring.from') : ''} {formatDate(transaction.date)}
-                  </p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm text-gray-500">
+                      {transaction.isRecurring ? t('recurring.from') : ''} {formatDate(transaction.date)}
+                    </p>
+                    {!transaction.isIncome && transaction.category && (
+                      <Badge variant="outline" className="text-xs">
+                        <Tag className="h-3 w-3 mr-1" />
+                        {t(transaction.category)}
+                      </Badge>
+                    )}
+                  </div>
                 </div>
               </div>
               <div className="flex items-center gap-4">
