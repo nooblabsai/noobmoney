@@ -73,7 +73,10 @@ const translations = {
     'no': 'Όχι',
     'yes.proceed': 'Ναι, συνέχεια',
     'save.data': 'Αποθήκευση δεδομένων',
-    'load.data': 'Φόρτωση δεδομένων'
+    'load.data': 'Φόρτωση δεδομένων',
+    'openai.api.key.title': 'Κλειδί API OpenAI',
+    'openai.api.key.description': 'Παρακαλώ εισάγετε το κλειδί API του OpenAI για να συνεχίσετε με την ανάλυση.',
+    'save.and.continue': 'Αποθήκευση και συνέχεια'
   },
   en: {
     'financial.runway.calculator': 'Financial Runway Calculator',
@@ -139,7 +142,10 @@ const translations = {
     'no': 'No',
     'yes.proceed': 'Yes, proceed',
     'save.data': 'Save Data',
-    'load.data': 'Load Data'
+    'load.data': 'Load Data',
+    'openai.api.key.title': 'OpenAI API Key',
+    'openai.api.key.description': 'Please enter your OpenAI API key to continue with the analysis.',
+    'save.and.continue': 'Save and Continue'
   }
 };
 
