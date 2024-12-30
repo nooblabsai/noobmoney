@@ -14,12 +14,17 @@ const ExpenseCategoriesChart: React.FC<ExpenseCategoriesChartProps> = ({ transac
 
   const expensesByCategory = React.useMemo(() => {
     const categories = Object.values(ExpenseCategory);
-    const expenses = categories.map(category => ({
-      name: t(category),
-      value: transactions
+    const expenses = categories.map(category => {
+      const total = transactions
         .filter(t => !t.isIncome && t.category === category)
-        .reduce((sum, t) => sum + t.amount, 0)
-    }))
+        .reduce((sum, t) => sum + t.amount, 0);
+      
+      return {
+        name: t(category),
+        value: total,
+        category: category
+      };
+    })
     .filter(category => category.value > 0);
 
     console.log('Expenses by category:', expenses);
@@ -52,10 +57,10 @@ const ExpenseCategoriesChart: React.FC<ExpenseCategoriesChartProps> = ({ transac
               outerRadius={150}
               label={({ name, value }) => `${name}: €${value.toFixed(2)}`}
             >
-              {expensesByCategory.map((entry, index) => (
+              {expensesByCategory.map((entry) => (
                 <Cell 
-                  key={`cell-${index}`}
-                  fill={getCategoryColor(Object.values(ExpenseCategory)[index])}
+                  key={`cell-${entry.category}`}
+                  fill={getCategoryColor(entry.category)}
                 />
               ))}
             </Pie>

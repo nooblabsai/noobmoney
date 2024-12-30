@@ -52,20 +52,6 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
     }))
   ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-  const formatDate = (date: Date) => {
-    try {
-      const dateObj = new Date(date);
-      if (isNaN(dateObj.getTime())) {
-        console.error('Invalid date:', date);
-        return 'Invalid date';
-      }
-      return format(dateObj, 'PPP');
-    } catch (error) {
-      console.error('Error formatting date:', error);
-      return 'Invalid date';
-    }
-  };
-
   return (
     <Card className="p-6 mb-8">
       <div className="flex justify-between items-center mb-4">
@@ -105,7 +91,7 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
                   <p className="font-medium">{transaction.description}</p>
                   <div className="flex items-center gap-2 mt-1">
                     <p className="text-sm text-gray-500">
-                      {transaction.isRecurring ? t('recurring.from') : ''} {formatDate(transaction.date)}
+                      {format(new Date(transaction.date), 'PPP')}
                     </p>
                     {!transaction.isIncome && transaction.category && (
                       <Badge variant="outline" className="text-xs flex items-center gap-1">
