@@ -13,7 +13,6 @@ import { BalanceSection } from '@/components/BalanceSection';
 import { HeaderSection } from '@/components/HeaderSection';
 import { exportToPDF } from '@/utils/pdfExport';
 import ExpenseCategoriesChart from '@/components/ExpenseCategoriesChart';
-import { ExpenseCategory } from '@/types/categories';
 import { Transaction } from '@/types/transactions';
 
 const Index = () => {
@@ -151,6 +150,16 @@ const Index = () => {
         handleReset={handleReset}
       />
 
+      <div className="flex justify-end gap-4 mb-4">
+        <LoadDataButton onDataLoaded={handleDataLoaded} />
+        <SaveDataButton
+          transactions={transactions}
+          recurringTransactions={recurringTransactions}
+          bankBalance={bankBalance}
+          debtBalance={debtBalance}
+        />
+      </div>
+
       <div id="financial-report">
         <BalanceSection
           bankBalance={bankBalance}
@@ -159,16 +168,6 @@ const Index = () => {
           setDebtBalance={setDebtBalance}
           t={t}
         />
-      
-        <div className="flex justify-end gap-4 mb-4">
-          <LoadDataButton onDataLoaded={handleDataLoaded} />
-          <SaveDataButton
-            transactions={transactions}
-            recurringTransactions={recurringTransactions}
-            bankBalance={bankBalance}
-            debtBalance={debtBalance}
-          />
-        </div>
 
         <TransactionManager
           onAddTransaction={handleAddTransaction}
@@ -198,12 +197,12 @@ const Index = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           <RunwayChart 
             data={calculateRunway(true)} 
-            title="with.initial.balances"
+            title={t('financial.runway.with.balances')}
             showIncomeExpenses={false}
           />
           <RunwayChart 
             data={calculateRunway(false)} 
-            title="without.initial.balances"
+            title={t('financial.runway.without.balances')}
             showIncomeExpenses={true}
           />
         </div>

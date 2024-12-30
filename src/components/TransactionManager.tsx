@@ -6,7 +6,6 @@ import { ExpenseCategory } from '@/types/categories';
 import ExpenseForm from './ExpenseForm';
 import RecurringTransactions from './RecurringTransactions';
 import FirstTimeUserDialog from './FirstTimeUserDialog';
-import OpenAIKeyButton from './OpenAIKeyButton';
 
 interface TransactionManagerProps {
   onAddTransaction: (transaction: Transaction) => void;
@@ -40,20 +39,6 @@ const TransactionManager: React.FC<TransactionManagerProps> = ({
     });
   };
 
-  const handleAddRecurringTransaction = (transaction: Omit<RecurringTransaction, 'id' | 'date'>) => {
-    const newTransaction: RecurringTransaction = {
-      ...transaction,
-      id: Math.random().toString(),
-      date: transaction.startDate,
-    };
-    onAddRecurringTransaction(newTransaction);
-    
-    toast({
-      title: t('recurring.added'),
-      description: `${transaction.description}: €${transaction.amount.toFixed(2)}`,
-    });
-  };
-
   const handleFirstTimeComplete = () => {
     localStorage.setItem('hasCompletedOnboarding', 'true');
     setShowFirstTimeDialog(false);
@@ -69,15 +54,12 @@ const TransactionManager: React.FC<TransactionManagerProps> = ({
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <div>
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">{t('add.transaction')}</h2>
-            <OpenAIKeyButton />
-          </div>
+          <h2 className="text-xl font-semibold mb-4">{t('add.transaction')}</h2>
           <ExpenseForm onSubmit={handleAddTransaction} />
         </div>
         <div>
           <RecurringTransactions
-            onAdd={handleAddRecurringTransaction}
+            onAdd={onAddRecurringTransaction}
             transactions={[]}
             onDelete={onDeleteTransaction}
           />

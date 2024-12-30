@@ -38,12 +38,17 @@ const translations = {
     'current.bank.balance': 'Current Bank Balance',
     'current.debt.balance': 'Current Debt Balance',
     'financial.runway.calculator': 'Financial Runway Calculator',
+    'financial.runway.with.balances': 'Financial Runway (with initial balances)',
+    'financial.runway.without.balances': 'Financial Runway (without initial balances)',
     'export.pdf': 'Export PDF',
     'reset.data': 'Reset Data',
     'are.you.sure': 'Are you sure?',
     'this.will.delete': 'This action will delete all your data. This cannot be undone.',
     'yes.proceed': 'Yes, proceed',
     'no': 'No',
+    'add.transaction': 'Add Transaction',
+    'income.added': 'Income Added',
+    'expense.added': 'Expense Added',
     // ... add any other translations needed
   },
   el: {
@@ -75,12 +80,17 @@ const translations = {
     'current.bank.balance': 'Τρέχον Υπόλοιπο Τράπεζας',
     'current.debt.balance': 'Τρέχον Υπόλοιπο Χρέους',
     'financial.runway.calculator': 'Υπολογιστής Οικονομικής Διαδρομής',
+    'financial.runway.with.balances': 'Οικονομική Διαδρομή (με αρχικά υπόλοιπα)',
+    'financial.runway.without.balances': 'Οικονομική Διαδρομή (χωρίς αρχικά υπόλοιπα)',
     'export.pdf': 'Εξαγωγή PDF',
     'reset.data': 'Επαναφορά Δεδομένων',
     'are.you.sure': 'Είστε σίγουροι;',
     'this.will.delete': 'Αυτή η ενέργεια θα διαγράψει όλα τα δεδομένα σας. Αυτό δεν μπορεί να αναιρεθεί.',
     'yes.proceed': 'Ναι, συνέχεια',
     'no': 'Όχι',
+    'add.transaction': 'Προσθήκη Συναλλαγής',
+    'income.added': 'Προστέθηκε Έσοδο',
+    'expense.added': 'Προστέθηκε Έξοδο',
     // ... add any other translations needed
   }
 };
