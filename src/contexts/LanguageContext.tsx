@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 interface LanguageContextType {
-  t: (key: string) => string;
+  t: (key: string, params?: Record<string, string>) => string;
   setLanguage: (lang: string) => void;
   language: string;
 }
@@ -49,7 +49,25 @@ const translations = {
     'add.transaction': 'Add Transaction',
     'income.added': 'Income Added',
     'expense.added': 'Expense Added',
-    // ... add any other translations needed
+    'monthly.amount': 'Monthly Amount',
+    'enter.monthly.amount': 'Enter monthly amount',
+    'description': 'Description',
+    'enter.description': 'Enter description',
+    'start.date': 'Start Date',
+    'pick.date': 'Pick a date',
+    'income': 'Income',
+    'expense': 'Expense',
+    'add.recurring': 'Add Recurring',
+    'expense.categorized': 'Expense Categorized',
+    'category': 'Category',
+    'data.loaded': 'Data Loaded',
+    'data.loaded.success': 'Data loaded successfully',
+    'pdf.exported': 'PDF Exported',
+    'pdf.exported.success': 'PDF exported successfully',
+    'pdf.export.failed': 'PDF Export Failed',
+    'pdf.export.failed.description': 'Failed to export PDF',
+    'data.reset': 'Data Reset',
+    'data.reset.success': 'Data reset successfully',
   },
   el: {
     'app.name': 'Noobnation Money',
@@ -91,7 +109,25 @@ const translations = {
     'add.transaction': 'Προσθήκη Συναλλαγής',
     'income.added': 'Προστέθηκε Έσοδο',
     'expense.added': 'Προστέθηκε Έξοδο',
-    // ... add any other translations needed
+    'monthly.amount': 'Μηνιαίο Ποσό',
+    'enter.monthly.amount': 'Εισάγετε μηνιαίο ποσό',
+    'description': 'Περιγραφή',
+    'enter.description': 'Εισάγετε περιγραφή',
+    'start.date': 'Ημερομηνία Έναρξης',
+    'pick.date': 'Επιλέξτε ημερομηνία',
+    'income': 'Έσοδα',
+    'expense': 'Έξοδα',
+    'add.recurring': 'Προσθήκη Επαναλαμβανόμενου',
+    'expense.categorized': 'Το έξοδο κατηγοριοποιήθηκε',
+    'category': 'Κατηγορία',
+    'data.loaded': 'Φόρτωση Δεδομένων',
+    'data.loaded.success': 'Τα δεδομένα φορτώθηκαν με επιτυχία',
+    'pdf.exported': 'Εξαγωγή PDF',
+    'pdf.exported.success': 'Το PDF εξήχθη με επιτυχία',
+    'pdf.export.failed': 'Αποτυχία Εξαγωγής PDF',
+    'pdf.export.failed.description': 'Αποτυχία εξαγωγής PDF',
+    'data.reset': 'Επαναφορά Δεδομένων',
+    'data.reset.success': 'Τα δεδομένα επαναφέρθηκαν με επιτυχία',
   }
 };
 

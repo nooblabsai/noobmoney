@@ -44,6 +44,15 @@ const TransactionManager: React.FC<TransactionManagerProps> = ({
     setShowFirstTimeDialog(false);
   };
 
+  const handleAddRecurringTransaction = (transaction: Omit<RecurringTransaction, 'id' | 'date'>) => {
+    const newTransaction: RecurringTransaction = {
+      ...transaction,
+      id: Math.random().toString(),
+      date: new Date(),
+    };
+    onAddRecurringTransaction(newTransaction);
+  };
+
   return (
     <>
       <FirstTimeUserDialog
@@ -59,7 +68,7 @@ const TransactionManager: React.FC<TransactionManagerProps> = ({
         </div>
         <div>
           <RecurringTransactions
-            onAdd={onAddRecurringTransaction}
+            onAdd={handleAddRecurringTransaction}
             transactions={[]}
             onDelete={onDeleteTransaction}
           />
