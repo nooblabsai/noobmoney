@@ -27,7 +27,14 @@ const ExpenseCategoriesChart: React.FC<ExpenseCategoriesChartProps> = ({ transac
   }, [transactions, t]);
 
   if (expensesByCategory.length === 0) {
-    return null;
+    return (
+      <Card className="p-6 mb-8">
+        <h2 className="text-xl font-semibold mb-4">{t('expenses.by.category')}</h2>
+        <div className="text-center text-gray-500 py-4">
+          {t('no.categorized.expenses')}
+        </div>
+      </Card>
+    );
   }
 
   return (

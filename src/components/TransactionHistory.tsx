@@ -7,6 +7,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Transaction, RecurringTransaction } from '@/types/transactions';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { ExpenseCategory } from '@/types/categories';
 
 interface TransactionHistoryProps {
   transactions: Transaction[];
