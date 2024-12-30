@@ -14,6 +14,7 @@ import { HeaderSection } from '@/components/HeaderSection';
 import { exportToPDF } from '@/utils/pdfExport';
 import ExpenseCategoriesChart from '@/components/ExpenseCategoriesChart';
 import { ExpenseCategory } from '@/types/categories';
+import { Transaction } from '@/types/transactions';
 
 const Index = () => {
   const { t } = useLanguage();
@@ -137,21 +138,8 @@ const Index = () => {
     return data;
   };
 
-  const handleAddTransaction = (
-    amount: number, 
-    description: string, 
-    isIncome: boolean, 
-    date: Date,
-    category?: ExpenseCategory
-  ) => {
-    addTransaction({
-      id: Math.random().toString(),
-      amount,
-      description,
-      isIncome,
-      date,
-      category
-    });
+  const handleAddTransaction = (transaction: Transaction) => {
+    addTransaction(transaction);
   };
 
   return (
