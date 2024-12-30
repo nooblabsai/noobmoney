@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useTransactions } from '@/hooks/useTransactions';
 import { updateTransactionCategories } from '@/services/supabaseService';
+import { supabase } from '@/services/supabaseService';
 
 interface TransactionHistoryProps {
   transactions: Transaction[];
