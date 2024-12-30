@@ -3,6 +3,8 @@ import { Card } from '@/components/ui/card';
 import { Repeat } from 'lucide-react';
 import RecurringTransactionForm from './recurring/RecurringTransactionForm';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { ExpenseCategory } from '@/types/categories';
+import { autoTagExpense } from '@/services/categoryService';
 
 interface RecurringTransaction {
   id: string;
@@ -10,6 +12,7 @@ interface RecurringTransaction {
   description: string;
   isIncome: boolean;
   startDate: Date;
+  category?: ExpenseCategory;
 }
 
 interface RecurringTransactionsProps {
@@ -29,14 +32,21 @@ const RecurringTransactions: React.FC<RecurringTransactionsProps> = ({
   const [isIncome, setIsIncome] = React.useState(false);
   const [startDate, setStartDate] = React.useState<Date>(new Date());
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!amount || !description) return;
+
+    let category: ExpenseCategory | undefined;
+    if (!isIncome) {
+      category = await autoTagExpense(description);
+    }
+
     onAdd({
       amount: parseFloat(amount),
       description,
       isIncome,
       startDate,
+      category,
     });
     setAmount('');
     setDescription('');

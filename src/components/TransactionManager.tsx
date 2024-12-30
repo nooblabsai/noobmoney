@@ -2,6 +2,7 @@ import React from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { Transaction, RecurringTransaction } from '@/types/transactions';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { ExpenseCategory } from '@/types/categories';
 import ExpenseForm from './ExpenseForm';
 import RecurringTransactions from './RecurringTransactions';
 
@@ -19,13 +20,14 @@ const TransactionManager: React.FC<TransactionManagerProps> = ({
   const { t } = useLanguage();
   const { toast } = useToast();
 
-  const handleAddTransaction = (amount: number, description: string, isIncome: boolean, date: Date) => {
+  const handleAddTransaction = (amount: number, description: string, isIncome: boolean, date: Date, category?: ExpenseCategory) => {
     const newTransaction: Transaction = {
       id: Math.random().toString(),
       amount,
       description,
       isIncome,
       date,
+      category,
     };
     onAddTransaction(newTransaction);
     
