@@ -56,7 +56,7 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
 
   useEffect(() => {
     const updateCategories = async () => {
-      const session = await supabase.auth.getSession();
+      const { data: { session } } = await supabase.auth.getSession();
       if (session?.user?.id) {
         await updateTransactionCategories(session.user.id);
       }
