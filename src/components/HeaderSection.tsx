@@ -27,7 +27,7 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({ t, handleExportPDF
       <div className="flex items-center gap-4">
         <Button onClick={handleExportPDF} className="flex items-center gap-2">
           <FileDown className="h-4 w-4" />
-          Export PDF
+          {t('export.pdf')}
         </Button>
         <LanguageMenu />
         <AlertDialog>
@@ -39,14 +39,14 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({ t, handleExportPDF
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+              <AlertDialogTitle>{t('are.you.sure')}</AlertDialogTitle>
               <AlertDialogDescription>
-                This will wipe out all data. Proceed?
+                {t('this.will.delete')}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>No</AlertDialogCancel>
-              <AlertDialogAction onClick={handleReset}>Yes, proceed</AlertDialogAction>
+              <AlertDialogCancel>{t('no')}</AlertDialogCancel>
+              <AlertDialogAction onClick={handleReset}>{t('yes.proceed')}</AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>

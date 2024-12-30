@@ -185,12 +185,12 @@ const Index = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           <RunwayChart 
             data={calculateRunway(true)} 
-            title="Financial Runway (with initial balances)"
+            title="with.initial.balances"
             showIncomeExpenses={false}
           />
           <RunwayChart 
             data={calculateRunway(false)} 
-            title="Financial Runway (without initial balances)"
+            title="without.initial.balances"
             showIncomeExpenses={true}
           />
         </div>

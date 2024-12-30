@@ -9,12 +9,14 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { CalendarIcon } from "lucide-react";
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ExpenseFormProps {
   onSubmit: (amount: number, description: string, isIncome: boolean, date: Date) => void;
 }
 
 const ExpenseForm: React.FC<ExpenseFormProps> = ({ onSubmit }) => {
+  const { t } = useLanguage();
   const [amount, setAmount] = React.useState('');
   const [description, setDescription] = React.useState('');
   const [isIncome, setIsIncome] = React.useState(false);
@@ -32,30 +34,30 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ onSubmit }) => {
     <Card className="p-6 animate-fade-in">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="amount">Amount</Label>
+          <Label htmlFor="amount">{t('amount')}</Label>
           <Input
             id="amount"
             type="number"
             step="0.01"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            placeholder="Enter amount"
+            placeholder={t('enter.amount')}
             className="w-full"
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="description">Description</Label>
+          <Label htmlFor="description">{t('description')}</Label>
           <Input
             id="description"
             type="text"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Enter description"
+            placeholder={t('enter.description')}
             className="w-full"
           />
         </div>
         <div className="space-y-2">
-          <Label>Date</Label>
+          <Label>{t('date')}</Label>
           <Popover>
             <PopoverTrigger asChild>
               <Button
@@ -66,7 +68,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ onSubmit }) => {
                 )}
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
-                {date ? format(date, "PPP") : <span>Pick a date</span>}
+                {date ? format(date, "PPP") : <span>{t('pick.date')}</span>}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
@@ -86,7 +88,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ onSubmit }) => {
             onClick={() => setIsIncome(true)}
             className="w-1/2"
           >
-            Income
+            {t('income')}
           </Button>
           <Button
             type="button"
@@ -94,12 +96,12 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ onSubmit }) => {
             onClick={() => setIsIncome(false)}
             className="w-1/2"
           >
-            Expense
+            {t('expense')}
           </Button>
         </div>
         <Button type="submit" className="w-full">
           <PlusCircle className="mr-2 h-4 w-4" />
-          Add {isIncome ? 'Income' : 'Expense'}
+          {isIncome ? t('add.income') : t('add.expense')}
         </Button>
       </form>
     </Card>
