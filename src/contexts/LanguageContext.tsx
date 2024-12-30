@@ -10,7 +10,7 @@ interface LanguageContextType {
 
 const translations = {
   el: {
-    'financial.runway.calculator': 'Υπολογιστής Οικονομικής Διάρκειας',
+    'financial.runway.calculator': 'Noobnation Money',
     'add.transaction': 'Προσθήκη Συναλλαγής',
     'amount': 'Ποσό',
     'description': 'Περιγραφή',
@@ -79,7 +79,7 @@ const translations = {
     'save.and.continue': 'Αποθήκευση και συνέχεια'
   },
   en: {
-    'financial.runway.calculator': 'Financial Runway Calculator',
+    'financial.runway.calculator': 'Noobnation Money',
     'add.transaction': 'Add Transaction',
     'amount': 'Amount',
     'description': 'Description',
