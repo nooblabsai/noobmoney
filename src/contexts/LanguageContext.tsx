@@ -76,13 +76,10 @@ const translations = {
     'education': 'Εκπαίδευση',
     'travel': 'Ταξίδια',
     'other': 'Άλλα',
-    'recurring.transactions': 'Επαναλαμβανόμενες Συναλλαγές',
-    'monthly.amount': 'Μηνιαίο Ποσό',
-    'enter.monthly.amount': 'Εισάγετε μηνιαίο ποσό',
-    'start.date': 'Ημερομηνία Έναρξης',
-    'add.recurring': 'Προσθήκη Επαναλαμβανόμενης',
-    'add.recurring.income': 'Προσθήκη Επαναλαμβανόμενου Εσόδου',
-    'add.recurring.expense': 'Προσθήκη Επαναλαμβανόμενου Εξόδου'
+    'category': 'Κατηγορία',
+    'expense.categorized': 'Η δαπάνη κατηγοριοποιήθηκε',
+    'no.categorized.expenses': 'Δεν υπάρχουν κατηγοριοποιημένα έξοδα',
+    'expenses.by.category': 'Έξοδα ανά κατηγορία',
   },
   en: {
     'financial.runway.calculator': 'Financial Runway Calculator',
@@ -151,13 +148,10 @@ const translations = {
     'education': 'Education',
     'travel': 'Travel',
     'other': 'Other',
-    'recurring.transactions': 'Recurring Transactions',
-    'monthly.amount': 'Monthly Amount',
-    'enter.monthly.amount': 'Enter monthly amount',
-    'start.date': 'Start Date',
-    'add.recurring': 'Add Recurring',
-    'add.recurring.income': 'Add Recurring Income',
-    'add.recurring.expense': 'Add Recurring Expense'
+    'category': 'Category',
+    'expense.categorized': 'The expense has been categorized',
+    'no.categorized.expenses': 'No categorized expenses',
+    'expenses.by.category': 'Expenses by Category',
   }
 };
 
