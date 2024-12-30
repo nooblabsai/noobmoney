@@ -71,7 +71,7 @@ export const loadTransactions = async (userId: string) => {
   }
 
   if (!userData) {
-    const { data: newUserData, error: createError } = await supabase
+    const { error: createError } = await supabase
       .from('user_data')
       .insert([
         { 
@@ -79,9 +79,7 @@ export const loadTransactions = async (userId: string) => {
           bank_balance: '0',
           debt_balance: '0',
         }
-      ])
-      .select()
-      .single();
+      ]);
 
     if (createError) {
       throw createError;
@@ -117,11 +115,12 @@ export const saveTransactions = async (
     throw new Error('No active session. Please sign in again.');
   }
 
+  // Save transactions in a single operation if there are any
   if (transactions.length > 0) {
     const transformedTransactions = transactions.map(t => transformTransactionForDB(t, userId));
     const { error: transactionError } = await supabase
       .from('transactions')
-      .upsert(transformedTransactions);
+      .upsert(transformedTransactions, { onConflict: 'id' });
 
     if (transactionError) {
       console.error('Error saving transactions:', transactionError);
@@ -129,13 +128,14 @@ export const saveTransactions = async (
     }
   }
 
+  // Save recurring transactions in a single operation if there are any
   if (recurringTransactions.length > 0) {
     const transformedRecurringTransactions = recurringTransactions.map(t => 
       transformRecurringTransactionForDB(t, userId)
     );
     const { error: recurringError } = await supabase
       .from('recurring_transactions')
-      .upsert(transformedRecurringTransactions);
+      .upsert(transformedRecurringTransactions, { onConflict: 'id' });
 
     if (recurringError) {
       console.error('Error saving recurring transactions:', recurringError);
@@ -143,6 +143,7 @@ export const saveTransactions = async (
     }
   }
 
+  // Save user data
   const { error: userDataError } = await supabase
     .from('user_data')
     .insert({
@@ -150,9 +151,7 @@ export const saveTransactions = async (
       bank_balance: bankBalance,
       debt_balance: debtBalance,
       updated_at: new Date().toISOString(),
-    })
-    .select()
-    .maybeSingle();
+    });
 
   if (userDataError) {
     console.error('Error saving user data:', userDataError);
