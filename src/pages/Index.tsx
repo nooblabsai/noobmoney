@@ -97,7 +97,8 @@ const Index = () => {
     const currentDate = new Date();
     let runningBalance = includeInitialBalances ? parseFloat(bankBalance) - parseFloat(debtBalance) : 0;
     
-    for (let i = 0; i < 12; i++) {
+    // Start from 6 months ago
+    for (let i = -6; i < 12; i++) {
       const monthStart = new Date(currentDate.getFullYear(), currentDate.getMonth() + i, 1);
       const monthEnd = new Date(currentDate.getFullYear(), currentDate.getMonth() + i + 1, 0);
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
-import { format, addMonths } from 'date-fns';
+import { format, addMonths, subMonths } from 'date-fns';
 import { useLanguage } from '@/contexts/LanguageContext';
 import {
   Select,
@@ -28,7 +28,8 @@ const MonthlyStats: React.FC<MonthlyStatsProps> = ({
 
   const getMonthOptions = () => {
     const options = [];
-    for (let i = 0; i < 12; i++) {
+    // Add 6 months before current month
+    for (let i = -6; i < 12; i++) {
       const date = addMonths(new Date(), i);
       options.push({
         value: i.toString(),
@@ -89,7 +90,9 @@ const MonthlyStats: React.FC<MonthlyStatsProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="p-6">
           <h3 className="text-lg font-medium mb-2">{t('balance.for')} {format(addMonths(new Date(), parseInt(selectedMonth)), 'MMMM yyyy')}</h3>
-          <p className={`text-2xl font-bold ${getBalanceForMonth(parseInt(selectedMonth)) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+          <p className={`text-2xl font-bold ${
+            getBalanceForMonth(parseInt(selectedMonth)) >= 0 ? 'text-green-600' : 'text-red-600'
+          }`}>
             €{getBalanceForMonth(parseInt(selectedMonth)).toFixed(2)}
           </p>
         </Card>
