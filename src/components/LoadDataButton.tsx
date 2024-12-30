@@ -23,9 +23,12 @@ const LoadDataButton: React.FC<LoadDataButtonProps> = ({ onDataLoaded }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleLoadData = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
+
     try {
       if (!email || !password) {
         toast({
@@ -41,13 +44,13 @@ const LoadDataButton: React.FC<LoadDataButtonProps> = ({ onDataLoaded }) => {
         description: 'Please wait while we load your data...',
       });
 
-      const { user, session } = await signInUser(email, password);
+      const data = await signInUser(email, password);
       
-      if (!user || !session) {
-        throw new Error('Invalid credentials');
+      if (!data.user) {
+        throw new Error('Authentication failed');
       }
 
-      const { transactions, recurringTransactions, bankBalance, debtBalance } = await loadTransactions(user.id);
+      const { transactions, recurringTransactions, bankBalance, debtBalance } = await loadTransactions(data.user.id);
       onDataLoaded(transactions, recurringTransactions, bankBalance, debtBalance);
 
       toast({
@@ -59,11 +62,11 @@ const LoadDataButton: React.FC<LoadDataButtonProps> = ({ onDataLoaded }) => {
       console.error('Error loading data:', error);
       toast({
         title: 'Authentication Error',
-        description: error.message === 'Invalid login credentials' 
-          ? 'Invalid email or password. Please try again.'
-          : error.message || 'Failed to load data. Please try again.',
+        description: error.message || 'Failed to load data. Please try again.',
         variant: 'destructive',
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -79,7 +82,7 @@ const LoadDataButton: React.FC<LoadDataButtonProps> = ({ onDataLoaded }) => {
         <DialogHeader>
           <DialogTitle>Load Your Data</DialogTitle>
           <DialogDescription>
-            Enter your credentials to load your saved data.
+            Enter your credentials to load your saved data. Make sure you have an account first.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleLoadData} className="space-y-4">
@@ -92,6 +95,7 @@ const LoadDataButton: React.FC<LoadDataButtonProps> = ({ onDataLoaded }) => {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
               required
+              disabled={isLoading}
             />
           </div>
           <div className="space-y-2">
@@ -103,10 +107,11 @@ const LoadDataButton: React.FC<LoadDataButtonProps> = ({ onDataLoaded }) => {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
               required
+              disabled={isLoading}
             />
           </div>
-          <Button type="submit" className="w-full">
-            Load Data
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? 'Loading...' : 'Load Data'}
           </Button>
         </form>
       </DialogContent>

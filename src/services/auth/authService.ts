@@ -6,26 +6,51 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 export const supabase = createClient(supabaseUrl, supabaseKey);
 
 export const signUpUser = async (email: string, password: string, name: string) => {
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: {
-        name,
+  try {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          name,
+        },
       },
-    },
-  });
+    });
 
-  if (error) throw error;
-  return data;
+    if (error) {
+      console.error('Signup error:', error);
+      throw error;
+    }
+
+    return data;
+  } catch (error: any) {
+    console.error('Signup error:', error);
+    throw new Error(error.message || 'Failed to sign up');
+  }
 };
 
 export const signInUser = async (email: string, password: string) => {
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-  if (error) throw error;
-  return data;
+    if (error) {
+      console.error('Sign in error:', error);
+      if (error.message === 'Invalid login credentials') {
+        throw new Error('Invalid email or password. Please check your credentials and try again.');
+      }
+      throw error;
+    }
+
+    if (!data.user || !data.session) {
+      throw new Error('Authentication failed. Please try again.');
+    }
+
+    return data;
+  } catch (error: any) {
+    console.error('Sign in error:', error);
+    throw new Error(error.message || 'Failed to sign in');
+  }
 };
