@@ -29,21 +29,36 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ onSubmit }) => {
   const [date, setDate] = React.useState<Date>(new Date());
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!amount || !description) {
+  const validateForm = () => {
+    if (!amount || parseFloat(amount) <= 0) {
       toast({
         title: t('error'),
         description: t('fill.required'),
         variant: 'destructive',
       });
-      return;
+      return false;
     }
 
+    if (!description.trim()) {
+      toast({
+        title: t('error'),
+        description: t('fill.required'),
+        variant: 'destructive',
+      });
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!validateForm()) return;
     if (isSubmitting) return;
     
     setIsSubmitting(true);
+    
     try {
       let category: ExpenseCategory | IncomeCategory | undefined;
       
@@ -90,6 +105,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ onSubmit }) => {
             onChange={(e) => setAmount(e.target.value)}
             placeholder={t('enter.amount')}
             className="w-full"
+            required
           />
         </div>
         <div className="space-y-2">
@@ -101,6 +117,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ onSubmit }) => {
             onChange={(e) => setDescription(e.target.value)}
             placeholder={t('enter.description')}
             className="w-full"
+            required
           />
         </div>
         <div className="space-y-2">
