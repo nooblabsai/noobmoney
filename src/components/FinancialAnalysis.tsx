@@ -28,7 +28,7 @@ const FinancialAnalysis: React.FC<FinancialAnalysisProps> = ({
   debtBalance,
 }) => {
   const { toast } = useToast();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [analysis, setAnalysis] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [showApiKeyDialog, setShowApiKeyDialog] = useState(false);
