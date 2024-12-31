@@ -97,7 +97,7 @@ const RecurringTransactionForm: React.FC<RecurringTransactionFormProps> = ({
               )}
             >
               <CalendarIcon className="mr-2 h-4 w-4" />
-              {startDate ? format(startDate, "PPP") : <span>{t('pick.date')}</span>}
+              {startDate ? format(startDate, "PPP") : t('pick.date')}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="start">
