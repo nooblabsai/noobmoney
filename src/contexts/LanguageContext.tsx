@@ -117,7 +117,7 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
   const [language, setLanguage] = useState('en');
 
   const t = (key: string, params?: Record<string, string>) => {
-    let text = translations[language][key] || key;
+    let text = translations[language]?.[key] || key;
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
         text = text.replace(`{${key}}`, value);
@@ -126,8 +126,14 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
     return text;
   };
 
+  const value = {
+    t,
+    setLanguage,
+    language,
+  };
+
   return (
-    <LanguageContext.Provider value={{ t, setLanguage, language }}>
+    <LanguageContext.Provider value={value}>
       {children}
     </LanguageContext.Provider>
   );
