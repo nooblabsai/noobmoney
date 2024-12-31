@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { signUpUser, signInUser, saveTransactions } from '@/services/supabaseService';
+import { useLanguage } from '@/contexts/LanguageContext';
 import {
   Dialog,
   DialogContent,
@@ -27,6 +28,7 @@ const SaveDataButton: React.FC<SaveDataButtonProps> = ({
   bankBalance,
   debtBalance
 }) => {
+  const { t } = useLanguage();
   const { toast } = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -95,7 +97,7 @@ const SaveDataButton: React.FC<SaveDataButtonProps> = ({
       <DialogTrigger asChild>
         <Button className="flex items-center gap-2">
           <Save className="h-4 w-4" />
-          Save Data
+          {t('save.data')}
         </Button>
       </DialogTrigger>
       <DialogContent>

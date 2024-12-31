@@ -108,6 +108,7 @@ const translations = {
     'add.transaction': 'Add Transaction',
     'load.data': 'Load Data',
     'load.data.description': 'Enter your credentials to load your saved data',
+    'save.data': 'Save Data',
   },
   el: {
     'app.name': 'Noobnation Money',
@@ -208,6 +209,7 @@ const translations = {
     'add.transaction': 'Προσθήκη Συναλλαγής',
     'load.data': 'Φόρτωση Δεδομένων',
     'load.data.description': 'Εισάγετε τα διαπιστευτήριά σας για να φορτώσετε τα αποθηκευμένα δεδομένα σας',
+    'save.data': 'Αποθήκευση Δεδομένων',
   }
 };
 
@@ -251,4 +253,3 @@ export const useLanguage = () => {
   }
   return context;
 };
-
