@@ -208,7 +208,7 @@ const FinancialAnalysis: React.FC<FinancialAnalysisProps> = ({
     <>
       <Card className="p-6 mb-8">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">{t('financial_analysis')}</h2>
+          <h2 className="text-xl font-semibold">{t('financial.analysis')}</h2>
           <Button onClick={async () => {
             const isAuthenticated = await checkAuth();
             if (isAuthenticated) {
@@ -216,7 +216,7 @@ const FinancialAnalysis: React.FC<FinancialAnalysisProps> = ({
             }
           }} disabled={loading}>
             <Brain className="mr-2 h-4 w-4" />
-            {loading ? t('analyzing') : t('generate_analysis')}
+            {loading ? t('analyzing') : t('generate.analysis')}
           </Button>
         </div>
         {analysis && (
@@ -229,9 +229,9 @@ const FinancialAnalysis: React.FC<FinancialAnalysisProps> = ({
       <Dialog open={showApiKeyDialog} onOpenChange={setShowApiKeyDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{t('openai_api_key_title')}</DialogTitle>
+            <DialogTitle>{t('openai.api.key.title')}</DialogTitle>
             <DialogDescription>
-              {t('openai_api_key_description')}
+              {t('openai.api.key.description')}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -242,7 +242,7 @@ const FinancialAnalysis: React.FC<FinancialAnalysisProps> = ({
               onKeyDown={(e) => e.key === 'Enter' && handleApiKeySubmit()}
             />
             <Button onClick={handleApiKeySubmit} disabled={!apiKey.trim()}>
-              {t('save_and_continue')}
+              {t('save.and.continue')}
             </Button>
           </div>
         </DialogContent>
