@@ -13,12 +13,14 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface LoadDataButtonProps {
   onDataLoaded: (transactions: any[], recurringTransactions: any[], bankBalance: string, debtBalance: string) => void;
 }
 
 const LoadDataButton: React.FC<LoadDataButtonProps> = ({ onDataLoaded }) => {
+  const { t } = useLanguage();
   const { toast } = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -32,37 +34,42 @@ const LoadDataButton: React.FC<LoadDataButtonProps> = ({ onDataLoaded }) => {
     try {
       if (!email || !password) {
         toast({
-          title: 'Error',
-          description: 'Please enter both email and password',
+          title: t('error'),
+          description: t('fill.required'),
           variant: 'destructive',
         });
         return;
       }
 
       toast({
-        title: 'Loading Data',
-        description: 'Please wait while we load your data...',
+        title: t('loading'),
+        description: t('loading.description'),
       });
 
       const data = await signInUser(email, password);
       
       if (!data.user) {
-        throw new Error('Authentication failed');
+        throw new Error(t('invalid.credentials'));
       }
 
+      console.log('Loading transactions for user:', data.user.id);
       const { transactions, recurringTransactions, bankBalance, debtBalance } = await loadTransactions(data.user.id);
+      
+      console.log('Loaded transactions:', transactions);
+      console.log('Loaded recurring transactions:', recurringTransactions);
+      
       onDataLoaded(transactions, recurringTransactions, bankBalance, debtBalance);
 
       toast({
-        title: 'Success',
-        description: 'Data loaded successfully!',
+        title: t('success'),
+        description: t('data.loaded.success'),
       });
       setIsOpen(false);
     } catch (error: any) {
       console.error('Error loading data:', error);
       toast({
-        title: 'Authentication Error',
-        description: error.message || 'Failed to load data. Please try again.',
+        title: t('error'),
+        description: error.message || t('loading.failed'),
         variant: 'destructive',
       });
     } finally {
@@ -75,43 +82,43 @@ const LoadDataButton: React.FC<LoadDataButtonProps> = ({ onDataLoaded }) => {
       <DialogTrigger asChild>
         <Button className="flex items-center gap-2">
           <Download className="h-4 w-4" />
-          Load Data
+          {t('load.data')}
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Load Your Data</DialogTitle>
+          <DialogTitle>{t('load.data')}</DialogTitle>
           <DialogDescription>
-            Enter your credentials to load your saved data. Make sure you have an account first.
+            {t('load.data.description')}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleLoadData} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">{t('email')}</Label>
             <Input
               id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
+              placeholder={t('enter.email')}
               required
               disabled={isLoading}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">{t('password')}</Label>
             <Input
               id="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
+              placeholder={t('enter.password')}
               required
               disabled={isLoading}
             />
           </div>
           <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? 'Loading...' : 'Load Data'}
+            {isLoading ? t('loading') : t('load.data')}
           </Button>
         </form>
       </DialogContent>

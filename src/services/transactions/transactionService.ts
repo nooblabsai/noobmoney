@@ -18,7 +18,6 @@ export const updateTransactionCategories = async (userId: string) => {
     return;
   }
 
-  // Update transactions that don't have categories
   const transactionsToUpdate = transactions.filter(t => !t.category);
   
   for (const transaction of transactionsToUpdate) {
@@ -34,9 +33,11 @@ export const updateTransactionCategories = async (userId: string) => {
 };
 
 export const loadTransactions = async (userId: string) => {
+  console.log('Loading transactions for user ID:', userId);
+  
   const { data: session } = await supabase.auth.getSession();
   if (!session.session) {
-    throw new Error('No active session. Please sign in again.');
+    throw new Error('No active session');
   }
 
   const { data: transactionsData, error: transactionsError } = await supabase
@@ -45,6 +46,7 @@ export const loadTransactions = async (userId: string) => {
     .eq('user_id', userId);
 
   if (transactionsError) {
+    console.error('Error loading transactions:', transactionsError);
     throw transactionsError;
   }
 
@@ -54,8 +56,12 @@ export const loadTransactions = async (userId: string) => {
     .eq('user_id', userId);
 
   if (recurringError) {
+    console.error('Error loading recurring transactions:', recurringError);
     throw recurringError;
   }
+
+  console.log('Loaded transactions:', transactionsData);
+  console.log('Loaded recurring transactions:', recurringData);
 
   const { data: userData, error: userDataError } = await supabase
     .from('user_data')
@@ -63,41 +69,21 @@ export const loadTransactions = async (userId: string) => {
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
     .limit(1)
-    .maybeSingle();
+    .single();
 
-  if (userDataError) {
+  if (userDataError && userDataError.code !== 'PGRST116') {
     console.error('Error loading user data:', userDataError);
     throw userDataError;
   }
 
-  if (!userData) {
-    const { error: createError } = await supabase
-      .from('user_data')
-      .insert([
-        { 
-          user_id: userId,
-          bank_balance: '0',
-          debt_balance: '0',
-        }
-      ]);
-
-    if (createError) {
-      throw createError;
-    }
-
-    return {
-      transactions: transactionsData.map(transformDBToTransaction),
-      recurringTransactions: recurringData.map(transformDBToRecurringTransaction),
-      bankBalance: '0',
-      debtBalance: '0',
-    };
-  }
+  const transactions = transactionsData ? transactionsData.map(transformDBToTransaction) : [];
+  const recurringTransactions = recurringData ? recurringData.map(transformDBToRecurringTransaction) : [];
 
   return {
-    transactions: transactionsData.map(transformDBToTransaction),
-    recurringTransactions: recurringData.map(transformDBToRecurringTransaction),
-    bankBalance: userData.bank_balance,
-    debtBalance: userData.debt_balance,
+    transactions,
+    recurringTransactions,
+    bankBalance: userData?.bank_balance || '0',
+    debtBalance: userData?.debt_balance || '0',
   };
 };
 
@@ -112,10 +98,9 @@ export const saveTransactions = async (
   
   const { data: session } = await supabase.auth.getSession();
   if (!session.session) {
-    throw new Error('No active session. Please sign in again.');
+    throw new Error('No active session');
   }
 
-  // Save transactions in a single operation if there are any
   if (transactions.length > 0) {
     const transformedTransactions = transactions.map(t => transformTransactionForDB(t, userId));
     const { error: transactionError } = await supabase
@@ -128,7 +113,6 @@ export const saveTransactions = async (
     }
   }
 
-  // Save recurring transactions in a single operation if there are any
   if (recurringTransactions.length > 0) {
     const transformedRecurringTransactions = recurringTransactions.map(t => 
       transformRecurringTransactionForDB(t, userId)
@@ -143,10 +127,9 @@ export const saveTransactions = async (
     }
   }
 
-  // Save user data
   const { error: userDataError } = await supabase
     .from('user_data')
-    .insert({
+    .upsert({
       user_id: userId,
       bank_balance: bankBalance,
       debt_balance: debtBalance,

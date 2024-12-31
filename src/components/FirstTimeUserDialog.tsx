@@ -32,8 +32,8 @@ const FirstTimeUserDialog: React.FC<FirstTimeUserDialogProps> = ({ isOpen, onCom
       if (isLogin) {
         if (!email || !password) {
           toast({
-            title: "Error",
-            description: "Please fill in all required fields",
+            title: t('error'),
+            description: t('fill.required'),
             variant: 'destructive',
           });
           return;
@@ -41,13 +41,13 @@ const FirstTimeUserDialog: React.FC<FirstTimeUserDialogProps> = ({ isOpen, onCom
 
         const data = await signInUser(email, password);
         if (!data.user) {
-          throw new Error('Invalid credentials');
+          throw new Error(t('invalid.credentials'));
         }
       } else {
         if (!name || !email || !password) {
           toast({
-            title: "Error",
-            description: "Please fill in all required fields",
+            title: t('error'),
+            description: t('fill.required'),
             variant: 'destructive',
           });
           return;
@@ -55,10 +55,9 @@ const FirstTimeUserDialog: React.FC<FirstTimeUserDialogProps> = ({ isOpen, onCom
 
         const data = await signUpUser(email, password, name);
         if (!data.user) {
-          throw new Error('Failed to create account');
+          throw new Error(t('account.creation.failed'));
         }
 
-        // Only save OpenAI key if provided
         if (openaiKey.trim()) {
           const { error: settingsError } = await supabase
             .from('user_settings')
@@ -76,16 +75,16 @@ const FirstTimeUserDialog: React.FC<FirstTimeUserDialogProps> = ({ isOpen, onCom
       }
 
       toast({
-        title: "Success",
-        description: isLogin ? "Successfully logged in!" : "Account created successfully!",
+        title: t('success'),
+        description: isLogin ? t('login.success') : t('account.created'),
       });
       
       onComplete();
     } catch (error: any) {
       console.error('Error:', error);
       toast({
-        title: "Error",
-        description: error.message || (isLogin ? "Login failed" : "Account creation failed"),
+        title: t('error'),
+        description: error.message || (isLogin ? t('login.failed') : t('account.creation.failed')),
         variant: 'destructive',
       });
     } finally {
@@ -97,64 +96,64 @@ const FirstTimeUserDialog: React.FC<FirstTimeUserDialogProps> = ({ isOpen, onCom
     <Dialog open={isOpen} onOpenChange={() => {}}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{isLogin ? "Welcome Back" : "Welcome"}</DialogTitle>
+          <DialogTitle>{isLogin ? t('welcome.back') : t('welcome')}</DialogTitle>
           <DialogDescription>
-            {isLogin ? "Sign in to your account" : "Create an account to get started"}
+            {isLogin ? t('sign.in.description') : t('create.account.description')}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           {!isLogin && (
             <div className="space-y-2">
-              <Label htmlFor="name">Name *</Label>
+              <Label htmlFor="name">{t('name')} *</Label>
               <Input
                 id="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Enter your name"
+                placeholder={t('enter.name')}
                 disabled={isLoading}
                 required={!isLogin}
               />
             </div>
           )}
           <div className="space-y-2">
-            <Label htmlFor="email">Email *</Label>
+            <Label htmlFor="email">{t('email')} *</Label>
             <Input
               id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
+              placeholder={t('enter.email')}
               disabled={isLoading}
               required
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="password">Password *</Label>
+            <Label htmlFor="password">{t('password')} *</Label>
             <Input
               id="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
+              placeholder={t('enter.password')}
               disabled={isLoading}
               required
             />
           </div>
           {!isLogin && (
             <div className="space-y-2">
-              <Label htmlFor="openai-key">OpenAI API Key (Optional)</Label>
+              <Label htmlFor="openai-key">{t('openai.key.optional')}</Label>
               <Input
                 id="openai-key"
                 type="password"
                 value={openaiKey}
                 onChange={(e) => setOpenaiKey(e.target.value)}
-                placeholder="Enter your OpenAI API key"
+                placeholder={t('enter.openai.key')}
                 disabled={isLoading}
               />
             </div>
           )}
           <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? (isLogin ? "Signing in..." : "Creating account...") : (isLogin ? "Sign In" : "Create Account")}
+            {isLoading ? t('processing') : (isLogin ? t('sign.in') : t('create.account'))}
           </Button>
           <Button
             type="button"
@@ -163,7 +162,7 @@ const FirstTimeUserDialog: React.FC<FirstTimeUserDialogProps> = ({ isOpen, onCom
             onClick={() => setIsLogin(!isLogin)}
             disabled={isLoading}
           >
-            {isLogin ? "Need an account? Sign Up" : "Already have an account? Sign In"}
+            {isLogin ? t('need.account') : t('have.account')}
           </Button>
         </form>
       </DialogContent>
