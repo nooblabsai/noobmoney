@@ -2,7 +2,7 @@ import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { PlusCircle, CalendarIcon } from 'lucide-react';
+import { PlusCircle, CalendarIcon, Loader2 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
@@ -36,20 +36,26 @@ const RecurringTransactionForm: React.FC<RecurringTransactionFormProps> = ({
 }) => {
   const { t } = useLanguage();
   const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!amount || !description) return;
 
-    if (!isIncome) {
-      const category = await autoTagExpense(description);
-      toast({
-        title: t('expense.categorized'),
-        description: `${t('category')}: ${t(category)}`,
-      });
-    }
+    setIsSubmitting(true);
+    try {
+      if (!isIncome) {
+        const category = await autoTagExpense(description);
+        toast({
+          title: t('expense.categorized'),
+          description: `${t('category')}: ${t(category)}`,
+        });
+      }
 
-    onSubmit(e);
+      await onSubmit(e);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -64,6 +70,7 @@ const RecurringTransactionForm: React.FC<RecurringTransactionFormProps> = ({
           onChange={(e) => setAmount(e.target.value)}
           placeholder={t('enter.monthly.amount')}
           className="w-full"
+          required
         />
       </div>
       <div className="space-y-2">
@@ -75,6 +82,7 @@ const RecurringTransactionForm: React.FC<RecurringTransactionFormProps> = ({
           onChange={(e) => setDescription(e.target.value)}
           placeholder={t('enter.description')}
           className="w-full"
+          required
         />
       </div>
       <div className="space-y-2">
@@ -120,9 +128,13 @@ const RecurringTransactionForm: React.FC<RecurringTransactionFormProps> = ({
           {t('expense')}
         </Button>
       </div>
-      <Button type="submit" className="w-full">
-        <PlusCircle className="mr-2 h-4 w-4" />
-        {t('add.recurring')} {isIncome ? t('income') : t('expense')}
+      <Button disabled={isSubmitting} type="submit" className="w-full">
+        {isSubmitting ? (
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+        ) : (
+          <PlusCircle className="mr-2 h-4 w-4" />
+        )}
+        {isSubmitting ? t('processing') : `${t('add.recurring')} ${isIncome ? t('income') : t('expense')}`}
       </Button>
     </form>
   );
