@@ -111,7 +111,7 @@ const OpenAIKeyButton = () => {
               />
             </div>
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? t('saving') : t('save')}
+              {isLoading ? t('processing') : t('save')}
             </Button>
           </form>
         </DialogContent>
