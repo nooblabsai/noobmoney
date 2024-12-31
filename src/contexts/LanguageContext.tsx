@@ -106,6 +106,8 @@ const translations = {
     'start.date': 'Start Date',
     'add.recurring': 'Add Recurring',
     'add.transaction': 'Add Transaction',
+    'financial_analysis': 'Financial Analysis',
+    'generate_analysis': 'Generate Analysis',
   },
   el: {
     'app.name': 'Noobnation Money',
@@ -204,6 +206,8 @@ const translations = {
     'start.date': 'Ημερομηνία Έναρξης',
     'add.recurring': 'Προσθήκη Επαναλαμβανόμενης',
     'add.transaction': 'Προσθήκη Συναλλαγής',
+    'financial_analysis': 'Οικονομική Ανάλυση',
+    'generate_analysis': 'Δημιουργία Ανάλυσης',
   }
 };
 
