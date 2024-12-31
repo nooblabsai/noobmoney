@@ -15,15 +15,33 @@ const OpenAIKeyButton = () => {
   const [openaiKey, setOpenaiKey] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  const checkAuth = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) {
+      toast({
+        title: t('error'),
+        description: t('login_required'),
+        variant: 'destructive',
+      });
+      return false;
+    }
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
+      const isAuthenticated = await checkAuth();
+      if (!isAuthenticated) {
+        return;
+      }
+
       if (!openaiKey) {
         toast({
           title: t('error'),
-          description: t('enter.openai.key'),
+          description: t('enter_openai_key'),
           variant: 'destructive',
         });
         return;
@@ -39,7 +57,7 @@ const OpenAIKeyButton = () => {
 
       toast({
         title: t('success'),
-        description: t('openai.key.saved'),
+        description: t('openai_key_saved'),
       });
       
       setIsOpen(false);
@@ -47,7 +65,7 @@ const OpenAIKeyButton = () => {
       console.error('Error saving OpenAI key:', error);
       toast({
         title: t('error'),
-        description: error.message || t('openai.key.save.failed'),
+        description: error.message || t('openai_key_save_failed'),
         variant: 'destructive',
       });
     } finally {
@@ -59,30 +77,35 @@ const OpenAIKeyButton = () => {
     <>
       <Button
         variant="outline"
-        onClick={() => setIsOpen(true)}
+        onClick={async () => {
+          const isAuthenticated = await checkAuth();
+          if (isAuthenticated) {
+            setIsOpen(true);
+          }
+        }}
         className="flex items-center gap-2"
       >
         <Key className="h-4 w-4" />
-        {t('update.openai.key')}
+        {t('update_openai_key')}
       </Button>
 
       <Dialog open={isOpen} onOpenChange={() => !isLoading && setIsOpen(false)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{t('update.openai.key')}</DialogTitle>
+            <DialogTitle>{t('update_openai_key')}</DialogTitle>
             <DialogDescription>
-              {t('openai.key.description')}
+              {t('openai_key_description')}
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="openai-key">{t('openai.key')}</Label>
+              <Label htmlFor="openai-key">{t('openai_key')}</Label>
               <Input
                 id="openai-key"
                 type="password"
                 value={openaiKey}
                 onChange={(e) => setOpenaiKey(e.target.value)}
-                placeholder={t('enter.openai.key')}
+                placeholder={t('enter_openai_key')}
                 disabled={isLoading}
                 required
               />

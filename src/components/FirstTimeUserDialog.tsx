@@ -14,7 +14,7 @@ interface FirstTimeUserDialogProps {
   onComplete: () => void;
 }
 
-const FirstTimeUserDialog: React.FC<FirstTimeUserDialogProps> = ({ isOpen, onClose, onComplete }) => {
+const FirstTimeUserDialog: React.FC<FirstTimeUserDialogProps> = ({ isOpen, onComplete }) => {
   const { t } = useLanguage();
   const { toast } = useToast();
   const [name, setName] = useState('');
@@ -28,10 +28,10 @@ const FirstTimeUserDialog: React.FC<FirstTimeUserDialogProps> = ({ isOpen, onClo
     setIsLoading(true);
 
     try {
-      if (!name || !email || !password || !openaiKey) {
+      if (!name || !email || !password) {
         toast({
           title: t('error'),
-          description: t('fill_all_fields'),
+          description: t('fill_required_fields'),
           variant: 'destructive',
         });
         return;
@@ -43,18 +43,20 @@ const FirstTimeUserDialog: React.FC<FirstTimeUserDialogProps> = ({ isOpen, onClo
         throw new Error('Failed to create account');
       }
 
-      // Store OpenAI key in Supabase user_settings table
-      const { error: settingsError } = await supabase
-        .from('user_settings')
-        .upsert({
-          user_id: data.user.id,
-          openai_api_key: openaiKey
-        }, {
-          onConflict: 'user_id'
-        });
+      // Only save OpenAI key if provided
+      if (openaiKey.trim()) {
+        const { error: settingsError } = await supabase
+          .from('user_settings')
+          .upsert({
+            user_id: data.user.id,
+            openai_api_key: openaiKey
+          }, {
+            onConflict: 'user_id'
+          });
 
-      if (settingsError) {
-        throw new Error('Failed to save OpenAI key');
+        if (settingsError) {
+          console.error('Failed to save OpenAI key:', settingsError);
+        }
       }
 
       toast({
@@ -76,7 +78,7 @@ const FirstTimeUserDialog: React.FC<FirstTimeUserDialogProps> = ({ isOpen, onClo
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={() => !isLoading && onClose()}>
+    <Dialog open={isOpen} onOpenChange={() => {}}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{t('welcome')}</DialogTitle>
@@ -86,7 +88,7 @@ const FirstTimeUserDialog: React.FC<FirstTimeUserDialogProps> = ({ isOpen, onClo
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">{t('name')}</Label>
+            <Label htmlFor="name">{t('name')} *</Label>
             <Input
               id="name"
               value={name}
@@ -97,7 +99,7 @@ const FirstTimeUserDialog: React.FC<FirstTimeUserDialogProps> = ({ isOpen, onClo
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="email">{t('email')}</Label>
+            <Label htmlFor="email">{t('email')} *</Label>
             <Input
               id="email"
               type="email"
@@ -109,7 +111,7 @@ const FirstTimeUserDialog: React.FC<FirstTimeUserDialogProps> = ({ isOpen, onClo
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="password">{t('password')}</Label>
+            <Label htmlFor="password">{t('password')} *</Label>
             <Input
               id="password"
               type="password"
@@ -121,7 +123,7 @@ const FirstTimeUserDialog: React.FC<FirstTimeUserDialogProps> = ({ isOpen, onClo
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="openai-key">{t('openai_key')}</Label>
+            <Label htmlFor="openai-key">{t('openai_key')} ({t('optional')})</Label>
             <Input
               id="openai-key"
               type="password"
@@ -129,7 +131,6 @@ const FirstTimeUserDialog: React.FC<FirstTimeUserDialogProps> = ({ isOpen, onClo
               onChange={(e) => setOpenaiKey(e.target.value)}
               placeholder={t('enter_openai_key')}
               disabled={isLoading}
-              required
             />
           </div>
           <Button type="submit" className="w-full" disabled={isLoading}>

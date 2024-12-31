@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Brain } from 'lucide-react';
@@ -14,16 +14,9 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 
-interface Transaction {
-  amount: number;
-  description: string;
-  isIncome: boolean;
-  date: Date;
-}
-
 interface FinancialAnalysisProps {
-  transactions: Transaction[];
-  recurringTransactions: Transaction[];
+  transactions: any[];
+  recurringTransactions: any[];
   currentBalance: number;
   debtBalance: number;
 }
@@ -35,11 +28,24 @@ const FinancialAnalysis: React.FC<FinancialAnalysisProps> = ({
   debtBalance,
 }) => {
   const { toast } = useToast();
-  const { language, t } = useLanguage();
-  const [analysis, setAnalysis] = React.useState<string>('');
-  const [loading, setLoading] = React.useState(false);
-  const [showApiKeyDialog, setShowApiKeyDialog] = React.useState(false);
-  const [apiKey, setApiKey] = React.useState('');
+  const { t } = useLanguage();
+  const [analysis, setAnalysis] = useState<string>('');
+  const [loading, setLoading] = useState(false);
+  const [showApiKeyDialog, setShowApiKeyDialog] = useState(false);
+  const [apiKey, setApiKey] = useState('');
+
+  const checkAuth = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) {
+      toast({
+        title: t('error'),
+        description: t('login_required'),
+        variant: 'destructive',
+      });
+      return false;
+    }
+    return true;
+  };
 
   const getStoredApiKey = async () => {
     try {
@@ -202,10 +208,15 @@ const FinancialAnalysis: React.FC<FinancialAnalysisProps> = ({
     <>
       <Card className="p-6 mb-8">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">{t('financial.analysis')}</h2>
-          <Button onClick={generateAnalysis} disabled={loading}>
+          <h2 className="text-xl font-semibold">{t('financial_analysis')}</h2>
+          <Button onClick={async () => {
+            const isAuthenticated = await checkAuth();
+            if (isAuthenticated) {
+              generateAnalysis();
+            }
+          }} disabled={loading}>
             <Brain className="mr-2 h-4 w-4" />
-            {loading ? t('analyzing') : t('generate.analysis')}
+            {loading ? t('analyzing') : t('generate_analysis')}
           </Button>
         </div>
         {analysis && (
@@ -218,9 +229,9 @@ const FinancialAnalysis: React.FC<FinancialAnalysisProps> = ({
       <Dialog open={showApiKeyDialog} onOpenChange={setShowApiKeyDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{t('openai.api.key.title')}</DialogTitle>
+            <DialogTitle>{t('openai_api_key_title')}</DialogTitle>
             <DialogDescription>
-              {t('openai.api.key.description')}
+              {t('openai_api_key_description')}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -231,7 +242,7 @@ const FinancialAnalysis: React.FC<FinancialAnalysisProps> = ({
               onKeyDown={(e) => e.key === 'Enter' && handleApiKeySubmit()}
             />
             <Button onClick={handleApiKeySubmit} disabled={!apiKey.trim()}>
-              {t('save.and.continue')}
+              {t('save_and_continue')}
             </Button>
           </div>
         </DialogContent>
