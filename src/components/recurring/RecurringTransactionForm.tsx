@@ -61,14 +61,14 @@ const RecurringTransactionForm: React.FC<RecurringTransactionFormProps> = ({
   return (
     <form onSubmit={handleSubmit} className="space-y-4 mb-6">
       <div className="space-y-2">
-        <Label htmlFor="recurring-amount">{t('monthly.amount')}</Label>
+        <Label htmlFor="recurring-amount">{t('amount')}</Label>
         <Input
           id="recurring-amount"
           type="number"
           step="0.01"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
-          placeholder={t('enter.monthly.amount')}
+          placeholder={t('enter.amount')}
           className="w-full"
           required
         />
@@ -134,7 +134,7 @@ const RecurringTransactionForm: React.FC<RecurringTransactionFormProps> = ({
         ) : (
           <PlusCircle className="mr-2 h-4 w-4" />
         )}
-        {isSubmitting ? t('processing') : `${t('add.recurring')} ${isIncome ? t('income') : t('expense')}`}
+        {isSubmitting ? t('processing') : t('add.recurring')}
       </Button>
     </form>
   );
