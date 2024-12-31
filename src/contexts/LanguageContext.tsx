@@ -50,6 +50,15 @@ const translations = {
     'save.and.continue': 'Save and Continue',
     'openai.api.key.title': 'OpenAI API Key Required',
     'openai.api.key.description': 'Please enter your OpenAI API key to continue',
+    'welcome.back': 'Welcome Back',
+    'sign.in': 'Sign in to your account',
+    'create.account.start': 'Create an account to get started',
+    'signing.in': 'Signing in...',
+    'sign.in.button': 'Sign In',
+    'need.account': 'Need an account? Sign Up',
+    'have.account': 'Already have an account? Sign In',
+    'login.success': 'Successfully logged in!',
+    'login.failed': 'Login failed',
   },
   el: {
     'app.name': 'Οικονομικός Σχεδιαστής',
@@ -92,6 +101,15 @@ const translations = {
     'save.and.continue': 'Αποθήκευση και Συνέχεια',
     'openai.api.key.title': 'Απαιτείται Κλειδί API OpenAI',
     'openai.api.key.description': 'Παρακαλώ εισάγετε το κλειδί API του OpenAI για να συνεχίσετε',
+    'welcome.back': 'Καλώς Ήρθατε Ξανά',
+    'sign.in': 'Συνδεθείτε στον λογαριασμό σας',
+    'create.account.start': 'Δημιουργήστε λογαριασμό για να ξεκινήσετε',
+    'signing.in': 'Σύνδεση...',
+    'sign.in.button': 'Σύνδεση',
+    'need.account': 'Χρειάζεστε λογαριασμό; Εγγραφή',
+    'have.account': 'Έχετε ήδη λογαριασμό; Σύνδεση',
+    'login.success': 'Επιτυχής σύνδεση!',
+    'login.failed': 'Η σύνδεση απέτυχε',
   }
 };
 
