@@ -108,6 +108,8 @@ const translations = {
     'add.transaction': 'Add Transaction',
     'financial_analysis': 'Financial Analysis',
     'generate_analysis': 'Generate Analysis',
+    'load.data': 'Load Data',
+    'load.data.description': 'Enter your credentials to load your saved data',
   },
   el: {
     'app.name': 'Noobnation Money',
@@ -208,6 +210,8 @@ const translations = {
     'add.transaction': 'Προσθήκη Συναλλαγής',
     'financial_analysis': 'Οικονομική Ανάλυση',
     'generate_analysis': 'Δημιουργία Ανάλυσης',
+    'load.data': 'Φόρτωση Δεδομένων',
+    'load.data.description': 'Εισάγετε τα διαπιστευτήριά σας για να φορτώσετε τα αποθηκευμένα δεδομένα σας',
   }
 };
 
@@ -251,3 +255,4 @@ export const useLanguage = () => {
   }
   return context;
 };
+
