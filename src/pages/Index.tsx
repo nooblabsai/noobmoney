@@ -115,8 +115,8 @@ const Index = () => {
         .filter(t => {
           const transactionDate = new Date(t.date);
           return t.isIncome && 
-                 transactionDate >= monthStart && 
-                 transactionDate <= monthEnd;
+                 transactionDate.getFullYear() === monthStart.getFullYear() &&
+                 transactionDate.getMonth() === monthStart.getMonth();
         })
         .reduce((sum, t) => sum + t.amount, 0);
 
@@ -124,8 +124,8 @@ const Index = () => {
         .filter(t => {
           const transactionDate = new Date(t.date);
           return !t.isIncome && 
-                 transactionDate >= monthStart && 
-                 transactionDate <= monthEnd;
+                 transactionDate.getFullYear() === monthStart.getFullYear() &&
+                 transactionDate.getMonth() === monthStart.getMonth();
         })
         .reduce((sum, t) => sum + t.amount, 0);
 
@@ -134,13 +134,13 @@ const Index = () => {
       const totalExpenses = monthlyRecurringExpenses + monthlyOneTimeExpenses;
       
       // Update running balance
-      runningBalance += totalIncome - totalExpenses;
+      runningBalance += (totalIncome - totalExpenses);
 
       data.push({
         month: monthStart.toLocaleString('default', { month: 'short' }),
-        balance: runningBalance,
-        income: totalIncome,
-        expenses: totalExpenses,
+        balance: Number(runningBalance.toFixed(2)),
+        income: Number(totalIncome.toFixed(2)),
+        expenses: Number(totalExpenses.toFixed(2)),
       });
     }
 
