@@ -48,7 +48,7 @@ const RecurringTransactionForm: React.FC<RecurringTransactionFormProps> = ({
         const category = await autoTagExpense(description);
         toast({
           title: t('expense.categorized'),
-          description: `${t('category')}: ${t(category)}`,
+          description: `${t('category')}: ${category}`,
         });
       }
 
