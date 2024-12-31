@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 interface LanguageContextType {
   language: string;
   setLanguage: (lang: string) => void;
-  t: (key: string) => string;
+  t: (key: string, params?: Record<string, string>) => string;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -118,8 +118,16 @@ const translations = {
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [language, setLanguage] = useState('en');
 
-  const t = (key: string) => {
-    return translations[language][key] || key;
+  const t = (key: string, params?: Record<string, string>) => {
+    let text = translations[language][key] || key;
+    
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        text = text.replace(`{${key}}`, value);
+      });
+    }
+    
+    return text;
   };
 
   return (
