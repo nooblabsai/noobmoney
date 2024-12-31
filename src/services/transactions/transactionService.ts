@@ -63,14 +63,15 @@ export const loadTransactions = async (userId: string) => {
   console.log('Loaded transactions:', transactionsData);
   console.log('Loaded recurring transactions:', recurringData);
 
+  // Changed this part to handle no user data case
   const { data: userData, error: userDataError } = await supabase
     .from('user_data')
     .select('*')
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
-    .limit(1)
-    .single();
+    .limit(1);
 
+  // Only log real errors, not the "no data" case
   if (userDataError && userDataError.code !== 'PGRST116') {
     console.error('Error loading user data:', userDataError);
     throw userDataError;
@@ -79,11 +80,14 @@ export const loadTransactions = async (userId: string) => {
   const transactions = transactionsData ? transactionsData.map(transformDBToTransaction) : [];
   const recurringTransactions = recurringData ? recurringData.map(transformDBToRecurringTransaction) : [];
 
+  // Use the first user data record if it exists, otherwise use defaults
+  const userDataRecord = userData && userData.length > 0 ? userData[0] : null;
+
   return {
     transactions,
     recurringTransactions,
-    bankBalance: userData?.bank_balance || '0',
-    debtBalance: userData?.debt_balance || '0',
+    bankBalance: userDataRecord?.bank_balance || '0',
+    debtBalance: userDataRecord?.debt_balance || '0',
   };
 };
 
