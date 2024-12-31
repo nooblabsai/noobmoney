@@ -10,7 +10,7 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 const translations = {
   en: {
-    'app.name': 'Financial Tracker',
+    'app.name': 'Noobnation Money',
     'export.pdf': 'Export PDF',
     'reset.data': 'Reset Data',
     'are.you.sure': 'Are you sure?',
@@ -107,7 +107,7 @@ const translations = {
     'transaction.failed': 'Failed to add transaction',
   },
   el: {
-    'app.name': 'Διαχείριση Οικονομικών',
+    'app.name': 'Noobnation Money',
     'export.pdf': 'Εξαγωγή PDF',
     'reset.data': 'Επαναφορά Δεδομένων',
     'are.you.sure': 'Είστε σίγουροι;',
@@ -206,7 +206,7 @@ const translations = {
 };
 
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [language, setLanguage] = useState('en');
+  const [language, setLanguage] = useState('el'); // Set Greek as default
 
   const t = (key: string, params?: Record<string, string>) => {
     let text = translations[language][key] || key;
