@@ -86,7 +86,7 @@ const OpenAIKeyButton = () => {
         className="flex items-center gap-2"
       >
         <Key className="h-4 w-4" />
-        {t('update_openai_key')}
+        <span>{t('update_openai_key')}</span>
       </Button>
 
       <Dialog open={isOpen} onOpenChange={() => !isLoading && setIsOpen(false)}>
@@ -111,7 +111,7 @@ const OpenAIKeyButton = () => {
               />
             </div>
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? t('processing') : t('save')}
+              <span>{isLoading ? t('processing') : t('save')}</span>
             </Button>
           </form>
         </DialogContent>
