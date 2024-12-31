@@ -99,7 +99,13 @@ const translations = {
     'are.you.sure': 'Are you sure?',
     'this.will.delete': 'This action cannot be undone.',
     'yes.proceed': 'Yes, proceed',
-    'no': 'No'
+    'no': 'No',
+    'recurring.transactions': 'Recurring Transactions',
+    'monthly.amount': 'Monthly Amount',
+    'enter.monthly.amount': 'Enter Monthly Amount',
+    'start.date': 'Start Date',
+    'add.recurring': 'Add Recurring',
+    'add.transaction': 'Add Transaction',
   },
   el: {
     'app.name': 'Noobnation Money',
@@ -191,7 +197,13 @@ const translations = {
     'are.you.sure': 'Είστε σίγουροι;',
     'this.will.delete': 'Αυτή η ενέργεια δεν μπορεί να αναιρεθεί.',
     'yes.proceed': 'Ναι, συνέχεια',
-    'no': 'Όχι'
+    'no': 'Όχι',
+    'recurring.transactions': 'Επαναλαμβανόμενες Συναλλαγές',
+    'monthly.amount': 'Μηνιαίο Ποσό',
+    'enter.monthly.amount': 'Εισάγετε Μηνιαίο Ποσό',
+    'start.date': 'Ημερομηνία Έναρξης',
+    'add.recurring': 'Προσθήκη Επαναλαμβανόμενης',
+    'add.transaction': 'Προσθήκη Συναλλαγής',
   }
 };
 
