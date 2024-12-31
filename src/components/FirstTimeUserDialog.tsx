@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { signUpUser, signInUser } from '@/services/supabaseService';
+import { signUpUser, signInUser, loadTransactions } from '@/services/supabaseService';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/lib/supabaseClient';
 
@@ -29,6 +29,8 @@ const FirstTimeUserDialog: React.FC<FirstTimeUserDialogProps> = ({ isOpen, onCom
     setIsLoading(true);
 
     try {
+      let userData;
+      
       if (isLogin) {
         if (!email || !password) {
           toast({
@@ -39,10 +41,15 @@ const FirstTimeUserDialog: React.FC<FirstTimeUserDialogProps> = ({ isOpen, onCom
           return;
         }
 
-        const data = await signInUser(email, password);
-        if (!data.user) {
+        userData = await signInUser(email, password);
+        if (!userData.user) {
           throw new Error(t('invalid.credentials'));
         }
+
+        // Load transactions after successful login
+        const transactionData = await loadTransactions(userData.user.id);
+        console.log('Loaded transaction data:', transactionData);
+        
       } else {
         if (!name || !email || !password) {
           toast({
@@ -53,8 +60,8 @@ const FirstTimeUserDialog: React.FC<FirstTimeUserDialogProps> = ({ isOpen, onCom
           return;
         }
 
-        const data = await signUpUser(email, password, name);
-        if (!data.user) {
+        userData = await signUpUser(email, password, name);
+        if (!userData.user) {
           throw new Error(t('account.creation.failed'));
         }
 
@@ -62,7 +69,7 @@ const FirstTimeUserDialog: React.FC<FirstTimeUserDialogProps> = ({ isOpen, onCom
           const { error: settingsError } = await supabase
             .from('user_settings')
             .upsert({
-              user_id: data.user.id,
+              user_id: userData.user.id,
               openai_api_key: openaiKey
             }, {
               onConflict: 'user_id'

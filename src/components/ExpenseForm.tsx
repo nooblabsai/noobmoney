@@ -31,7 +31,8 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ onSubmit }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!amount || !description || isSubmitting) {
+    
+    if (!amount || !description) {
       toast({
         title: t('error'),
         description: t('fill.required'),
@@ -39,6 +40,8 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ onSubmit }) => {
       });
       return;
     }
+
+    if (isSubmitting) return;
     
     setIsSubmitting(true);
     try {
@@ -51,12 +54,15 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ onSubmit }) => {
       }
       
       console.log('Category assigned:', category);
-      toast({
-        title: isIncome ? t('income.categorized') : t('expense.categorized'),
-        description: `${t('category')}: ${category ? t(category) : t('other')}`,
-      });
       
       onSubmit(parseFloat(amount), description, isIncome, date, category);
+      
+      toast({
+        title: isIncome ? t('income.added') : t('expense.added'),
+        description: `${description}: €${parseFloat(amount).toFixed(2)}`,
+      });
+      
+      // Reset form
       setAmount('');
       setDescription('');
     } catch (error) {
