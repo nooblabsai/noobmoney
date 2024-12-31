@@ -43,9 +43,9 @@ const translations = {
     'financial.runway.without.balances': 'Financial Runway (without initial balances)',
     'export.pdf': 'Export PDF',
     'reset.data': 'Reset Data',
-    'financial.analysis': 'Financial Analysis',
+    'financial.analysis': 'AI Agent - Economist',
     'analyzing': 'Analyzing...',
-    'generate.analysis': 'Generate Analysis',
+    'generate.analysis': 'Create a financial report',
     'login.required': 'Please log in to use this feature',
     'save.and.continue': 'Save and Continue',
     'openai.api.key.title': 'OpenAI API Key Required',
@@ -106,8 +106,6 @@ const translations = {
     'start.date': 'Start Date',
     'add.recurring': 'Add Recurring',
     'add.transaction': 'Add Transaction',
-    'financial_analysis': 'Financial Analysis',
-    'generate_analysis': 'Generate Analysis',
     'load.data': 'Load Data',
     'load.data.description': 'Enter your credentials to load your saved data',
   },
@@ -145,9 +143,9 @@ const translations = {
     'financial.runway.without.balances': 'Οικονομική Διαδρομή (χωρίς αρχικά υπόλοιπα)',
     'export.pdf': 'Εξαγωγή PDF',
     'reset.data': 'Επαναφορά Δεδομένων',
-    'financial.analysis': 'Οικονομική Ανάλυση',
+    'financial.analysis': 'AI Agent - Οικονομολόγος',
     'analyzing': 'Ανάλυση...',
-    'generate.analysis': 'Δημιουργία Ανάλυσης',
+    'generate.analysis': 'Δημιουργία οικονομικής έκθεσης',
     'login.required': 'Παρακαλώ συνδεθείτε για να χρησιμοποιήσετε αυτή τη λειτουργία',
     'save.and.continue': 'Αποθήκευση και Συνέχεια',
     'openai.api.key.title': 'Απαιτείται Κλειδί API OpenAI',
@@ -208,8 +206,6 @@ const translations = {
     'start.date': 'Ημερομηνία Έναρξης',
     'add.recurring': 'Προσθήκη Επαναλαμβανόμενης',
     'add.transaction': 'Προσθήκη Συναλλαγής',
-    'financial_analysis': 'Οικονομική Ανάλυση',
-    'generate_analysis': 'Δημιουργία Ανάλυσης',
     'load.data': 'Φόρτωση Δεδομένων',
     'load.data.description': 'Εισάγετε τα διαπιστευτήριά σας για να φορτώσετε τα αποθηκευμένα δεδομένα σας',
   }
@@ -255,4 +251,3 @@ export const useLanguage = () => {
   }
   return context;
 };
-
