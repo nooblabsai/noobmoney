@@ -8,16 +8,33 @@ const UserMenu = () => {
   const [userName, setUserName] = useState<string>('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
+  const getUser = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user?.user_metadata?.name) {
+      setUserName(user.user_metadata.name);
+      setIsLoggedIn(true);
+    } else {
+      setUserName('');
+      setIsLoggedIn(false);
+    }
+  };
+
   useEffect(() => {
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user?.user_metadata?.name) {
-        setUserName(user.user_metadata.name);
-        setIsLoggedIn(true);
-      }
-    };
-    
     getUser();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user?.user_metadata?.name) {
+        setUserName(session.user.user_metadata.name);
+        setIsLoggedIn(true);
+      } else {
+        setUserName('');
+        setIsLoggedIn(false);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   return (
