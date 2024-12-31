@@ -47,8 +47,16 @@ const FirstTimeUserDialog: React.FC<FirstTimeUserDialogProps> = ({ isOpen, onCom
         }
 
         // Load transactions after successful login
-        const transactionData = await loadTransactions(userData.user.id);
-        console.log('Loaded transaction data:', transactionData);
+        const { transactions, recurringTransactions, bankBalance, debtBalance } = await loadTransactions(userData.user.id);
+        console.log('Loaded transaction data:', { transactions, recurringTransactions, bankBalance, debtBalance });
+        
+        // Store the loaded data in localStorage before reload
+        localStorage.setItem('transactions', JSON.stringify(transactions));
+        localStorage.setItem('recurringTransactions', JSON.stringify(recurringTransactions));
+        localStorage.setItem('bankBalance', bankBalance);
+        localStorage.setItem('debtBalance', debtBalance);
+        
+        onComplete();
         
         // Trigger a page reload to ensure all components are properly updated
         window.location.reload();
