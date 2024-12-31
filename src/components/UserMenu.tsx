@@ -22,7 +22,7 @@ const UserMenu = () => {
   useEffect(() => {
     getUser();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (session?.user?.user_metadata?.name) {
         setUserName(session.user.user_metadata.name);
         setIsLoggedIn(true);

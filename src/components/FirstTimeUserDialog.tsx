@@ -50,6 +50,9 @@ const FirstTimeUserDialog: React.FC<FirstTimeUserDialogProps> = ({ isOpen, onCom
         const transactionData = await loadTransactions(userData.user.id);
         console.log('Loaded transaction data:', transactionData);
         
+        // Trigger a page reload to ensure all components are properly updated
+        window.location.reload();
+        
       } else {
         if (!name || !email || !password) {
           toast({
