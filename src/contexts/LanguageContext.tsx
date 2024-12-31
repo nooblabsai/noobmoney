@@ -213,12 +213,10 @@ const translations = {
 
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [language, setLanguage] = useState(() => {
-    // Set Greek ('el') as the default language
     const savedLanguage = localStorage.getItem('language');
     return savedLanguage || 'el';
   });
 
-  // Save language preference to localStorage whenever it changes
   React.useEffect(() => {
     localStorage.setItem('language', language);
   }, [language]);
