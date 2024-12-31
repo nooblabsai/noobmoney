@@ -35,7 +35,7 @@ const RunwayChart: React.FC<RunwayChartProps> = ({ data, title, showIncomeExpens
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="month" />
             <YAxis />
-            <Tooltip />
+            <Tooltip formatter={(value: number) => `€${value.toFixed(2)}`} />
             <Legend />
             <Line
               type="monotone"

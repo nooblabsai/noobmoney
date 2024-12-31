@@ -101,6 +101,7 @@ const Index = () => {
       const monthStart = new Date(currentDate.getFullYear(), currentDate.getMonth() + i, 1);
       const monthEnd = new Date(currentDate.getFullYear(), currentDate.getMonth() + i + 1, 0);
 
+      // Calculate recurring transactions
       const monthlyRecurringIncome = recurringTransactions
         .filter(t => t.isIncome && new Date(t.startDate) <= monthEnd)
         .reduce((sum, t) => sum + t.amount, 0);
@@ -109,22 +110,30 @@ const Index = () => {
         .filter(t => !t.isIncome && new Date(t.startDate) <= monthEnd)
         .reduce((sum, t) => sum + t.amount, 0);
 
+      // Calculate one-time transactions that fall within this month
       const monthlyOneTimeIncome = transactions
         .filter(t => {
           const transactionDate = new Date(t.date);
-          return t.isIncome && transactionDate >= monthStart && transactionDate <= monthEnd;
+          return t.isIncome && 
+                 transactionDate >= monthStart && 
+                 transactionDate <= monthEnd;
         })
         .reduce((sum, t) => sum + t.amount, 0);
 
       const monthlyOneTimeExpenses = transactions
         .filter(t => {
           const transactionDate = new Date(t.date);
-          return !t.isIncome && transactionDate >= monthStart && transactionDate <= monthEnd;
+          return !t.isIncome && 
+                 transactionDate >= monthStart && 
+                 transactionDate <= monthEnd;
         })
         .reduce((sum, t) => sum + t.amount, 0);
 
+      // Total income and expenses for the month
       const totalIncome = monthlyRecurringIncome + monthlyOneTimeIncome;
       const totalExpenses = monthlyRecurringExpenses + monthlyOneTimeExpenses;
+      
+      // Update running balance
       runningBalance += totalIncome - totalExpenses;
 
       data.push({
