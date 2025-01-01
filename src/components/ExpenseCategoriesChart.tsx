@@ -2,6 +2,7 @@ import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { format, isSameMonth, isBefore, startOfMonth, endOfMonth } from 'date-fns';
 import { Transaction } from '@/types/transactions';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ExpenseCategoriesChartProps {
   transactions: Transaction[];
@@ -12,6 +13,8 @@ const ExpenseCategoriesChart: React.FC<ExpenseCategoriesChartProps> = ({
   transactions,
   selectedDate,
 }) => {
+  const { t } = useLanguage();
+
   const calculateData = () => {
     const selectedMonthStart = startOfMonth(selectedDate);
     const selectedMonthEnd = endOfMonth(selectedDate);
@@ -50,8 +53,9 @@ const ExpenseCategoriesChart: React.FC<ExpenseCategoriesChartProps> = ({
     // Convert to chart data format and sort by amount
     return Object.entries(categoryTotals)
       .map(([name, value]) => ({
-        name,
+        name: t(`category.${name}`), // Translate category names
         amount: value,
+        originalName: name, // Keep original name for reference
       }))
       .sort((a, b) => b.amount - a.amount); // Sort by amount in descending order
   };
@@ -61,7 +65,7 @@ const ExpenseCategoriesChart: React.FC<ExpenseCategoriesChartProps> = ({
   if (data.length === 0) {
     return (
       <div className="flex items-center justify-center h-[300px] text-gray-500">
-        No expenses for this period
+        {t('no.categorized.expenses')}
       </div>
     );
   }
