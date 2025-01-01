@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useToast } from '@/hooks/use-toast';
-import { signUpUser, signInUser, loadTransactions } from '@/services/supabaseService';
+import { signInUser, signUpUser } from '@/services/auth/authService';
+import { loadTransactions } from '@/services/transactions/transactionService';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { supabase } from '@/lib/supabaseClient';
+import AuthForm from './auth/AuthForm';
 
 interface FirstTimeUserDialogProps {
   isOpen: boolean;
@@ -14,15 +18,18 @@ interface FirstTimeUserDialogProps {
   onComplete: () => void;
 }
 
-const FirstTimeUserDialog: React.FC<FirstTimeUserDialogProps> = ({ isOpen, onComplete }) => {
+const FirstTimeUserDialog: React.FC<FirstTimeUserDialogProps> = ({
+  isOpen,
+  onClose,
+  onComplete,
+}) => {
   const { t } = useLanguage();
   const { toast } = useToast();
-  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [openaiKey, setOpenaiKey] = useState('');
+  const [name, setName] = useState('');
+  const [isLogin, setIsLogin] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
-  const [isLogin, setIsLogin] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,7 +37,7 @@ const FirstTimeUserDialog: React.FC<FirstTimeUserDialogProps> = ({ isOpen, onCom
 
     try {
       let userData;
-      
+
       if (isLogin) {
         if (!email || !password) {
           toast({
@@ -55,11 +62,15 @@ const FirstTimeUserDialog: React.FC<FirstTimeUserDialogProps> = ({ isOpen, onCom
         
         if (transactionData) {
           const { transactions, recurringTransactions, bankBalance, debtBalance } = transactionData;
+          
           // Store the loaded data in localStorage
           localStorage.setItem('transactions', JSON.stringify(transactions || []));
           localStorage.setItem('recurringTransactions', JSON.stringify(recurringTransactions || []));
           localStorage.setItem('bankBalance', bankBalance?.toString() || '0');
           localStorage.setItem('debtBalance', debtBalance?.toString() || '0');
+
+          // Force a page reload to ensure all components are updated with the new data
+          window.location.reload();
         }
         
         toast({
@@ -86,17 +97,20 @@ const FirstTimeUserDialog: React.FC<FirstTimeUserDialogProps> = ({ isOpen, onCom
           throw new Error(t('account.creation.failed'));
         }
 
-        if (openaiKey.trim()) {
-          const { error: settingsError } = await supabase
-            .from('user_settings')
-            .upsert({
-              user_id: userData.user.id,
-              openai_api_key: openaiKey
-            }, {
-              onConflict: 'user_id'
-            });
+        // Initialize user settings if needed
+        if (userData.user) {
+          try {
+            const { error: settingsError } = await supabase
+              .from('user_settings')
+              .insert({
+                user_id: userData.user.id,
+                openai_api_key: null,
+              });
 
-          if (settingsError) {
+            if (settingsError) {
+              console.error('Failed to save OpenAI key:', settingsError);
+            }
+          } catch (settingsError) {
             console.error('Failed to save OpenAI key:', settingsError);
           }
         }
@@ -121,78 +135,27 @@ const FirstTimeUserDialog: React.FC<FirstTimeUserDialogProps> = ({ isOpen, onCom
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={() => {}}>
+    <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{isLogin ? t('welcome.back') : t('welcome')}</DialogTitle>
+          <DialogTitle>{isLogin ? t('welcome.back') : t('create.account')}</DialogTitle>
           <DialogDescription>
-            {isLogin ? t('sign.in.description') : t('create.account.description')}
+            {isLogin ? t('login.description') : t('signup.description')}
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {!isLogin && (
-            <div className="space-y-2">
-              <Label htmlFor="name">{t('name')} *</Label>
-              <Input
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder={t('enter.name')}
-                disabled={isLoading}
-                required={!isLogin}
-              />
-            </div>
-          )}
-          <div className="space-y-2">
-            <Label htmlFor="email">{t('email')} *</Label>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder={t('enter.email')}
-              disabled={isLoading}
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">{t('password')} *</Label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder={t('enter.password')}
-              disabled={isLoading}
-              required
-            />
-          </div>
-          {!isLogin && (
-            <div className="space-y-2">
-              <Label htmlFor="openai-key">{t('openai.key.optional')}</Label>
-              <Input
-                id="openai-key"
-                type="password"
-                value={openaiKey}
-                onChange={(e) => setOpenaiKey(e.target.value)}
-                placeholder={t('enter.openai.key')}
-                disabled={isLoading}
-              />
-            </div>
-          )}
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? t('processing') : (isLogin ? t('sign.in') : t('create.account'))}
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full"
-            onClick={() => setIsLogin(!isLogin)}
-            disabled={isLoading}
-          >
-            {isLogin ? t('need.account') : t('have.account')}
-          </Button>
-        </form>
+        <AuthForm
+          isSignUp={!isLogin}
+          email={email}
+          setEmail={setEmail}
+          password={password}
+          setPassword={setPassword}
+          name={name}
+          setName={setName}
+          handleSave={handleSubmit}
+          setIsSignUp={() => setIsLogin(!isLogin)}
+          t={t}
+          isLoading={isLoading}
+        />
       </DialogContent>
     </Dialog>
   );
