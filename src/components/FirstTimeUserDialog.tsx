@@ -38,29 +38,36 @@ const FirstTimeUserDialog: React.FC<FirstTimeUserDialogProps> = ({ isOpen, onCom
             description: t('fill.required'),
             variant: 'destructive',
           });
+          setIsLoading(false);
           return;
         }
 
         userData = await signInUser(email, password);
-        if (!userData.user) {
+        console.log('Sign in response:', userData);
+        
+        if (!userData?.user) {
           throw new Error(t('invalid.credentials'));
         }
 
         // Load transactions after successful login
-        const { transactions, recurringTransactions, bankBalance, debtBalance } = await loadTransactions(userData.user.id);
-        console.log('Loaded transaction data:', { transactions, recurringTransactions, bankBalance, debtBalance });
+        const transactionData = await loadTransactions(userData.user.id);
+        console.log('Loaded transaction data:', transactionData);
         
-        // Store the loaded data in localStorage before reload
-        localStorage.setItem('transactions', JSON.stringify(transactions));
-        localStorage.setItem('recurringTransactions', JSON.stringify(recurringTransactions));
-        localStorage.setItem('bankBalance', bankBalance);
-        localStorage.setItem('debtBalance', debtBalance);
+        if (transactionData) {
+          const { transactions, recurringTransactions, bankBalance, debtBalance } = transactionData;
+          // Store the loaded data in localStorage
+          localStorage.setItem('transactions', JSON.stringify(transactions || []));
+          localStorage.setItem('recurringTransactions', JSON.stringify(recurringTransactions || []));
+          localStorage.setItem('bankBalance', bankBalance?.toString() || '0');
+          localStorage.setItem('debtBalance', debtBalance?.toString() || '0');
+        }
+        
+        toast({
+          title: t('success'),
+          description: t('login.success'),
+        });
         
         onComplete();
-        
-        // Trigger a page reload to ensure all components are properly updated
-        window.location.reload();
-        
       } else {
         if (!name || !email || !password) {
           toast({
@@ -68,11 +75,14 @@ const FirstTimeUserDialog: React.FC<FirstTimeUserDialogProps> = ({ isOpen, onCom
             description: t('fill.required'),
             variant: 'destructive',
           });
+          setIsLoading(false);
           return;
         }
 
         userData = await signUpUser(email, password, name);
-        if (!userData.user) {
+        console.log('Sign up response:', userData);
+        
+        if (!userData?.user) {
           throw new Error(t('account.creation.failed'));
         }
 
@@ -90,16 +100,16 @@ const FirstTimeUserDialog: React.FC<FirstTimeUserDialogProps> = ({ isOpen, onCom
             console.error('Failed to save OpenAI key:', settingsError);
           }
         }
-      }
 
-      toast({
-        title: t('success'),
-        description: isLogin ? t('login.success') : t('account.created'),
-      });
-      
-      onComplete();
+        toast({
+          title: t('success'),
+          description: t('account.created'),
+        });
+        
+        onComplete();
+      }
     } catch (error: any) {
-      console.error('Error:', error);
+      console.error('Authentication error:', error);
       toast({
         title: t('error'),
         description: error.message || (isLogin ? t('login.failed') : t('account.creation.failed')),

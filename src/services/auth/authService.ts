@@ -2,8 +2,7 @@ import { supabase } from '@/lib/supabaseClient';
 
 export const signUpUser = async (email: string, password: string, name: string) => {
   try {
-    // Clear any existing session before signing up
-    await supabase.auth.signOut();
+    console.log('Attempting to sign up user:', { email, name });
     
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -20,6 +19,7 @@ export const signUpUser = async (email: string, password: string, name: string) 
       throw error;
     }
 
+    console.log('Signup successful:', data);
     return data;
   } catch (error: any) {
     console.error('Signup error:', error);
@@ -29,10 +29,7 @@ export const signUpUser = async (email: string, password: string, name: string) 
 
 export const signInUser = async (email: string, password: string) => {
   try {
-    // Ensure clean state before sign in
-    await supabase.auth.signOut();
-    
-    console.log('Attempting to sign in with:', { email });
+    console.log('Attempting to sign in user:', { email });
     
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
@@ -41,18 +38,10 @@ export const signInUser = async (email: string, password: string) => {
 
     if (error) {
       console.error('Sign in error:', error);
-      if (error.message === 'Invalid login credentials') {
-        throw new Error('Invalid email or password. Please check your credentials and try again.');
-      }
       throw error;
     }
 
-    if (!data.user || !data.session) {
-      throw new Error('Authentication failed. Please try again.');
-    }
-
-    console.log('Sign in successful:', data.user);
-
+    console.log('Sign in successful:', data);
     return data;
   } catch (error: any) {
     console.error('Sign in error:', error);
