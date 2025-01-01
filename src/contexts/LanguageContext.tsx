@@ -107,6 +107,13 @@ const translations = {
     'income.added': 'Income added successfully',
     'expense.added': 'Expense added successfully',
     'transaction.failed': 'Failed to add transaction',
+    'confirm.save': 'Confirm Save',
+    'confirm.save.description': 'Are you sure you want to save your data? This will overwrite any existing data.',
+    'confirm.reset': 'Confirm Reset',
+    'confirm.reset.description': 'This will delete all your data. This action cannot be undone.',
+    'save': 'Save',
+    'reset': 'Reset',
+    'cancel': 'Cancel',
   },
   el: {
     'app.name': 'Noobnation Money',
@@ -204,6 +211,13 @@ const translations = {
     'income.added': 'Τα έσοδα προστέθηκαν με επιτυχία',
     'expense.added': 'Τα έξοδα προστέθηκαν με επιτυχία',
     'transaction.failed': 'Αποτυχία προσθήκης συναλλαγής',
+    'confirm.save': 'Επιβεβαίωση Αποθήκευσης',
+    'confirm.save.description': 'Είστε σίγουροι ότι θέλετε να αποθηκεύσετε τα δεδομένα σας; Αυτό θα αντικαταστήσει τυχόν υπάρχοντα δεδομένα.',
+    'confirm.reset': 'Επιβεβαίωση Επαναφοράς',
+    'confirm.reset.description': 'Αυτό θα διαγράψει όλα τα δεδομένα σας. Αυτή η ενέργεια δεν μπορεί να αναιρεθεί.',
+    'save': 'Αποθήκευση',
+    'reset': 'Επαναφορά',
+    'cancel': 'Ακύρωση',
   }
 };
 
