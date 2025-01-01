@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 
+// Using a constant URL since this is the public project URL
 const supabaseUrl = 'https://lwdnnudfamnwhgkliors.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx3ZG5udWRmYW1ud2hna2xpb3JzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzUzNzgyODgsImV4cCI6MjA1MDk1NDI4OH0.v_3j4EViANIti2x7atSaUrhp5e7BcfLEmCuq8UO9Ep0';
 
@@ -7,7 +8,7 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 export const supabase = createClient(supabaseUrl, supabaseKey, {
   auth: {
     persistSession: true,
-    storageKey: 'app-storage-key', // Unique storage key to avoid conflicts
+    storageKey: 'app-storage-key',
     autoRefreshToken: true,
     detectSessionInUrl: true
   }
