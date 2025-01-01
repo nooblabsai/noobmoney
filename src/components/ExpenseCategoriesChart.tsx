@@ -1,6 +1,6 @@
 import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
-import { format, isSameMonth, isBefore, startOfMonth } from 'date-fns';
+import { format, isSameMonth, isBefore, startOfMonth, endOfMonth } from 'date-fns';
 import { Transaction } from '@/types/transactions';
 
 interface ExpenseCategoriesChartProps {
@@ -15,20 +15,23 @@ const ExpenseCategoriesChart: React.FC<ExpenseCategoriesChartProps> = ({
   selectedDate,
 }) => {
   const calculateData = () => {
+    const selectedMonthStart = startOfMonth(selectedDate);
+    const selectedMonthEnd = endOfMonth(selectedDate);
+
     // Get one-time transactions for the selected month
     const oneTimeTransactions = transactions.filter(t => {
       if ('startDate' in t) return false; // Skip recurring transactions
       const transactionDate = new Date(t.date);
-      return isSameMonth(transactionDate, selectedDate);
+      return isSameMonth(transactionDate, selectedDate) && !t.isIncome;
     });
 
-    // Get recurring transactions that started on or before the selected month
+    // Get recurring transactions that are active in the selected month
     const recurringTransactions = transactions.filter(t => {
       if (!('startDate' in t)) return false; // Skip non-recurring transactions
+      if (t.isIncome) return false; // Skip income transactions
       const startDate = new Date(t.startDate as string | number | Date);
-      const selectedMonthStart = startOfMonth(selectedDate);
-      // Include if start date is on or before the selected month
-      return isBefore(startDate, selectedMonthStart) || isSameMonth(startDate, selectedDate);
+      // Include if start date is before or within the selected month
+      return (isBefore(startDate, selectedMonthEnd) || isSameMonth(startDate, selectedDate));
     });
 
     console.log('Selected month:', format(selectedDate, 'MMMM yyyy'));
