@@ -60,6 +60,8 @@ const translations = {
     'logout': 'Logout',
     'logout.success': 'Successfully logged out',
     'logout.failed': 'Failed to logout',
+    'openai.api.key': 'OpenAI API Key',
+    'update.openai.key': 'Update OpenAI Key',
     'save.data': 'Save Data',
     'load.data': 'Load Data',
     'load.data.description': 'Please sign in to load your data.',
