@@ -11,6 +11,8 @@ interface AuthFormProps {
   setPassword: (value: string) => void;
   name: string;
   setName: (value: string) => void;
+  openaiKey?: string;
+  setOpenaiKey?: (value: string) => void;
   handleSave: (e: React.FormEvent) => void;
   setIsSignUp: (value: boolean) => void;
   t: (key: string) => string;
@@ -25,6 +27,8 @@ const AuthForm: React.FC<AuthFormProps> = ({
   setPassword,
   name,
   setName,
+  openaiKey = '',
+  setOpenaiKey = () => {},
   handleSave,
   setIsSignUp,
   t,
@@ -66,6 +70,20 @@ const AuthForm: React.FC<AuthFormProps> = ({
           required
         />
       </div>
+      {isSignUp && (
+        <div className="space-y-2">
+          <Label htmlFor="openaiKey">
+            {t('openai.key.optional')}
+          </Label>
+          <Input
+            id="openaiKey"
+            type="password"
+            value={openaiKey}
+            onChange={(e) => setOpenaiKey(e.target.value)}
+            placeholder={t('enter.openai.key')}
+          />
+        </div>
+      )}
       <Button type="submit" className="w-full" disabled={isLoading}>
         {isSignUp ? t('auth.signup') : t('auth.signin')}
       </Button>

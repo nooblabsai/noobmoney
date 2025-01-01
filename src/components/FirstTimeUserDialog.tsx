@@ -29,6 +29,7 @@ const FirstTimeUserDialog: React.FC<FirstTimeUserDialogProps> = ({
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const [openaiKey, setOpenaiKey] = useState('');
   const [isLogin, setIsLogin] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -64,13 +65,11 @@ const FirstTimeUserDialog: React.FC<FirstTimeUserDialogProps> = ({
         if (transactionData) {
           const { transactions, recurringTransactions, bankBalance, debtBalance } = transactionData;
           
-          // Store the loaded data in localStorage
           localStorage.setItem('transactions', JSON.stringify(transactions || []));
           localStorage.setItem('recurringTransactions', JSON.stringify(recurringTransactions || []));
           localStorage.setItem('bankBalance', bankBalance?.toString() || '0');
           localStorage.setItem('debtBalance', debtBalance?.toString() || '0');
 
-          // Force a page reload to ensure all components are updated with the new data
           window.location.reload();
         }
         
@@ -98,14 +97,14 @@ const FirstTimeUserDialog: React.FC<FirstTimeUserDialogProps> = ({
           throw new Error(t('account.creation.failed'));
         }
 
-        // Initialize user settings if needed
+        // Initialize user settings with OpenAI key if provided
         if (userData.user) {
           try {
             const { error: settingsError } = await supabase
               .from('user_settings')
               .insert({
                 user_id: userData.user.id,
-                openai_api_key: null,
+                openai_api_key: openaiKey || null,
               });
 
             if (settingsError) {
@@ -152,6 +151,8 @@ const FirstTimeUserDialog: React.FC<FirstTimeUserDialogProps> = ({
           setPassword={setPassword}
           name={name}
           setName={setName}
+          openaiKey={openaiKey}
+          setOpenaiKey={setOpenaiKey}
           handleSave={handleSubmit}
           setIsSignUp={() => setIsLogin(!isLogin)}
           t={t}
