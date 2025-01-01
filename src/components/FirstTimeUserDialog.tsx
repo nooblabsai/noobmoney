@@ -11,6 +11,7 @@ import { signInUser, signUpUser } from '@/services/auth/authService';
 import { loadTransactions } from '@/services/transactions/transactionService';
 import { useLanguage } from '@/contexts/LanguageContext';
 import AuthForm from './auth/AuthForm';
+import { supabase } from '@/lib/supabaseClient';
 
 interface FirstTimeUserDialogProps {
   isOpen: boolean;

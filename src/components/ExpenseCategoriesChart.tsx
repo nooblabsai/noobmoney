@@ -4,7 +4,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recha
 import { ExpenseCategory, getCategoryColor } from '@/types/categories';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Transaction } from '@/types/transactions';
-import { isSameMonth, addMonths, isBefore, isEqual } from 'date-fns';
+import { isSameMonth, addMonths, isBefore, isEqual, format } from 'date-fns';
 
 interface ExpenseCategoriesChartProps {
   transactions: Transaction[];

@@ -14,6 +14,7 @@ interface AuthFormProps {
   handleSave: (e: React.FormEvent) => void;
   setIsSignUp: (value: boolean) => void;
   t: (key: string) => string;
+  isLoading?: boolean;
 }
 
 const AuthForm: React.FC<AuthFormProps> = ({
@@ -27,6 +28,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
   handleSave,
   setIsSignUp,
   t,
+  isLoading = false,
 }) => {
   return (
     <form onSubmit={handleSave} className="space-y-4">
@@ -64,7 +66,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
           required
         />
       </div>
-      <Button type="submit" className="w-full">
+      <Button type="submit" className="w-full" disabled={isLoading}>
         {isSignUp ? t('sign.up.save') : t('sign.in.save')}
       </Button>
       <Button
@@ -72,6 +74,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
         variant="outline"
         className="w-full"
         onClick={() => setIsSignUp(!isSignUp)}
+        disabled={isLoading}
       >
         {isSignUp ? t('have.account') : t('need.account')}
       </Button>
