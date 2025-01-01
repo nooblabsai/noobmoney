@@ -1,5 +1,5 @@
 import React from 'react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { format, isSameMonth, isBefore, startOfMonth, endOfMonth } from 'date-fns';
 import { Transaction } from '@/types/transactions';
 
@@ -7,8 +7,6 @@ interface ExpenseCategoriesChartProps {
   transactions: Transaction[];
   selectedDate: Date;
 }
-
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
 
 const ExpenseCategoriesChart: React.FC<ExpenseCategoriesChartProps> = ({
   transactions,
@@ -49,11 +47,13 @@ const ExpenseCategoriesChart: React.FC<ExpenseCategoriesChartProps> = ({
       return acc;
     }, {} as Record<string, number>);
 
-    // Convert to chart data format
-    return Object.entries(categoryTotals).map(([name, value]) => ({
-      name,
-      value,
-    }));
+    // Convert to chart data format and sort by amount
+    return Object.entries(categoryTotals)
+      .map(([name, value]) => ({
+        name,
+        amount: value,
+      }))
+      .sort((a, b) => b.amount - a.amount); // Sort by amount in descending order
   };
 
   const data = calculateData();
@@ -69,52 +69,35 @@ const ExpenseCategoriesChart: React.FC<ExpenseCategoriesChartProps> = ({
   return (
     <div className="w-full h-[300px]">
       <ResponsiveContainer>
-        <PieChart>
-          <Pie
-            data={data}
-            cx="50%"
-            cy="50%"
-            labelLine={false}
-            outerRadius={80}
-            fill="#8884d8"
-            dataKey="value"
-            label={({
-              cx,
-              cy,
-              midAngle,
-              innerRadius,
-              outerRadius,
-              value,
-              index,
-            }) => {
-              const RADIAN = Math.PI / 180;
-              const radius = 25 + innerRadius + (outerRadius - innerRadius);
-              const x = cx + radius * Math.cos(-midAngle * RADIAN);
-              const y = cy + radius * Math.sin(-midAngle * RADIAN);
-
-              return (
-                <text
-                  x={x}
-                  y={y}
-                  fill="#666"
-                  textAnchor={x > cx ? 'start' : 'end'}
-                  dominantBaseline="central"
-                >
-                  {`€${value.toFixed(2)}`}
-                </text>
-              );
-            }}
-          >
-            {data.map((entry, index) => (
-              <Cell
-                key={`cell-${index}`}
-                fill={COLORS[index % COLORS.length]}
-              />
-            ))}
-          </Pie>
-          <Tooltip />
-          <Legend />
-        </PieChart>
+        <BarChart
+          data={data}
+          margin={{
+            top: 20,
+            right: 30,
+            left: 20,
+            bottom: 60,
+          }}
+        >
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis 
+            dataKey="name" 
+            angle={-45}
+            textAnchor="end"
+            height={60}
+            interval={0}
+          />
+          <YAxis 
+            tickFormatter={(value) => `€${value}`}
+          />
+          <Tooltip 
+            formatter={(value: number) => [`€${value.toFixed(2)}`, 'Amount']}
+          />
+          <Bar 
+            dataKey="amount" 
+            fill="#1e3a8a"
+            radius={[4, 4, 0, 0]}
+          />
+        </BarChart>
       </ResponsiveContainer>
     </div>
   );
