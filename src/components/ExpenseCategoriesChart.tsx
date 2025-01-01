@@ -31,7 +31,7 @@ const ExpenseCategoriesChart: React.FC<ExpenseCategoriesChartProps> = ({
       if (!('startDate' in t)) return false; // Skip non-recurring transactions
       if (t.isIncome) return false; // Skip income transactions
       const startDate = new Date(t.startDate as string | number | Date);
-      return isBefore(startDate, selectedMonthEnd) || isSameMonth(startDate, selectedDate);
+      return (isBefore(startDate, selectedMonthEnd) || isSameMonth(startDate, selectedDate));
     });
 
     // Combine both types of transactions
