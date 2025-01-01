@@ -1,26 +1,21 @@
 import React from 'react';
-import { Card } from '@/components/ui/card';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
-import { ExpenseCategory, getCategoryColor } from '@/types/categories';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { format, isSameMonth, isBefore, startOfMonth } from 'date-fns';
 import { Transaction } from '@/types/transactions';
-import { isSameMonth, addMonths, isBefore, isEqual, format } from 'date-fns';
 
 interface ExpenseCategoriesChartProps {
   transactions: Transaction[];
-  selectedMonth?: string;
+  selectedDate: Date;
 }
 
-const ExpenseCategoriesChart: React.FC<ExpenseCategoriesChartProps> = ({ 
-  transactions,
-  selectedMonth = '0'
-}) => {
-  const { t } = useLanguage();
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
 
-  const expensesByCategory = React.useMemo(() => {
-    const selectedDate = addMonths(new Date(), parseInt(selectedMonth));
-    
-    // Filter one-time transactions for the selected month
+const ExpenseCategoriesChart: React.FC<ExpenseCategoriesChartProps> = ({
+  transactions,
+  selectedDate,
+}) => {
+  const calculateData = () => {
+    // Get one-time transactions for the selected month
     const oneTimeTransactions = transactions.filter(t => {
       if ('startDate' in t) return false; // Skip recurring transactions
       const transactionDate = new Date(t.date);
@@ -31,79 +26,94 @@ const ExpenseCategoriesChart: React.FC<ExpenseCategoriesChartProps> = ({
     const recurringTransactions = transactions.filter(t => {
       if (!('startDate' in t)) return false; // Skip non-recurring transactions
       const startDate = new Date(t.startDate as string | number | Date);
-      // Include if start date is before or equal to selected month
-      return isBefore(startDate, selectedDate) || isSameMonth(startDate, selectedDate);
+      const selectedMonthStart = startOfMonth(selectedDate);
+      // Include if start date is on or before the selected month
+      return isBefore(startDate, selectedMonthStart) || isSameMonth(startDate, selectedDate);
     });
 
     console.log('Selected month:', format(selectedDate, 'MMMM yyyy'));
-    console.log('One-time transactions for month:', oneTimeTransactions);
-    console.log('Recurring transactions included:', recurringTransactions);
+    console.log('One-time transactions:', oneTimeTransactions);
+    console.log('Recurring transactions:', recurringTransactions);
 
-    // Combine one-time and recurring transactions
-    const allTransactions = [
-      ...oneTimeTransactions,
-      ...recurringTransactions
-    ];
+    // Combine both types of transactions
+    const relevantTransactions = [...oneTimeTransactions, ...recurringTransactions];
 
-    const categories = Object.values(ExpenseCategory);
-    const expenses = categories.map(category => {
-      const total = allTransactions
-        .filter(t => !t.isIncome && t.category === category)
-        .reduce((sum, t) => sum + t.amount, 0);
-      
-      return {
-        name: t(category),
-        value: total,
-        category: category
-      };
-    })
-    .filter(category => category.value > 0);
+    // Group transactions by category and sum amounts
+    const categoryTotals = relevantTransactions.reduce((acc, transaction) => {
+      const category = transaction.category;
+      const amount = parseFloat(transaction.amount.toString());
+      acc[category] = (acc[category] || 0) + amount;
+      return acc;
+    }, {} as Record<string, number>);
 
-    console.log('Final expenses by category:', expenses);
-    return expenses;
-  }, [transactions, selectedMonth, t]);
+    // Convert to chart data format
+    return Object.entries(categoryTotals).map(([name, value]) => ({
+      name,
+      value: Math.abs(value), // Use absolute value for positive numbers in chart
+    }));
+  };
 
-  if (expensesByCategory.length === 0) {
+  const data = calculateData();
+
+  if (data.length === 0) {
     return (
-      <Card className="p-6 mb-8">
-        <h2 className="text-xl font-semibold mb-4">{t('expenses.by.category')}</h2>
-        <div className="text-center text-gray-500 py-4">
-          {t('no.categorized.expenses')}
-        </div>
-      </Card>
+      <div className="flex items-center justify-center h-[300px] text-gray-500">
+        No expenses for this period
+      </div>
     );
   }
 
   return (
-    <Card className="p-6 mb-8">
-      <h2 className="text-xl font-semibold mb-4">{t('expenses.by.category')}</h2>
-      <div className="h-[400px]">
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
-            <Pie
-              data={expensesByCategory}
-              dataKey="value"
-              nameKey="name"
-              cx="50%"
-              cy="50%"
-              outerRadius={150}
-              label={({ name, value }) => `${name}: €${value.toFixed(2)}`}
-            >
-              {expensesByCategory.map((entry) => (
-                <Cell 
-                  key={`cell-${entry.category}`}
-                  fill={getCategoryColor(entry.category)}
-                />
-              ))}
-            </Pie>
-            <Tooltip 
-              formatter={(value: number) => `€${value.toFixed(2)}`}
-            />
-            <Legend />
-          </PieChart>
-        </ResponsiveContainer>
-      </div>
-    </Card>
+    <div className="w-full h-[300px]">
+      <ResponsiveContainer>
+        <PieChart>
+          <Pie
+            data={data}
+            cx="50%"
+            cy="50%"
+            labelLine={false}
+            outerRadius={80}
+            fill="#8884d8"
+            dataKey="value"
+            label={({
+              cx,
+              cy,
+              midAngle,
+              innerRadius,
+              outerRadius,
+              value,
+              index,
+            }) => {
+              const RADIAN = Math.PI / 180;
+              const radius = 25 + innerRadius + (outerRadius - innerRadius);
+              const x = cx + radius * Math.cos(-midAngle * RADIAN);
+              const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+              return (
+                <text
+                  x={x}
+                  y={y}
+                  fill="#666"
+                  textAnchor={x > cx ? 'start' : 'end'}
+                  dominantBaseline="central"
+                >
+                  {`€${value.toFixed(2)}`}
+                </text>
+              );
+            }}
+          >
+            {data.map((entry, index) => (
+              <Cell
+                key={`cell-${index}`}
+                fill={COLORS[index % COLORS.length]}
+              />
+            ))}
+          </Pie>
+          <Tooltip />
+          <Legend />
+        </PieChart>
+      </ResponsiveContainer>
+    </div>
   );
 };
 
