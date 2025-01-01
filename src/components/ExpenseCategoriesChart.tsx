@@ -22,7 +22,7 @@ const ExpenseCategoriesChart: React.FC<ExpenseCategoriesChartProps> = ({
     const oneTimeTransactions = transactions.filter(t => {
       if ('startDate' in t) return false; // Skip recurring transactions
       const transactionDate = new Date(t.date);
-      return isSameMonth(transactionDate, selectedDate) && !t.isIncome;
+      return !t.isIncome && isSameMonth(transactionDate, selectedDate);
     });
 
     // Get recurring transactions that are active in the selected month
@@ -30,21 +30,21 @@ const ExpenseCategoriesChart: React.FC<ExpenseCategoriesChartProps> = ({
       if (!('startDate' in t)) return false; // Skip non-recurring transactions
       if (t.isIncome) return false; // Skip income transactions
       const startDate = new Date(t.startDate as string | number | Date);
-      // Include if start date is before or within the selected month
-      return (isBefore(startDate, selectedMonthEnd) || isSameMonth(startDate, selectedDate));
+      return isBefore(startDate, selectedMonthEnd) || isSameMonth(startDate, selectedDate);
     });
-
-    console.log('Selected month:', format(selectedDate, 'MMMM yyyy'));
-    console.log('One-time transactions:', oneTimeTransactions);
-    console.log('Recurring transactions:', recurringTransactions);
 
     // Combine both types of transactions
     const relevantTransactions = [...oneTimeTransactions, ...recurringTransactions];
 
+    console.log('Selected month:', format(selectedDate, 'MMMM yyyy'));
+    console.log('One-time transactions:', oneTimeTransactions);
+    console.log('Recurring transactions:', recurringTransactions);
+    console.log('All relevant transactions:', relevantTransactions);
+
     // Group transactions by category and sum amounts
     const categoryTotals = relevantTransactions.reduce((acc, transaction) => {
-      const category = transaction.category;
-      const amount = parseFloat(transaction.amount.toString());
+      const category = transaction.category || 'other';
+      const amount = Math.abs(parseFloat(transaction.amount.toString()));
       acc[category] = (acc[category] || 0) + amount;
       return acc;
     }, {} as Record<string, number>);
@@ -52,7 +52,7 @@ const ExpenseCategoriesChart: React.FC<ExpenseCategoriesChartProps> = ({
     // Convert to chart data format
     return Object.entries(categoryTotals).map(([name, value]) => ({
       name,
-      value: Math.abs(value), // Use absolute value for positive numbers in chart
+      value,
     }));
   };
 
