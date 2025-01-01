@@ -93,11 +93,6 @@ const UserMenu = () => {
 
   return (
     <div className="flex items-center gap-4">
-      {userName && (
-        <span className="text-sm font-medium">
-          {t('welcome.user', { name: userName })}
-        </span>
-      )}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="outline">
