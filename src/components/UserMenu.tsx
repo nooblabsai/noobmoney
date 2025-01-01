@@ -108,31 +108,31 @@ const UserMenu = () => {
             <DialogTrigger asChild>
               <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                 <Key className="mr-2 h-4 w-4" />
-                <span>{t('update.openai.key')}</span>
+                <span>Update OpenAI Key</span>
               </DropdownMenuItem>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>{t('openai.api.key.title')}</DialogTitle>
+                <DialogTitle>OpenAI API Key</DialogTitle>
                 <DialogDescription>
-                  {t('openai.api.key.description')}
+                  Enter your OpenAI API key to enable AI features
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
                 <Input
-                  placeholder={t('enter.openai.key')}
+                  placeholder="Enter your OpenAI API key"
                   value={apiKey}
                   onChange={(e) => setApiKey(e.target.value)}
                 />
                 <Button onClick={handleSaveApiKey} className="w-full">
-                  {t('save.and.continue')}
+                  Save and Continue
                 </Button>
               </div>
             </DialogContent>
           </Dialog>
           <DropdownMenuItem onClick={handleLogout}>
             <LogOut className="mr-2 h-4 w-4" />
-            <span>{t('logout')}</span>
+            <span>Logout</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
