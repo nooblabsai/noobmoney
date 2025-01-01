@@ -20,13 +20,12 @@ const ExpenseCategoriesChart: React.FC<ExpenseCategoriesChartProps> = ({
   const expensesByCategory = React.useMemo(() => {
     const selectedDate = addMonths(new Date(), parseInt(selectedMonth));
     
-    // Filter transactions for the selected month
-    const filteredTransactions = selectedMonth 
-      ? transactions.filter(t => {
-          const transactionDate = new Date(t.date);
-          return isSameMonth(transactionDate, selectedDate);
-        })
-      : transactions;
+    // Filter one-time transactions for the selected month
+    const oneTimeTransactions = transactions.filter(t => {
+      if ('startDate' in t) return false; // Skip recurring transactions
+      const transactionDate = new Date(t.date);
+      return isSameMonth(transactionDate, selectedDate);
+    });
 
     // Get recurring transactions that started before or during this month
     const recurringTransactions = transactions.filter(t => {
@@ -35,9 +34,12 @@ const ExpenseCategoriesChart: React.FC<ExpenseCategoriesChartProps> = ({
       return startDate <= selectedDate;
     });
 
+    console.log('One-time transactions for month:', oneTimeTransactions);
+    console.log('Recurring transactions included:', recurringTransactions);
+
     // Combine regular and recurring transactions
     const allTransactions = [
-      ...filteredTransactions,
+      ...oneTimeTransactions,
       ...recurringTransactions
     ];
 
@@ -55,7 +57,7 @@ const ExpenseCategoriesChart: React.FC<ExpenseCategoriesChartProps> = ({
     })
     .filter(category => category.value > 0);
 
-    console.log('Expenses by category (including recurring):', expenses);
+    console.log('Final expenses by category:', expenses);
     return expenses;
   }, [transactions, selectedMonth, t]);
 
