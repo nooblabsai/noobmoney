@@ -127,6 +127,13 @@ const Index = () => {
     );
   }
 
+  const getSelectedMonthDate = () => {
+    const currentDate = new Date();
+    const monthOffset = parseInt(selectedMonth);
+    currentDate.setMonth(currentDate.getMonth() + monthOffset);
+    return currentDate;
+  };
+
   return (
     <div className="container mx-auto py-8 px-4">
       <HeaderSection
@@ -176,7 +183,7 @@ const Index = () => {
 
         <ExpenseCategoriesChart 
           transactions={transactions}
-          selectedMonth={selectedMonth}
+          selectedDate={getSelectedMonthDate()}
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
