@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Save, LogOut } from 'lucide-react';
+import { Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { signUpUser, signInUser, saveTransactions } from '@/services/supabaseService';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -13,21 +13,22 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import AuthForm from './auth/AuthForm';
 
 interface SaveDataButtonProps {
   transactions: any[];
   recurringTransactions: any[];
   bankBalance: string;
   debtBalance: string;
+  onReset: () => void;
 }
 
 const SaveDataButton: React.FC<SaveDataButtonProps> = ({ 
   transactions, 
   recurringTransactions,
   bankBalance,
-  debtBalance
+  debtBalance,
+  onReset
 }) => {
   const { t } = useLanguage();
   const { toast } = useToast();
@@ -47,29 +48,6 @@ const SaveDataButton: React.FC<SaveDataButtonProps> = ({
     };
     checkUser();
   }, []);
-
-  const handleLogout = async () => {
-    try {
-      await supabase.auth.signOut();
-      setIsLoggedIn(false);
-      setUserId(null);
-      // Clear local storage
-      localStorage.clear();
-      toast({
-        title: t('success'),
-        description: t('logout.success'),
-      });
-      // Reload the page to clear all data
-      window.location.reload();
-    } catch (error: any) {
-      console.error('Logout error:', error);
-      toast({
-        title: t('error'),
-        description: t('logout.failed'),
-        variant: 'destructive',
-      });
-    }
-  };
 
   const handleSaveData = async () => {
     if (!isLoggedIn || !userId) return;
@@ -156,9 +134,8 @@ const SaveDataButton: React.FC<SaveDataButtonProps> = ({
             <Save className="h-4 w-4" />
             {t('save.data')}
           </Button>
-          <Button onClick={handleLogout} variant="outline" className="flex items-center gap-2">
-            <LogOut className="h-4 w-4" />
-            {t('logout')}
+          <Button onClick={onReset} variant="destructive">
+            {t('reset.data')}
           </Button>
         </>
       ) : (
@@ -179,53 +156,18 @@ const SaveDataButton: React.FC<SaveDataButtonProps> = ({
                 }
               </DialogDescription>
             </DialogHeader>
-            <form onSubmit={handleSave} className="space-y-4">
-              {isSignUp && (
-                <div className="space-y-2">
-                  <Label htmlFor="name">{t('name')}</Label>
-                  <Input
-                    id="name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder={t('enter.name')}
-                    required={isSignUp}
-                  />
-                </div>
-              )}
-              <div className="space-y-2">
-                <Label htmlFor="email">{t('email')}</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder={t('enter.email')}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">{t('password')}</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder={t('enter.password')}
-                  required
-                />
-              </div>
-              <Button type="submit" className="w-full">
-                {isSignUp ? t('sign.up.save') : t('sign.in.save')}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full"
-                onClick={() => setIsSignUp(!isSignUp)}
-              >
-                {isSignUp ? t('have.account') : t('need.account')}
-              </Button>
-            </form>
+            <AuthForm
+              isSignUp={isSignUp}
+              email={email}
+              setEmail={setEmail}
+              password={password}
+              setPassword={setPassword}
+              name={name}
+              setName={setName}
+              handleSave={handleSave}
+              setIsSignUp={setIsSignUp}
+              t={t}
+            />
           </DialogContent>
         </Dialog>
       )}

@@ -132,7 +132,6 @@ const Index = () => {
       <HeaderSection
         t={t}
         handleExportPDF={handleExportPDF}
-        handleReset={handleReset}
       />
 
       <div className="flex justify-end gap-4 mb-4">
@@ -142,6 +141,7 @@ const Index = () => {
           recurringTransactions={recurringTransactions}
           bankBalance={bankBalance}
           debtBalance={debtBalance}
+          onReset={handleReset}
         />
       </div>
 
