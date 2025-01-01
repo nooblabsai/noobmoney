@@ -5,6 +5,16 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 
 export const supabase = createClient(supabaseUrl, supabaseKey);
 
+// Add error handling for refresh token errors
+supabase.auth.onAuthStateChange((event, session) => {
+  if (event === 'TOKEN_REFRESHED' && !session) {
+    // Token refresh failed, clear the session
+    supabase.auth.signOut();
+    localStorage.clear();
+    window.location.reload();
+  }
+});
+
 export const signUpUser = async (email: string, password: string, name: string) => {
   try {
     const { data, error } = await supabase.auth.signUp({
@@ -31,13 +41,15 @@ export const signUpUser = async (email: string, password: string, name: string) 
 
 export const signInUser = async (email: string, password: string) => {
   try {
+    // Clear any existing invalid session before signing in
+    await supabase.auth.signOut();
+    
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
     if (error) {
-      console.error('Sign in error:', error);
       if (error.message === 'Invalid login credentials') {
         throw new Error('Invalid email or password. Please check your credentials and try again.');
       }
