@@ -27,12 +27,12 @@ const ExpenseCategoriesChart: React.FC<ExpenseCategoriesChartProps> = ({
       return isSameMonth(transactionDate, selectedDate);
     });
 
-    // Get recurring transactions that started before or in the selected month
+    // Get recurring transactions that started on or before the selected month
     const recurringTransactions = transactions.filter(t => {
       if (!('startDate' in t)) return false; // Skip non-recurring transactions
       const startDate = new Date(t.startDate as string | number | Date);
       // Include if start date is before or equal to selected month
-      return isBefore(startDate, selectedDate) || isEqual(startDate, selectedDate);
+      return isBefore(startDate, selectedDate) || isSameMonth(startDate, selectedDate);
     });
 
     console.log('Selected month:', format(selectedDate, 'MMMM yyyy'));
