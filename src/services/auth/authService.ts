@@ -1,4 +1,4 @@
-import { supabase, checkSession } from '../../lib/supabaseClient';
+import { supabase } from '@/lib/supabaseClient';
 
 export const signUpUser = async (email: string, password: string, name: string) => {
   try {
@@ -32,12 +32,15 @@ export const signInUser = async (email: string, password: string) => {
     // Ensure clean state before sign in
     await supabase.auth.signOut();
     
+    console.log('Attempting to sign in with:', { email });
+    
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
     if (error) {
+      console.error('Sign in error:', error);
       if (error.message === 'Invalid login credentials') {
         throw new Error('Invalid email or password. Please check your credentials and try again.');
       }
@@ -48,8 +51,7 @@ export const signInUser = async (email: string, password: string) => {
       throw new Error('Authentication failed. Please try again.');
     }
 
-    // Verify session is valid after sign in
-    await checkSession();
+    console.log('Sign in successful:', data.user);
 
     return data;
   } catch (error: any) {

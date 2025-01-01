@@ -10,7 +10,13 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
     persistSession: true,
     storageKey: 'app-storage-key',
     autoRefreshToken: true,
-    detectSessionInUrl: true
+    detectSessionInUrl: true,
+    flowType: 'pkce'
+  },
+  global: {
+    headers: {
+      'X-Client-Info': 'supabase-js-web'
+    }
   }
 });
 
