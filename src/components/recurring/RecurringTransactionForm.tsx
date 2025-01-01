@@ -61,32 +61,32 @@ const RecurringTransactionForm: React.FC<RecurringTransactionFormProps> = ({
   return (
     <form onSubmit={handleSubmit} className="space-y-4 mb-6">
       <div className="space-y-2">
-        <Label htmlFor="recurring-amount">Monthly Amount</Label>
+        <Label htmlFor="recurring-amount">{t('amount')}</Label>
         <Input
           id="recurring-amount"
           type="number"
           step="0.01"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
-          placeholder="Enter monthly amount"
+          placeholder={t('enter.amount')}
           className="w-full"
           required
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="recurring-description">Description</Label>
+        <Label htmlFor="recurring-description">{t('description')}</Label>
         <Input
           id="recurring-description"
           type="text"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          placeholder="Enter description"
+          placeholder={t('enter.description')}
           className="w-full"
           required
         />
       </div>
       <div className="space-y-2">
-        <Label>Start Date</Label>
+        <Label>{t('date')}</Label>
         <Popover>
           <PopoverTrigger asChild>
             <Button
@@ -97,7 +97,7 @@ const RecurringTransactionForm: React.FC<RecurringTransactionFormProps> = ({
               )}
             >
               <CalendarIcon className="mr-2 h-4 w-4" />
-              {startDate ? format(startDate, "PPP") : "Pick a date"}
+              {startDate ? format(startDate, "PPP") : t('pick.date')}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="start">
@@ -117,7 +117,7 @@ const RecurringTransactionForm: React.FC<RecurringTransactionFormProps> = ({
           onClick={() => setIsIncome(true)}
           className="w-1/2"
         >
-          Income
+          {t('income')}
         </Button>
         <Button
           type="button"
@@ -125,7 +125,7 @@ const RecurringTransactionForm: React.FC<RecurringTransactionFormProps> = ({
           onClick={() => setIsIncome(false)}
           className="w-1/2"
         >
-          Expense
+          {t('expense')}
         </Button>
       </div>
       <Button disabled={isSubmitting} type="submit" className="w-full">
@@ -134,7 +134,7 @@ const RecurringTransactionForm: React.FC<RecurringTransactionFormProps> = ({
         ) : (
           <PlusCircle className="mr-2 h-4 w-4" />
         )}
-        {isSubmitting ? "Processing..." : `Add Recurring ${isIncome ? 'Income' : 'Expense'}`}
+        {isSubmitting ? t('processing') : t(isIncome ? 'add.income' : 'add.expense')}
       </Button>
     </form>
   );
