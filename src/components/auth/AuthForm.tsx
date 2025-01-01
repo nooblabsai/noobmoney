@@ -34,40 +34,40 @@ const AuthForm: React.FC<AuthFormProps> = ({
     <form onSubmit={handleSave} className="space-y-4">
       {isSignUp && (
         <div className="space-y-2">
-          <Label htmlFor="name">{t('name')}</Label>
+          <Label htmlFor="name">{t('auth.name')}</Label>
           <Input
             id="name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder={t('enter.name')}
+            placeholder={t('auth.name.placeholder')}
             required={isSignUp}
           />
         </div>
       )}
       <div className="space-y-2">
-        <Label htmlFor="email">{t('email')}</Label>
+        <Label htmlFor="email">{t('auth.email')}</Label>
         <Input
           id="email"
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder={t('enter.email')}
+          placeholder={t('auth.email.placeholder')}
           required
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="password">{t('password')}</Label>
+        <Label htmlFor="password">{t('auth.password')}</Label>
         <Input
           id="password"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder={t('enter.password')}
+          placeholder={t('auth.password.placeholder')}
           required
         />
       </div>
       <Button type="submit" className="w-full" disabled={isLoading}>
-        {isSignUp ? t('sign.up.save') : t('sign.in.save')}
+        {isSignUp ? t('auth.signup') : t('auth.signin')}
       </Button>
       <Button
         type="button"
@@ -76,7 +76,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
         onClick={() => setIsSignUp(!isSignUp)}
         disabled={isLoading}
       >
-        {isSignUp ? t('have.account') : t('need.account')}
+        {isSignUp ? t('auth.have.account') : t('auth.need.account')}
       </Button>
     </form>
   );
