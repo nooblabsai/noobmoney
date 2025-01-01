@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Brain } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { supabase } from '@/services/supabaseService';
+import { supabase } from '@/lib/supabaseClient';
 import {
   Dialog,
   DialogContent,

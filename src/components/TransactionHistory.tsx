@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useTransactions } from '@/hooks/useTransactions';
 import { updateTransactionCategories } from '@/services/supabaseService';
-import { supabase } from '@/services/supabaseService';
+import { supabase } from '@/lib/supabaseClient';
 
 interface TransactionHistoryProps {
   transactions: Transaction[];
@@ -137,3 +137,4 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
 };
 
 export default TransactionHistory;
+

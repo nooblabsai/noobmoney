@@ -1,5 +1,5 @@
 import { Transaction, RecurringTransaction } from '@/types/transactions';
-import { supabase } from '../auth/authService';
+import { supabase } from '@/lib/supabaseClient';
 import {
   transformTransactionForDB,
   transformRecurringTransactionForDB,

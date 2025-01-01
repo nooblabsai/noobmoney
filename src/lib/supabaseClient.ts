@@ -15,7 +15,7 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
 
 // Add session recovery logic
 supabase.auth.onAuthStateChange((event, session) => {
-  if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
+  if (event === 'SIGNED_OUT' || event === 'USER_UPDATED') {
     // Clear local storage and reload on sign out
     localStorage.clear();
     window.location.reload();

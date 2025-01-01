@@ -31,7 +31,7 @@ const ExpenseCategoriesChart: React.FC<ExpenseCategoriesChartProps> = ({
     // Get recurring transactions that started before or during this month
     const recurringTransactions = transactions.filter(t => {
       if (!('startDate' in t)) return false; // Skip non-recurring transactions
-      const startDate = new Date(t.startDate);
+      const startDate = new Date(t.startDate as string | number | Date);
       return startDate <= selectedDate;
     });
 

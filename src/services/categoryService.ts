@@ -1,5 +1,5 @@
 import { ExpenseCategory } from '@/types/categories';
-import { supabase } from './supabaseService';
+import { supabase } from '@/lib/supabaseClient';
 
 const getStoredApiKey = async () => {
   try {
