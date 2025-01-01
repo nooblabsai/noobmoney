@@ -8,7 +8,7 @@ export const supabase = createClient(supabaseUrl, supabaseKey);
 // Add error handling for refresh token errors
 supabase.auth.onAuthStateChange((event, session) => {
   if (event === 'TOKEN_REFRESHED' && !session) {
-    // Token refresh failed, clear the session
+    // Token refresh failed, clear the session and local storage
     supabase.auth.signOut();
     localStorage.clear();
     window.location.reload();
@@ -17,6 +17,9 @@ supabase.auth.onAuthStateChange((event, session) => {
 
 export const signUpUser = async (email: string, password: string, name: string) => {
   try {
+    // Clear any existing session before signing up
+    await supabase.auth.signOut();
+    
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
