@@ -4,7 +4,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recha
 import { ExpenseCategory, getCategoryColor } from '@/types/categories';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Transaction } from '@/types/transactions';
-import { isSameMonth, addMonths } from 'date-fns';
+import { isSameMonth, addMonths, isBefore, isEqual } from 'date-fns';
 
 interface ExpenseCategoriesChartProps {
   transactions: Transaction[];
@@ -27,17 +27,19 @@ const ExpenseCategoriesChart: React.FC<ExpenseCategoriesChartProps> = ({
       return isSameMonth(transactionDate, selectedDate);
     });
 
-    // Get recurring transactions that started before or during this month
+    // Get recurring transactions that started before or in the selected month
     const recurringTransactions = transactions.filter(t => {
       if (!('startDate' in t)) return false; // Skip non-recurring transactions
       const startDate = new Date(t.startDate as string | number | Date);
-      return startDate <= selectedDate;
+      // Include if start date is before or equal to selected month
+      return isBefore(startDate, selectedDate) || isEqual(startDate, selectedDate);
     });
 
+    console.log('Selected month:', format(selectedDate, 'MMMM yyyy'));
     console.log('One-time transactions for month:', oneTimeTransactions);
     console.log('Recurring transactions included:', recurringTransactions);
 
-    // Combine regular and recurring transactions
+    // Combine one-time and recurring transactions
     const allTransactions = [
       ...oneTimeTransactions,
       ...recurringTransactions
