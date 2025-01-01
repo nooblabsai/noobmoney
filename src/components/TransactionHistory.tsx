@@ -108,7 +108,7 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
                     {!transaction.isIncome && transaction.category && (
                       <Badge variant="outline" className="text-xs flex items-center gap-1">
                         <Tag className="h-3 w-3" />
-                        {t(transaction.category)}
+                        {t(`category.${transaction.category}`)}
                       </Badge>
                     )}
                   </div>
@@ -137,4 +137,3 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
 };
 
 export default TransactionHistory;
-
