@@ -126,24 +126,5 @@ export const elTranslations = {
   'invalid.amount': 'Παρακαλώ εισάγετε έγκυρο ποσό μεγαλύτερο από 0',
   'amount.updated': 'Το ποσό ενημερώθηκε με επιτυχία',
   'edit': 'Επεξεργασία ποσού',
-  // Category translations
-  'category.housing': 'Στέγαση',
-  'category.food': 'Τρόφιμα',
-  'category.transportation': 'Μεταφορές',
-  'category.healthcare': 'Υγεία',
-  'category.entertainment': 'Ψυχαγωγία',
-  'category.shopping': 'Αγορές',
-  'category.utilities': 'Λογαριασμοί',
-  'category.education': 'Εκπαίδευση',
-  'category.travel': 'Ταξίδια',
-  'category.other': 'Άλλα',
-  // Income category translations
-  'category.salary': 'Μισθός',
-  'category.freelance': 'Freelance',
-  'category.investments': 'Επενδύσεις',
-  'category.rent': 'Ενοίκιο',
-  'category.business': 'Επιχείρηση',
-  'category.customer.payment': 'Πληρωμή Πελάτη',
-  'category.refund': 'Επιστροφή Χρημάτων',
-  'category.gift': 'Δώρο'
+  'invalid.api.key': 'Μη έγκυρο κλειδί API. Το κλειδί πρέπει να ξεκινά με "sk-" και να έχει μήκος 51 χαρακτήρων.',
 } as const;

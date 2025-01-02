@@ -116,24 +116,5 @@ export const enTranslations = {
   'invalid.amount': 'Please enter a valid amount greater than 0',
   'amount.updated': 'Amount updated successfully',
   'edit': 'Edit amount',
-  // Category translations
-  'category.housing': 'Housing',
-  'category.food': 'Food',
-  'category.transportation': 'Transportation',
-  'category.healthcare': 'Healthcare',
-  'category.entertainment': 'Entertainment',
-  'category.shopping': 'Shopping',
-  'category.utilities': 'Utilities',
-  'category.education': 'Education',
-  'category.travel': 'Travel',
-  'category.other': 'Other',
-  // Income category translations
-  'category.salary': 'Salary',
-  'category.freelance': 'Freelance',
-  'category.investments': 'Investments',
-  'category.rent': 'Rent',
-  'category.business': 'Business',
-  'category.customer.payment': 'Customer Payment',
-  'category.refund': 'Refund',
-  'category.gift': 'Gift'
+  'invalid.api.key': 'Invalid API key. The key should start with "sk-" and be 51 characters long.',
 } as const;
