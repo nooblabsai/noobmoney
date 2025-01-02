@@ -22,8 +22,9 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({
   t,
 }) => {
   const runwayData = calculateRunway(
-    parseFloat(bankBalance),
-    parseFloat(debtBalance),
+    true, // includeInitialBalances
+    bankBalance,
+    debtBalance,
     transactions,
     recurringTransactions
   );

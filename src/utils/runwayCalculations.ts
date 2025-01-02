@@ -4,8 +4,8 @@ export const calculateRunway = (
   includeInitialBalances: boolean,
   bankBalance: string,
   debtBalance: string,
-  transactions: Transaction[],
-  recurringTransactions: RecurringTransaction[]
+  transactions: Transaction[] = [], // Add default empty array
+  recurringTransactions: RecurringTransaction[] = [] // Add default empty array
 ) => {
   const data = [];
   const currentDate = new Date();

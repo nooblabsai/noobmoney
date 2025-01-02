@@ -36,6 +36,7 @@ const DataManagementSection: React.FC<DataManagementSectionProps> = ({
         recurringTransactions={recurringTransactions}
         bankBalance={bankBalance}
         debtBalance={debtBalance}
+        onReset={onReset}
       />
       <Button variant="outline" onClick={onReset}>
         Reset Data
