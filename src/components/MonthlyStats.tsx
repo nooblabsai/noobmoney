@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Card } from '@/components/ui/card';
-import { format, addMonths, subMonths } from 'date-fns';
+import { format, addMonths } from 'date-fns';
 import { useLanguage } from '@/contexts/LanguageContext';
 import {
   Select,
@@ -39,8 +39,8 @@ const MonthlyStats: React.FC<MonthlyStatsProps> = ({
     return options;
   };
 
-  const getBalanceForMonth = (monthOffset: number) => {
-    const targetDate = addMonths(new Date(), monthOffset);
+  const getBalanceForMonth = useMemo(() => {
+    const targetDate = addMonths(new Date(), parseInt(selectedMonth));
     const targetMonth = targetDate.getMonth();
     const targetYear = targetDate.getFullYear();
 
@@ -61,14 +61,14 @@ const MonthlyStats: React.FC<MonthlyStatsProps> = ({
       .reduce((acc, t) => acc + (t.isIncome ? t.amount : -t.amount), 0);
 
     return oneTimeBalance + recurringBalance;
-  };
+  }, [transactions, recurringTransactions, selectedMonth]);
 
-  const getRecurringTotalForMonth = (isIncome: boolean) => {
+  const getRecurringTotalForMonth = useMemo(() => (isIncome: boolean) => {
     const targetDate = addMonths(new Date(), parseInt(selectedMonth));
     return recurringTransactions
       .filter(t => t.isIncome === isIncome && new Date(t.startDate) <= targetDate)
       .reduce((sum, t) => sum + t.amount, 0);
-  };
+  }, [recurringTransactions, selectedMonth]);
 
   return (
     <div className="mb-8">
@@ -91,9 +91,9 @@ const MonthlyStats: React.FC<MonthlyStatsProps> = ({
         <Card className="p-6">
           <h3 className="text-lg font-medium mb-2">{t('balance.for')} {format(addMonths(new Date(), parseInt(selectedMonth)), 'MMMM yyyy')}</h3>
           <p className={`text-2xl font-bold ${
-            getBalanceForMonth(parseInt(selectedMonth)) >= 0 ? 'text-green-600' : 'text-red-600'
+            getBalanceForMonth >= 0 ? 'text-green-600' : 'text-red-600'
           }`}>
-            €{getBalanceForMonth(parseInt(selectedMonth)).toFixed(2)}
+            €{getBalanceForMonth.toFixed(2)}
           </p>
         </Card>
         <Card className="p-6">
