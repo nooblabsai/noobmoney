@@ -63,11 +63,18 @@ const MonthlyStats: React.FC<MonthlyStatsProps> = ({
     return oneTimeBalance + recurringBalance;
   }, [transactions, recurringTransactions, selectedMonth]);
 
-  const getRecurringTotalForMonth = useMemo(() => (isIncome: boolean) => {
+  const recurringTotals = useMemo(() => {
     const targetDate = addMonths(new Date(), parseInt(selectedMonth));
-    return recurringTransactions
-      .filter(t => t.isIncome === isIncome && new Date(t.startDate) <= targetDate)
+    
+    const income = recurringTransactions
+      .filter(t => t.isIncome && new Date(t.startDate) <= targetDate)
       .reduce((sum, t) => sum + t.amount, 0);
+    
+    const expenses = recurringTransactions
+      .filter(t => !t.isIncome && new Date(t.startDate) <= targetDate)
+      .reduce((sum, t) => sum + t.amount, 0);
+    
+    return { income, expenses };
   }, [recurringTransactions, selectedMonth]);
 
   return (
@@ -99,13 +106,13 @@ const MonthlyStats: React.FC<MonthlyStatsProps> = ({
         <Card className="p-6">
           <h3 className="text-lg font-medium mb-2">{t('monthly.recurring.income')}</h3>
           <p className="text-2xl font-bold text-green-600">
-            €{getRecurringTotalForMonth(true).toFixed(2)}
+            €{recurringTotals.income.toFixed(2)}
           </p>
         </Card>
         <Card className="p-6">
           <h3 className="text-lg font-medium mb-2">{t('monthly.recurring.expenses')}</h3>
           <p className="text-2xl font-bold text-red-600">
-            €{getRecurringTotalForMonth(false).toFixed(2)}
+            €{recurringTotals.expenses.toFixed(2)}
           </p>
         </Card>
       </div>
