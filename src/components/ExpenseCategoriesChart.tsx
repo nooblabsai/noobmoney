@@ -53,11 +53,11 @@ const ExpenseCategoriesChart: React.FC<ExpenseCategoriesChartProps> = ({
     // Convert to chart data format and sort by amount
     return Object.entries(categoryTotals)
       .map(([name, value]) => ({
-        name: t(`category.${name}`), // Translate category names
+        name,  // Use original category name
+        displayName: t(`category.${name}`), // Store translated name separately
         amount: value,
-        originalName: name, // Keep original name for reference
       }))
-      .sort((a, b) => b.amount - a.amount); // Sort by amount in descending order
+      .sort((a, b) => b.amount - a.amount);
   };
 
   const data = calculateData();
@@ -70,8 +70,13 @@ const ExpenseCategoriesChart: React.FC<ExpenseCategoriesChartProps> = ({
     );
   }
 
+  const chartTitle = format(selectedDate, 'MMMM yyyy');
+
   return (
     <div className="w-full h-[300px]">
+      <h3 className="text-lg font-semibold mb-4 text-center">
+        {t('expenses.by.category')} - {chartTitle}
+      </h3>
       <ResponsiveContainer>
         <BarChart
           data={data}
@@ -95,6 +100,10 @@ const ExpenseCategoriesChart: React.FC<ExpenseCategoriesChartProps> = ({
           />
           <Tooltip 
             formatter={(value: number) => [`€${value.toFixed(2)}`, 'Amount']}
+            labelFormatter={(label) => {
+              const item = data.find(d => d.name === label);
+              return item ? item.displayName : label;
+            }}
           />
           <Bar 
             dataKey="amount" 
