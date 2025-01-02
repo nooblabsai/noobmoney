@@ -3,6 +3,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/lib/supabaseClient';
 import { useToast } from '@/hooks/use-toast';
 import { LogOut, Settings, Key } from 'lucide-react';
+import { validateOpenAiKey } from '@/utils/apiKeyValidation';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -61,17 +62,11 @@ const UserMenu = () => {
     }
   };
 
-  const validateApiKey = (key: string): boolean => {
-    // OpenAI API keys typically start with 'sk-' and are 51 characters long
-    const openAiKeyPattern = /^sk-[A-Za-z0-9]{48}$/;
-    return openAiKeyPattern.test(key);
-  };
-
   const handleSaveApiKey = async () => {
-    if (!validateApiKey(apiKey)) {
+    if (!validateOpenAiKey(apiKey)) {
       toast({
         title: t('error'),
-        description: t('invalid.api.key'),
+        description: 'API key must start with sk-',
         variant: 'destructive',
       });
       return;
@@ -159,7 +154,7 @@ const UserMenu = () => {
               <DialogHeader>
                 <DialogTitle>OpenAI API Key</DialogTitle>
                 <DialogDescription>
-                  Enter your OpenAI API key to enable AI features. The key should start with 'sk-'.
+                  Enter your OpenAI API key. The key must start with 'sk-'.
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4">

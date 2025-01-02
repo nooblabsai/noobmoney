@@ -1,4 +1,3 @@
 export const validateOpenAiKey = (key: string): boolean => {
-  // No validation, accept any key
-  return true;
+  return key.startsWith('sk-');
 };
