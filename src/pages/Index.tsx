@@ -11,7 +11,6 @@ import { HeaderSection } from '@/components/HeaderSection';
 import { exportToPDF } from '@/utils/pdfExport';
 import { supabase } from '@/lib/supabaseClient';
 import { Transaction, RecurringTransaction } from '@/types/transactions';
-import { useBalanceCalculations } from '@/hooks/useBalanceCalculations';
 import DataManagementSection from '@/components/sections/DataManagementSection';
 import ChartsSection from '@/components/sections/ChartsSection';
 
@@ -20,11 +19,10 @@ const Index = () => {
   const { toast } = useToast();
   const [selectedMonth, setSelectedMonth] = useState('0');
   const [isLoading, setIsLoading] = useState(true);
-  const [initialBankBalance, setInitialBankBalance] = useState(() => {
+  const [bankBalance, setBankBalance] = useState(() => {
     const saved = localStorage.getItem('bankBalance');
     return saved ? saved : '0';
   });
-  const [bankBalance, setBankBalance] = useState(initialBankBalance);
   const [debtBalance, setDebtBalance] = useState(() => {
     const saved = localStorage.getItem('debtBalance');
     return saved ? saved : '0';
@@ -40,19 +38,6 @@ const Index = () => {
     setRecurringTransactions,
   } = useTransactions();
 
-  const { calculateUpdatedBalances } = useBalanceCalculations(
-    transactions,
-    recurringTransactions,
-    initialBankBalance,
-    debtBalance
-  );
-
-  // Effect to update balances when transactions change
-  useEffect(() => {
-    const { bankBalance: newBankBalance, debtBalance: newDebtBalance } = calculateUpdatedBalances();
-    setBankBalance(newBankBalance);
-  }, [transactions, recurringTransactions, initialBankBalance]);
-
   // Effect to save bank balance to localStorage
   useEffect(() => {
     localStorage.setItem('bankBalance', bankBalance);
@@ -64,7 +49,6 @@ const Index = () => {
   }, [debtBalance]);
 
   const handleBankBalanceChange = (value: string) => {
-    setInitialBankBalance(value);
     setBankBalance(value);
   };
 
