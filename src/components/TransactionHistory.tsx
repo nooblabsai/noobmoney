@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card } from '@/components/ui/card';
 import { format, addMonths, isSameMonth } from 'date-fns';
@@ -19,34 +19,25 @@ interface TransactionHistoryProps {
 }
 
 const TransactionHistory: React.FC<TransactionHistoryProps> = ({
-  transactions: initialTransactions,
-  recurringTransactions: initialRecurringTransactions,
+  transactions,
+  recurringTransactions,
   onDeleteTransaction,
   selectedMonth,
 }) => {
   const { t } = useLanguage();
   const { toast } = useToast();
   const [showAllTransactions, setShowAllTransactions] = useState(false);
-  const [localTransactions, setLocalTransactions] = useState(initialTransactions);
-  const [localRecurringTransactions, setLocalRecurringTransactions] = useState(initialRecurringTransactions);
-
-  useEffect(() => {
-    setLocalTransactions(initialTransactions);
-  }, [initialTransactions]);
-
-  useEffect(() => {
-    setLocalRecurringTransactions(initialRecurringTransactions);
-  }, [initialRecurringTransactions]);
+  const { setTransactions, setRecurringTransactions } = useTransactions();
 
   const selectedDate = addMonths(new Date(), parseInt(selectedMonth));
 
   const filteredTransactions = showAllTransactions 
-    ? localTransactions 
-    : localTransactions.filter(t => isSameMonth(new Date(t.date), selectedDate));
+    ? transactions 
+    : transactions.filter(t => isSameMonth(new Date(t.date), selectedDate));
 
   const filteredRecurringTransactions = showAllTransactions
-    ? localRecurringTransactions
-    : localRecurringTransactions.filter(t => isSameMonth(new Date(t.startDate), selectedDate));
+    ? recurringTransactions
+    : recurringTransactions.filter(t => isSameMonth(new Date(t.startDate), selectedDate));
 
   const allTransactions = [
     ...filteredTransactions.map(t => ({ ...t, isRecurring: false })),
@@ -64,16 +55,16 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
   const handleEditTransaction = async (id: string, newAmount: number, isRecurring: boolean) => {
     try {
       if (isRecurring) {
-        const updatedRecurringTransactions = localRecurringTransactions.map(t => 
+        const updatedRecurringTransactions = recurringTransactions.map(t => 
           t.id === id ? { ...t, amount: newAmount } : t
         );
-        setLocalRecurringTransactions(updatedRecurringTransactions);
+        setRecurringTransactions(updatedRecurringTransactions);
         localStorage.setItem('recurringTransactions', JSON.stringify(updatedRecurringTransactions));
       } else {
-        const updatedTransactions = localTransactions.map(t => 
+        const updatedTransactions = transactions.map(t => 
           t.id === id ? { ...t, amount: newAmount } : t
         );
-        setLocalTransactions(updatedTransactions);
+        setTransactions(updatedTransactions);
         localStorage.setItem('transactions', JSON.stringify(updatedTransactions));
       }
       
