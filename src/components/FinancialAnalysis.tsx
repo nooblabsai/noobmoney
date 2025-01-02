@@ -4,7 +4,6 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/lib/supabaseClient';
 import ApiKeyDialog from './analysis/ApiKeyDialog';
 import AnalysisDisplay from './analysis/AnalysisDisplay';
-import { validateOpenAiKey } from '@/utils/apiKeyValidation';
 
 interface FinancialAnalysisProps {
   transactions: any[];
@@ -60,16 +59,6 @@ const FinancialAnalysis: React.FC<FinancialAnalysisProps> = ({
 
   const saveApiKey = async (key: string) => {
     try {
-      if (!validateOpenAiKey(key)) {
-        console.log('API key validation failed for key:', key);
-        toast({
-          title: t('error'),
-          description: t('invalid.api.key'),
-          variant: 'destructive',
-        });
-        return false;
-      }
-
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error('No active session');
 
