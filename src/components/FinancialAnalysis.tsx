@@ -59,16 +59,17 @@ const FinancialAnalysis: React.FC<FinancialAnalysisProps> = ({
   };
 
   const saveApiKey = async (key: string) => {
-    if (!validateOpenAiKey(key)) {
-      toast({
-        title: t('error'),
-        description: t('invalid.api.key'),
-        variant: 'destructive',
-      });
-      return false;
-    }
-
     try {
+      if (!validateOpenAiKey(key)) {
+        console.log('API key validation failed for key:', key);
+        toast({
+          title: t('error'),
+          description: t('invalid.api.key'),
+          variant: 'destructive',
+        });
+        return false;
+      }
+
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error('No active session');
 
@@ -85,6 +86,11 @@ const FinancialAnalysis: React.FC<FinancialAnalysisProps> = ({
       return true;
     } catch (error) {
       console.error('Error saving API key:', error);
+      toast({
+        title: t('error'),
+        description: t('save.failed'),
+        variant: 'destructive',
+      });
       return false;
     }
   };
