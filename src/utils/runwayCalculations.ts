@@ -19,11 +19,11 @@ export const calculateRunway = (
     // Calculate recurring transactions
     const monthlyRecurringIncome = recurringTransactions
       .filter(t => t.isIncome && new Date(t.startDate) <= monthEnd)
-      .reduce((sum, t) => sum + parseFloat(t.amount.toString()), 0);
+      .reduce((sum, t) => sum + t.amount, 0);
 
     const monthlyRecurringExpenses = recurringTransactions
       .filter(t => !t.isIncome && new Date(t.startDate) <= monthEnd)
-      .reduce((sum, t) => sum + parseFloat(t.amount.toString()), 0);
+      .reduce((sum, t) => sum + t.amount, 0);
 
     // Calculate one-time transactions that fall within this month
     const monthlyOneTimeIncome = transactions
@@ -33,7 +33,7 @@ export const calculateRunway = (
                transactionDate.getFullYear() === monthStart.getFullYear() &&
                transactionDate.getMonth() === monthStart.getMonth();
       })
-      .reduce((sum, t) => sum + parseFloat(t.amount.toString()), 0);
+      .reduce((sum, t) => sum + t.amount, 0);
 
     const monthlyOneTimeExpenses = transactions
       .filter(t => {
@@ -42,7 +42,7 @@ export const calculateRunway = (
                transactionDate.getFullYear() === monthStart.getFullYear() &&
                transactionDate.getMonth() === monthStart.getMonth();
       })
-      .reduce((sum, t) => sum + parseFloat(t.amount.toString()), 0);
+      .reduce((sum, t) => sum + t.amount, 0);
 
     // Total income and expenses for the month
     const totalIncome = monthlyRecurringIncome + monthlyOneTimeIncome;
