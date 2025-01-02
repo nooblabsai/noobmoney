@@ -1,18 +1,10 @@
 import React, { useState } from 'react';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Brain } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/lib/supabaseClient';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
+import ApiKeyDialog from './analysis/ApiKeyDialog';
+import AnalysisDisplay from './analysis/AnalysisDisplay';
+import { validateOpenAiKey } from '@/utils/apiKeyValidation';
 
 interface FinancialAnalysisProps {
   transactions: any[];
@@ -67,6 +59,15 @@ const FinancialAnalysis: React.FC<FinancialAnalysisProps> = ({
   };
 
   const saveApiKey = async (key: string) => {
+    if (!validateOpenAiKey(key)) {
+      toast({
+        title: t('error'),
+        description: t('invalid.api.key'),
+        variant: 'destructive',
+      });
+      return false;
+    }
+
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error('No active session');
@@ -85,6 +86,17 @@ const FinancialAnalysis: React.FC<FinancialAnalysisProps> = ({
     } catch (error) {
       console.error('Error saving API key:', error);
       return false;
+    }
+  };
+
+  const handleApiKeySubmit = async () => {
+    if (apiKey.trim()) {
+      const saved = await saveApiKey(apiKey.trim());
+      if (saved) {
+        setShowApiKeyDialog(false);
+        setApiKey('');
+        generateAnalysis();
+      }
     }
   };
 
@@ -187,72 +199,28 @@ const FinancialAnalysis: React.FC<FinancialAnalysisProps> = ({
     }
   };
 
-  const handleApiKeySubmit = async () => {
-    if (apiKey.trim()) {
-      const saved = await saveApiKey(apiKey.trim());
-      if (saved) {
-        setShowApiKeyDialog(false);
-        setApiKey('');
-        generateAnalysis();
-      } else {
-        toast({
-          title: 'Error',
-          description: 'Failed to save API key. Please try again.',
-          variant: 'destructive',
-        });
-      }
-    }
-  };
-
-  const validateApiKey = (key: string): boolean => {
-    // OpenAI API keys are now longer than 51 characters
-    const openAiKeyPattern = /^sk-[A-Za-z0-9]{48,}$/;
-    return openAiKeyPattern.test(key);
-  };
-
   return (
     <>
-      <Card className="p-6 mb-8">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">{t('financial.analysis')}</h2>
-          <Button onClick={async () => {
-            const isAuthenticated = await checkAuth();
-            if (isAuthenticated) {
-              generateAnalysis();
-            }
-          }} disabled={loading}>
-            <Brain className="mr-2 h-4 w-4" />
-            {loading ? t('analyzing') : t('generate.analysis')}
-          </Button>
-        </div>
-        {analysis && (
-          <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-            <p className="whitespace-pre-line">{analysis}</p>
-          </div>
-        )}
-      </Card>
+      <AnalysisDisplay
+        loading={loading}
+        analysis={analysis}
+        onGenerate={async () => {
+          const isAuthenticated = await checkAuth();
+          if (isAuthenticated) {
+            generateAnalysis();
+          }
+        }}
+        t={t}
+      />
 
-      <Dialog open={showApiKeyDialog} onOpenChange={setShowApiKeyDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t('openai.api.key.title')}</DialogTitle>
-            <DialogDescription>
-              {t('openai.api.key.description')}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <Input
-              placeholder="sk-..."
-              value={apiKey}
-              onChange={(e) => setApiKey(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleApiKeySubmit()}
-            />
-            <Button onClick={handleApiKeySubmit} disabled={!apiKey.trim()}>
-              {t('save.and.continue')}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <ApiKeyDialog
+        open={showApiKeyDialog}
+        onOpenChange={setShowApiKeyDialog}
+        apiKey={apiKey}
+        setApiKey={setApiKey}
+        onSubmit={handleApiKeySubmit}
+        t={t}
+      />
     </>
   );
 };
