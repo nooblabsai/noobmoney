@@ -38,9 +38,6 @@ const DataManagementSection: React.FC<DataManagementSectionProps> = ({
         debtBalance={debtBalance}
         onReset={onReset}
       />
-      <Button variant="outline" onClick={onReset}>
-        Reset Data
-      </Button>
       <Button variant="outline" onClick={handleExportPDF}>
         Export PDF
       </Button>
