@@ -58,7 +58,7 @@ const TransactionItem: React.FC<TransactionItemProps> = ({
             {!transaction.isIncome && transaction.category && (
               <Badge variant="outline" className="text-xs flex items-center gap-1">
                 <Tag className="h-3 w-3" />
-                {t(`category.${transaction.category}`)}
+                {transaction.category}
               </Badge>
             )}
           </div>
