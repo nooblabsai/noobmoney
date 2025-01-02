@@ -185,13 +185,13 @@ const Index = () => {
     });
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
-      </div>
-    );
-  }
+  const handleTransactionsUpdate = (
+    updatedTransactions: Transaction[],
+    updatedRecurringTransactions: RecurringTransaction[]
+  ) => {
+    setTransactions(updatedTransactions);
+    setRecurringTransactions(updatedRecurringTransactions);
+  };
 
   const getSelectedMonthDate = () => {
     const currentDate = new Date();
@@ -199,6 +199,14 @@ const Index = () => {
     currentDate.setMonth(currentDate.getMonth() + monthOffset);
     return currentDate;
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -227,7 +235,7 @@ const Index = () => {
         />
 
         <TransactionManager
-          onAddTransaction={addTransaction}
+          onAddTransaction={handleAddTransaction}
           onAddRecurringTransaction={handleAddRecurringTransaction}
           onDeleteTransaction={handleDeleteTransaction}
         />
@@ -244,6 +252,7 @@ const Index = () => {
           recurringTransactions={recurringTransactions}
           onDeleteTransaction={handleDeleteTransaction}
           selectedMonth={selectedMonth}
+          onTransactionsUpdate={handleTransactionsUpdate}
         />
 
         <ChartsSection 

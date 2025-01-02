@@ -16,6 +16,7 @@ interface TransactionHistoryProps {
   recurringTransactions: RecurringTransaction[];
   onDeleteTransaction: (id: string, isRecurring: boolean) => void;
   selectedMonth: string;
+  onTransactionsUpdate: (transactions: Transaction[], recurringTransactions: RecurringTransaction[]) => void;
 }
 
 const TransactionHistory: React.FC<TransactionHistoryProps> = ({
@@ -23,6 +24,7 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
   recurringTransactions: initialRecurringTransactions,
   onDeleteTransaction,
   selectedMonth,
+  onTransactionsUpdate,
 }) => {
   const { t } = useLanguage();
   const { toast } = useToast();
@@ -61,21 +63,29 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
 
   const handleEditTransaction = async (id: string, newAmount: number, isRecurring: boolean) => {
     try {
+      let updatedTransactions, updatedRecurringTransactions;
+      
       if (isRecurring) {
-        const updatedRecurringTransactions = localRecurringTransactions.map(t => 
+        updatedRecurringTransactions = localRecurringTransactions.map(t => 
           t.id === id ? { ...t, amount: newAmount } : t
         );
         setLocalRecurringTransactions(updatedRecurringTransactions);
         setRecurringTransactions(updatedRecurringTransactions);
         localStorage.setItem('recurringTransactions', JSON.stringify(updatedRecurringTransactions));
       } else {
-        const updatedTransactions = localTransactions.map(t => 
+        updatedTransactions = localTransactions.map(t => 
           t.id === id ? { ...t, amount: newAmount } : t
         );
         setLocalTransactions(updatedTransactions);
         setTransactions(updatedTransactions);
         localStorage.setItem('transactions', JSON.stringify(updatedTransactions));
       }
+      
+      // Notify parent component of the updates
+      onTransactionsUpdate(
+        updatedTransactions || localTransactions,
+        updatedRecurringTransactions || localRecurringTransactions
+      );
       
       toast({
         title: t('success'),
