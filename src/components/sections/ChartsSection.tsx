@@ -21,8 +21,16 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({
   recurringTransactions,
   t,
 }) => {
-  const runwayData = calculateRunway(
+  const runwayDataWithInitialBalances = calculateRunway(
     true, // includeInitialBalances
+    bankBalance,
+    debtBalance,
+    transactions,
+    recurringTransactions
+  );
+
+  const runwayDataWithoutInitialBalances = calculateRunway(
+    false, // includeInitialBalances
     bankBalance,
     debtBalance,
     transactions,
@@ -32,8 +40,13 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({
   return (
     <div className="space-y-8">
       <RunwayChart
-        data={runwayData}
-        title={t('financial.runway')}
+        data={runwayDataWithInitialBalances}
+        title={t('financial.runway.with.balances')}
+        showIncomeExpenses={true}
+      />
+      <RunwayChart
+        data={runwayDataWithoutInitialBalances}
+        title={t('financial.runway.without.balances')}
         showIncomeExpenses={true}
       />
       <ExpenseCategoriesChart
