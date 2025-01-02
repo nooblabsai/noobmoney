@@ -1,22 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import TransactionManager from '@/components/TransactionManager';
-import RunwayChart from '@/components/RunwayChart';
 import TransactionHistory from '@/components/TransactionHistory';
 import MonthlyStats from '@/components/MonthlyStats';
 import FinancialAnalysis from '@/components/FinancialAnalysis';
-import LoadDataButton from '@/components/LoadDataButton';
-import SaveDataButton from '@/components/SaveDataButton';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
 import { useTransactions } from '@/hooks/useTransactions';
 import { BalanceSection } from '@/components/BalanceSection';
 import { HeaderSection } from '@/components/HeaderSection';
 import { exportToPDF } from '@/utils/pdfExport';
-import ExpenseCategoriesChart from '@/components/ExpenseCategoriesChart';
 import { supabase } from '@/lib/supabaseClient';
-import { calculateRunway } from '@/utils/runwayCalculations';
 import { Transaction, RecurringTransaction } from '@/types/transactions';
 import { useBalanceCalculations } from '@/hooks/useBalanceCalculations';
+import DataManagementSection from '@/components/sections/DataManagementSection';
+import ChartsSection from '@/components/sections/ChartsSection';
 
 const Index = () => {
   const { t } = useLanguage();
