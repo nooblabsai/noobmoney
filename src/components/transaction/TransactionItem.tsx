@@ -30,6 +30,12 @@ const TransactionItem: React.FC<TransactionItemProps> = ({
     }
   };
 
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSave();
+    }
+  };
+
   return (
     <div className="flex items-center justify-between p-3 mb-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
       <div className="flex items-center gap-3">
@@ -65,9 +71,11 @@ const TransactionItem: React.FC<TransactionItemProps> = ({
               type="number"
               value={editAmount}
               onChange={(e) => setEditAmount(e.target.value)}
+              onKeyPress={handleKeyPress}
               className="w-24"
               min="0"
               step="0.01"
+              autoFocus
             />
             <Button
               size="icon"
@@ -86,7 +94,10 @@ const TransactionItem: React.FC<TransactionItemProps> = ({
               €{transaction.amount.toFixed(2)}
             </span>
             <button
-              onClick={() => setIsEditing(true)}
+              onClick={() => {
+                setEditAmount(transaction.amount.toString());
+                setIsEditing(true);
+              }}
               className="text-gray-400 hover:text-blue-500 transition-colors"
               aria-label={t('edit')}
             >
