@@ -1,27 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card } from '@/components/ui/card';
-import { ArrowUpCircle, ArrowDownCircle, Repeat, Trash2, Tag, Edit, Check } from 'lucide-react';
 import { format, addMonths, isSameMonth } from 'date-fns';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Transaction, RecurringTransaction } from '@/types/transactions';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { useTransactions } from '@/hooks/useTransactions';
 import { updateTransactionCategories } from '@/services/supabaseService';
 import { supabase } from '@/lib/supabaseClient';
-import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
+import TransactionItem from './transaction/TransactionItem';
 
 interface TransactionHistoryProps {
   transactions: Transaction[];
   recurringTransactions: RecurringTransaction[];
   onDeleteTransaction: (id: string, isRecurring: boolean) => void;
   selectedMonth: string;
-}
-
-interface CombinedTransaction extends Transaction {
-  isRecurring: boolean;
 }
 
 const TransactionHistory: React.FC<TransactionHistoryProps> = ({
@@ -33,8 +27,6 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
   const { t } = useLanguage();
   const { toast } = useToast();
   const [showAllTransactions, setShowAllTransactions] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editAmount, setEditAmount] = useState<string>('');
   const { setTransactions, setRecurringTransactions } = useTransactions();
 
   const selectedDate = addMonths(new Date(), parseInt(selectedMonth));
@@ -47,7 +39,7 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
     ? recurringTransactions
     : recurringTransactions.filter(t => isSameMonth(new Date(t.startDate), selectedDate));
 
-  const allTransactions: CombinedTransaction[] = [
+  const allTransactions = [
     ...filteredTransactions.map(t => ({ ...t, isRecurring: false })),
     ...filteredRecurringTransactions.map(t => ({ 
       id: t.id,
@@ -60,44 +52,21 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
     }))
   ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-  const handleEditClick = (transaction: CombinedTransaction) => {
-    setEditingId(transaction.id);
-    setEditAmount(transaction.amount.toString());
-  };
-
-  const handleSaveEdit = async (transaction: CombinedTransaction) => {
-    const newAmount = parseFloat(editAmount);
-    
-    if (isNaN(newAmount) || newAmount <= 0) {
-      toast({
-        title: t('error'),
-        description: t('invalid.amount'),
-        variant: "destructive",
-      });
-      return;
-    }
-
+  const handleEditTransaction = async (id: string, newAmount: number, isRecurring: boolean) => {
     try {
-      if (transaction.isRecurring) {
+      if (isRecurring) {
         const updatedRecurringTransactions = recurringTransactions.map(t => 
-          t.id === transaction.id 
-            ? { ...t, amount: newAmount }
-            : t
+          t.id === id ? { ...t, amount: newAmount } : t
         );
         setRecurringTransactions(updatedRecurringTransactions);
         localStorage.setItem('recurringTransactions', JSON.stringify(updatedRecurringTransactions));
       } else {
         const updatedTransactions = transactions.map(t => 
-          t.id === transaction.id 
-            ? { ...t, amount: newAmount }
-            : t
+          t.id === id ? { ...t, amount: newAmount } : t
         );
         setTransactions(updatedTransactions);
         localStorage.setItem('transactions', JSON.stringify(updatedTransactions));
       }
-
-      setEditingId(null);
-      setEditAmount('');
       
       toast({
         title: t('success'),
@@ -143,81 +112,12 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
           </div>
         ) : (
           allTransactions.map((transaction) => (
-            <div
+            <TransactionItem
               key={transaction.id}
-              className="flex items-center justify-between p-3 mb-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2">
-                  {transaction.isIncome ? (
-                    <ArrowUpCircle className="h-5 w-5 text-green-500" />
-                  ) : (
-                    <ArrowDownCircle className="h-5 w-5 text-red-500" />
-                  )}
-                  {transaction.isRecurring && (
-                    <Repeat className="h-4 w-4 text-blue-500" />
-                  )}
-                </div>
-                <div>
-                  <p className="font-medium">{transaction.description}</p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <p className="text-sm text-gray-500">
-                      {format(new Date(transaction.date), 'PPP')}
-                    </p>
-                    {!transaction.isIncome && transaction.category && (
-                      <Badge variant="outline" className="text-xs flex items-center gap-1">
-                        <Tag className="h-3 w-3" />
-                        {t(`category.${transaction.category}`)}
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center gap-4">
-                {editingId === transaction.id ? (
-                  <div className="flex items-center gap-2">
-                    <Input
-                      type="number"
-                      value={editAmount}
-                      onChange={(e) => setEditAmount(e.target.value)}
-                      className="w-24"
-                      min="0"
-                      step="0.01"
-                    />
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={() => handleSaveEdit(transaction)}
-                      className="h-8 w-8"
-                    >
-                      <Check className="h-4 w-4 text-green-500" />
-                    </Button>
-                  </div>
-                ) : (
-                  <>
-                    <span className={`font-medium ${
-                      transaction.isIncome ? 'text-green-600' : 'text-red-600'
-                    }`}>
-                      €{transaction.amount.toFixed(2)}
-                    </span>
-                    <button
-                      onClick={() => handleEditClick(transaction)}
-                      className="text-gray-400 hover:text-blue-500 transition-colors"
-                      aria-label={t('edit')}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </button>
-                  </>
-                )}
-                <button
-                  onClick={() => onDeleteTransaction(transaction.id, transaction.isRecurring)}
-                  className="text-gray-400 hover:text-red-500 transition-colors"
-                  aria-label={t('delete')}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
+              transaction={transaction}
+              onDelete={onDeleteTransaction}
+              onEdit={handleEditTransaction}
+            />
           ))
         )}
       </ScrollArea>
