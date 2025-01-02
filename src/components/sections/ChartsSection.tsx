@@ -39,16 +39,18 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({
 
   return (
     <div className="space-y-8">
-      <RunwayChart
-        data={runwayDataWithInitialBalances}
-        title={t('financial.runway.with.balances')}
-        showIncomeExpenses={true}
-      />
-      <RunwayChart
-        data={runwayDataWithoutInitialBalances}
-        title={t('financial.runway.without.balances')}
-        showIncomeExpenses={true}
-      />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <RunwayChart
+          data={runwayDataWithInitialBalances}
+          title={t('financial.runway.with.balances')}
+          showIncomeExpenses={true}
+        />
+        <RunwayChart
+          data={runwayDataWithoutInitialBalances}
+          title={t('financial.runway.without.balances')}
+          showIncomeExpenses={true}
+        />
+      </div>
       <ExpenseCategoriesChart
         transactions={[...transactions, ...recurringTransactions]}
         selectedDate={selectedDate}
