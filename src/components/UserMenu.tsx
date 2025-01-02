@@ -27,6 +27,7 @@ const UserMenu = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [apiKey, setApiKey] = useState('');
   const [openDialog, setOpenDialog] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const getUser = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -60,13 +61,56 @@ const UserMenu = () => {
     }
   };
 
-  const handleSaveApiKey = () => {
-    localStorage.setItem('openai-api-key', apiKey);
-    setOpenDialog(false);
-    toast({
-      title: t('success'),
-      description: t('data.saved'),
-    });
+  const validateApiKey = (key: string): boolean => {
+    // OpenAI API keys typically start with 'sk-' and are 51 characters long
+    const openAiKeyPattern = /^sk-[A-Za-z0-9]{48}$/;
+    return openAiKeyPattern.test(key);
+  };
+
+  const handleSaveApiKey = async () => {
+    if (!validateApiKey(apiKey)) {
+      toast({
+        title: t('error'),
+        description: t('invalid.api.key'),
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) {
+        throw new Error('No active session');
+      }
+
+      const { error } = await supabase
+        .from('user_settings')
+        .upsert({
+          user_id: session.user.id,
+          openai_api_key: apiKey
+        }, {
+          onConflict: 'user_id'
+        });
+
+      if (error) throw error;
+
+      setOpenDialog(false);
+      setApiKey('');
+      toast({
+        title: t('success'),
+        description: t('data.saved'),
+      });
+    } catch (error) {
+      console.error('Error saving API key:', error);
+      toast({
+        title: t('error'),
+        description: t('save.failed'),
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -115,17 +159,22 @@ const UserMenu = () => {
               <DialogHeader>
                 <DialogTitle>OpenAI API Key</DialogTitle>
                 <DialogDescription>
-                  Enter your OpenAI API key to enable AI features
+                  Enter your OpenAI API key to enable AI features. The key should start with 'sk-'.
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
                 <Input
-                  placeholder="Enter your OpenAI API key"
+                  placeholder="sk-..."
                   value={apiKey}
                   onChange={(e) => setApiKey(e.target.value)}
+                  type="password"
                 />
-                <Button onClick={handleSaveApiKey} className="w-full">
-                  Save and Continue
+                <Button 
+                  onClick={handleSaveApiKey} 
+                  className="w-full"
+                  disabled={isLoading || !apiKey.trim()}
+                >
+                  {isLoading ? 'Saving...' : 'Save and Continue'}
                 </Button>
               </div>
             </DialogContent>
