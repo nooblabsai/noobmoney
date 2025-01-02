@@ -204,6 +204,12 @@ const FinancialAnalysis: React.FC<FinancialAnalysisProps> = ({
     }
   };
 
+  const validateApiKey = (key: string): boolean => {
+    // OpenAI API keys are now longer than 51 characters
+    const openAiKeyPattern = /^sk-[A-Za-z0-9]{48,}$/;
+    return openAiKeyPattern.test(key);
+  };
+
   return (
     <>
       <Card className="p-6 mb-8">
