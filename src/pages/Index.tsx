@@ -100,7 +100,7 @@ const Index = () => {
   const {
     transactions,
     recurringTransactions,
-    handleAddTransaction: addTransaction,
+    handleAddTransaction,
     handleAddRecurringTransaction,
     handleDeleteTransaction,
     setTransactions,
