@@ -65,7 +65,7 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
     setEditAmount(transaction.amount.toString());
   };
 
-  const handleSaveEdit = (transaction: CombinedTransaction) => {
+  const handleSaveEdit = async (transaction: CombinedTransaction) => {
     const newAmount = parseFloat(editAmount);
     
     if (isNaN(newAmount) || newAmount <= 0) {
@@ -77,31 +77,40 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
       return;
     }
 
-    if (transaction.isRecurring) {
-      setRecurringTransactions(prev => 
-        prev.map(t => 
+    try {
+      if (transaction.isRecurring) {
+        const updatedRecurringTransactions = recurringTransactions.map(t => 
           t.id === transaction.id 
             ? { ...t, amount: newAmount }
             : t
-        )
-      );
-    } else {
-      setTransactions(prev => 
-        prev.map(t => 
+        );
+        setRecurringTransactions(updatedRecurringTransactions);
+        localStorage.setItem('recurringTransactions', JSON.stringify(updatedRecurringTransactions));
+      } else {
+        const updatedTransactions = transactions.map(t => 
           t.id === transaction.id 
             ? { ...t, amount: newAmount }
             : t
-        )
-      );
-    }
+        );
+        setTransactions(updatedTransactions);
+        localStorage.setItem('transactions', JSON.stringify(updatedTransactions));
+      }
 
-    setEditingId(null);
-    setEditAmount('');
-    
-    toast({
-      title: t('success'),
-      description: t('amount.updated'),
-    });
+      setEditingId(null);
+      setEditAmount('');
+      
+      toast({
+        title: t('success'),
+        description: t('amount.updated'),
+      });
+    } catch (error) {
+      console.error('Error updating transaction:', error);
+      toast({
+        title: t('error'),
+        description: t('error'),
+        variant: "destructive",
+      });
+    }
   };
 
   useEffect(() => {

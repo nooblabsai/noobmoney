@@ -113,6 +113,9 @@ export const enTranslations = {
   'login.description': 'Please enter your credentials to sign in',
   'signup.description': 'Please fill in the details to create an account',
   'session.check.failed': 'Session check failed',
+  'invalid.amount': 'Please enter a valid amount greater than 0',
+  'amount.updated': 'Amount updated successfully',
+  'edit': 'Edit amount',
   // Category translations
   'category.housing': 'Housing',
   'category.food': 'Food',
