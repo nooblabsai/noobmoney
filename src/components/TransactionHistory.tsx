@@ -19,25 +19,34 @@ interface TransactionHistoryProps {
 }
 
 const TransactionHistory: React.FC<TransactionHistoryProps> = ({
-  transactions,
-  recurringTransactions,
+  transactions: initialTransactions,
+  recurringTransactions: initialRecurringTransactions,
   onDeleteTransaction,
   selectedMonth,
 }) => {
   const { t } = useLanguage();
   const { toast } = useToast();
   const [showAllTransactions, setShowAllTransactions] = useState(false);
-  const { setTransactions, setRecurringTransactions } = useTransactions();
+  const [localTransactions, setLocalTransactions] = useState(initialTransactions);
+  const [localRecurringTransactions, setLocalRecurringTransactions] = useState(initialRecurringTransactions);
+
+  useEffect(() => {
+    setLocalTransactions(initialTransactions);
+  }, [initialTransactions]);
+
+  useEffect(() => {
+    setLocalRecurringTransactions(initialRecurringTransactions);
+  }, [initialRecurringTransactions]);
 
   const selectedDate = addMonths(new Date(), parseInt(selectedMonth));
 
   const filteredTransactions = showAllTransactions 
-    ? transactions 
-    : transactions.filter(t => isSameMonth(new Date(t.date), selectedDate));
+    ? localTransactions 
+    : localTransactions.filter(t => isSameMonth(new Date(t.date), selectedDate));
 
   const filteredRecurringTransactions = showAllTransactions
-    ? recurringTransactions
-    : recurringTransactions.filter(t => isSameMonth(new Date(t.startDate), selectedDate));
+    ? localRecurringTransactions
+    : localRecurringTransactions.filter(t => isSameMonth(new Date(t.startDate), selectedDate));
 
   const allTransactions = [
     ...filteredTransactions.map(t => ({ ...t, isRecurring: false })),
@@ -55,16 +64,16 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
   const handleEditTransaction = async (id: string, newAmount: number, isRecurring: boolean) => {
     try {
       if (isRecurring) {
-        const updatedRecurringTransactions = recurringTransactions.map(t => 
+        const updatedRecurringTransactions = localRecurringTransactions.map(t => 
           t.id === id ? { ...t, amount: newAmount } : t
         );
-        setRecurringTransactions(updatedRecurringTransactions);
+        setLocalRecurringTransactions(updatedRecurringTransactions);
         localStorage.setItem('recurringTransactions', JSON.stringify(updatedRecurringTransactions));
       } else {
-        const updatedTransactions = transactions.map(t => 
+        const updatedTransactions = localTransactions.map(t => 
           t.id === id ? { ...t, amount: newAmount } : t
         );
-        setTransactions(updatedTransactions);
+        setLocalTransactions(updatedTransactions);
         localStorage.setItem('transactions', JSON.stringify(updatedTransactions));
       }
       
