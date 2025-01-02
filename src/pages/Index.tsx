@@ -15,6 +15,73 @@ import { exportToPDF } from '@/utils/pdfExport';
 import ExpenseCategoriesChart from '@/components/ExpenseCategoriesChart';
 import { supabase } from '@/lib/supabaseClient';
 import { calculateRunway } from '@/utils/runwayCalculations';
+import { Transaction, RecurringTransaction } from '@/types/transactions';
+
+// Create a new component for the data management section
+const DataManagementSection = ({ 
+  onDataLoaded, 
+  transactions, 
+  recurringTransactions, 
+  bankBalance, 
+  debtBalance, 
+  onReset, 
+  handleExportPDF 
+}: {
+  onDataLoaded: (t: Transaction[], rt: RecurringTransaction[], bb: string, db: string) => void;
+  transactions: Transaction[];
+  recurringTransactions: RecurringTransaction[];
+  bankBalance: string;
+  debtBalance: string;
+  onReset: () => void;
+  handleExportPDF: () => void;
+}) => (
+  <div className="flex justify-end gap-4 mb-4">
+    <LoadDataButton onDataLoaded={onDataLoaded} />
+    <SaveDataButton
+      transactions={transactions}
+      recurringTransactions={recurringTransactions}
+      bankBalance={bankBalance}
+      debtBalance={debtBalance}
+      onReset={onReset}
+    />
+  </div>
+);
+
+// Create a new component for the charts section
+const ChartsSection = ({ 
+  transactions, 
+  selectedDate, 
+  bankBalance, 
+  debtBalance, 
+  recurringTransactions,
+  t 
+}: {
+  transactions: Transaction[];
+  selectedDate: Date;
+  bankBalance: string;
+  debtBalance: string;
+  recurringTransactions: RecurringTransaction[];
+  t: (key: string) => string;
+}) => (
+  <div>
+    <ExpenseCategoriesChart 
+      transactions={transactions}
+      selectedDate={selectedDate}
+    />
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <RunwayChart 
+        data={calculateRunway(true, bankBalance, debtBalance, transactions, recurringTransactions)} 
+        title={t('financial.runway.with.balances')}
+        showIncomeExpenses={false}
+      />
+      <RunwayChart 
+        data={calculateRunway(false, bankBalance, debtBalance, transactions, recurringTransactions)} 
+        title={t('financial.runway.without.balances')}
+        showIncomeExpenses={true}
+      />
+    </div>
+  </div>
+);
 
 const Index = () => {
   const { t } = useLanguage();
@@ -45,7 +112,6 @@ const Index = () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) {
-          // Clear any stale data if no valid session exists
           localStorage.removeItem('transactions');
           localStorage.removeItem('recurringTransactions');
           localStorage.removeItem('bankBalance');
@@ -75,8 +141,8 @@ const Index = () => {
   }, [debtBalance]);
 
   const handleDataLoaded = (
-    loadedTransactions: any[], 
-    loadedRecurringTransactions: any[],
+    loadedTransactions: Transaction[], 
+    loadedRecurringTransactions: RecurringTransaction[],
     loadedBankBalance: string,
     loadedDebtBalance: string
   ) => {
@@ -141,16 +207,15 @@ const Index = () => {
         handleExportPDF={handleExportPDF}
       />
 
-      <div className="flex justify-end gap-4 mb-4">
-        <LoadDataButton onDataLoaded={handleDataLoaded} />
-        <SaveDataButton
-          transactions={transactions}
-          recurringTransactions={recurringTransactions}
-          bankBalance={bankBalance}
-          debtBalance={debtBalance}
-          onReset={handleReset}
-        />
-      </div>
+      <DataManagementSection 
+        onDataLoaded={handleDataLoaded}
+        transactions={transactions}
+        recurringTransactions={recurringTransactions}
+        bankBalance={bankBalance}
+        debtBalance={debtBalance}
+        onReset={handleReset}
+        handleExportPDF={handleExportPDF}
+      />
 
       <div id="financial-report">
         <BalanceSection
@@ -181,23 +246,14 @@ const Index = () => {
           selectedMonth={selectedMonth}
         />
 
-        <ExpenseCategoriesChart 
+        <ChartsSection 
           transactions={transactions}
           selectedDate={getSelectedMonthDate()}
+          bankBalance={bankBalance}
+          debtBalance={debtBalance}
+          recurringTransactions={recurringTransactions}
+          t={t}
         />
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <RunwayChart 
-            data={calculateRunway(true, bankBalance, debtBalance, transactions, recurringTransactions)} 
-            title={t('financial.runway.with.balances')}
-            showIncomeExpenses={false}
-          />
-          <RunwayChart 
-            data={calculateRunway(false, bankBalance, debtBalance, transactions, recurringTransactions)} 
-            title={t('financial.runway.without.balances')}
-            showIncomeExpenses={true}
-          />
-        </div>
 
         <FinancialAnalysis
           transactions={transactions}
