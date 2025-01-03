@@ -19,12 +19,16 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
   }
 });
 
-// Add session recovery logic
+// Handle auth state changes
 supabase.auth.onAuthStateChange((event, session) => {
-  if (event === 'SIGNED_OUT' || event === 'USER_UPDATED') {
+  console.log('Auth state changed:', event, 'Session:', session);
+  
+  if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
+    // Clear all local storage and reload
     localStorage.clear();
     window.location.reload();
   } else if (event === 'TOKEN_REFRESHED' && !session) {
+    // Session refresh failed, clear storage and reload
     localStorage.clear();
     window.location.reload();
   }
@@ -34,11 +38,42 @@ supabase.auth.onAuthStateChange((event, session) => {
 export const checkSession = async () => {
   try {
     const { data: { session }, error } = await supabase.auth.getSession();
-    if (error || !session) {
-      throw new Error('Invalid session');
+    
+    if (error) {
+      console.error('Session check error:', error);
+      throw error;
     }
+    
+    if (!session) {
+      console.log('No valid session found');
+      localStorage.clear();
+      return null;
+    }
+
+    // Verify the session is not expired
+    const tokenExpiryTime = session.expires_at ? session.expires_at * 1000 : 0;
+    if (tokenExpiryTime && tokenExpiryTime < Date.now()) {
+      console.log('Session expired');
+      localStorage.clear();
+      return null;
+    }
+
     return session;
   } catch (error) {
+    console.error('Error checking session:', error);
+    localStorage.clear();
+    return null;
+  }
+};
+
+// Add a helper to refresh session
+export const refreshSession = async () => {
+  try {
+    const { data: { session }, error } = await supabase.auth.refreshSession();
+    if (error) throw error;
+    return session;
+  } catch (error) {
+    console.error('Error refreshing session:', error);
     localStorage.clear();
     return null;
   }
