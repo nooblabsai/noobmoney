@@ -1,5 +1,5 @@
 import React from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { format, isSameMonth, isBefore, startOfMonth, endOfMonth } from 'date-fns';
 import { Transaction } from '@/types/transactions';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -8,6 +8,19 @@ interface ExpenseCategoriesChartProps {
   transactions: Transaction[];
   selectedDate: Date;
 }
+
+const COLORS = [
+  '#8B5CF6', // Vivid Purple
+  '#0EA5E9', // Ocean Blue
+  '#F97316', // Bright Orange
+  '#D946EF', // Magenta Pink
+  '#22C55E', // Green
+  '#EAB308', // Yellow
+  '#EC4899', // Pink
+  '#14B8A6', // Teal
+  '#6366F1', // Indigo
+  '#A855F7', // Purple
+];
 
 const ExpenseCategoriesChart: React.FC<ExpenseCategoriesChartProps> = ({
   transactions,
@@ -105,11 +118,11 @@ const ExpenseCategoriesChart: React.FC<ExpenseCategoriesChartProps> = ({
               return item ? item.displayName : label;
             }}
           />
-          <Bar 
-            dataKey="amount" 
-            fill="#1e3a8a"
-            radius={[4, 4, 0, 0]}
-          />
+          <Bar dataKey="amount" radius={[4, 4, 0, 0]}>
+            {data.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+            ))}
+          </Bar>
         </BarChart>
       </ResponsiveContainer>
     </div>
