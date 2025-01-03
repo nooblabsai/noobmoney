@@ -23,12 +23,14 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
 supabase.auth.onAuthStateChange((event, session) => {
   console.log('Auth state changed:', event, 'Session:', session);
   
-  if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
+  if (event === 'SIGNED_OUT') {
     // Clear all local storage and reload
+    console.log('User signed out, clearing storage');
     localStorage.clear();
     window.location.reload();
   } else if (event === 'TOKEN_REFRESHED' && !session) {
     // Session refresh failed, clear storage and reload
+    console.log('Token refresh failed, clearing storage');
     localStorage.clear();
     window.location.reload();
   }
