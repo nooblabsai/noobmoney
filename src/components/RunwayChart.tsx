@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { TranslationKey } from '@/translations/types';
 
 interface RunwayChartProps {
   data: Array<{
@@ -10,7 +11,7 @@ interface RunwayChartProps {
     income?: number;
     expenses?: number;
   }>;
-  title: string;
+  title: TranslationKey;
   showIncomeExpenses?: boolean;
 }
 
