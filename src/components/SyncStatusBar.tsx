@@ -1,7 +1,7 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
-import { AlertCircle, CloudCheck } from 'lucide-react';
+import { AlertCircle, CheckCircle } from 'lucide-react';
 
 const SyncStatusBar = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -40,7 +40,7 @@ const SyncStatusBar = () => {
     >
       {isLoggedIn ? (
         <>
-          <CloudCheck className="h-4 w-4" />
+          <CheckCircle className="h-4 w-4" />
           Data synced to cloud
         </>
       ) : (
