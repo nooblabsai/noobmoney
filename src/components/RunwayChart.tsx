@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface RunwayChartProps {
   data: Array<{
@@ -14,10 +15,12 @@ interface RunwayChartProps {
 }
 
 const RunwayChart: React.FC<RunwayChartProps> = ({ data, title, showIncomeExpenses = false }) => {
+  const { t } = useLanguage();
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{title}</CardTitle>
+        <CardTitle>{t(title)}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="h-[300px] w-full">
