@@ -33,6 +33,9 @@ const TransactionManager: React.FC<TransactionManagerProps> = ({
     };
     onAddTransaction(newTransaction);
     
+    // Dispatch event for sync status
+    window.dispatchEvent(new Event('transactionAdded'));
+    
     toast({
       title: isIncome ? t('income.added') : t('expense.added'),
       description: `${description}: €${amount.toFixed(2)}`,
@@ -51,6 +54,9 @@ const TransactionManager: React.FC<TransactionManagerProps> = ({
       date: new Date(),
     };
     onAddRecurringTransaction(newTransaction);
+    
+    // Dispatch event for sync status
+    window.dispatchEvent(new Event('transactionAdded'));
   };
 
   return (

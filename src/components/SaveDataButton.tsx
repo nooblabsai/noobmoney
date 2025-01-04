@@ -73,6 +73,9 @@ const SaveDataButton: React.FC<SaveDataButtonProps> = ({
 
       await saveTransactions(userId, transactions, recurringTransactions, bankBalance, debtBalance);
 
+      // Dispatch event for sync status
+      window.dispatchEvent(new Event('dataSynced'));
+
       toast({
         title: t('success'),
         description: t('data.saved'),
