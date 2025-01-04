@@ -32,10 +32,12 @@ const SyncStatusBar = () => {
     // Listen for storage changes
     window.addEventListener('storage', checkLocalStorage);
     
-    // Listen for custom events
+    // Listen for all data change events
     window.addEventListener('transactionAdded', handleDataChange);
     window.addEventListener('transactionDeleted', handleDataChange);
+    window.addEventListener('transactionEdited', handleDataChange);
     window.addEventListener('balanceUpdated', handleDataChange);
+    window.addEventListener('settingsUpdated', handleDataChange);
     window.addEventListener('dataSynced', () => setHasUnsavedChanges(false));
 
     checkAuth();
@@ -45,7 +47,9 @@ const SyncStatusBar = () => {
       window.removeEventListener('storage', checkLocalStorage);
       window.removeEventListener('transactionAdded', handleDataChange);
       window.removeEventListener('transactionDeleted', handleDataChange);
+      window.removeEventListener('transactionEdited', handleDataChange);
       window.removeEventListener('balanceUpdated', handleDataChange);
+      window.removeEventListener('settingsUpdated', handleDataChange);
       window.removeEventListener('dataSynced', () => setHasUnsavedChanges(false));
     };
   }, []);

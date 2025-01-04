@@ -90,6 +90,9 @@ const UserMenu = () => {
 
       if (error) throw error;
 
+      // Dispatch event for sync status when API key is updated
+      window.dispatchEvent(new Event('settingsUpdated'));
+
       setOpenDialog(false);
       setApiKey('');
       toast({
