@@ -117,4 +117,5 @@ export const enTranslations = {
   'amount.updated': 'Amount updated successfully',
   'edit': 'Edit amount',
   'invalid.api.key': 'Invalid API key. The key should start with "sk-" and be 51 characters long.',
+  'data.saved.locally': 'Data saved locally only - Sign in or click Save data to sync',
 } as const;

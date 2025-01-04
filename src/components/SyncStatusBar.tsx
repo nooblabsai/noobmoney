@@ -2,11 +2,13 @@ import React from 'react';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { AlertCircle, CheckCircle } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const SyncStatusBar = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [hasLocalData, setHasLocalData] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -67,12 +69,12 @@ const SyncStatusBar = () => {
       {showSyncWarning ? (
         <>
           <AlertCircle className="h-4 w-4" />
-          Data saved locally only - Sign in to sync
+          {t('data.saved.locally')}
         </>
       ) : (
         <>
           <CheckCircle className="h-4 w-4" />
-          Data synced to cloud
+          {t('data.synced')}
         </>
       )}
     </div>
