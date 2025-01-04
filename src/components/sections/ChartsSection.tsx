@@ -3,6 +3,7 @@ import RunwayChart from '@/components/RunwayChart';
 import ExpenseCategoriesChart from '@/components/ExpenseCategoriesChart';
 import { calculateRunway } from '@/utils/runwayCalculations';
 import { Transaction, RecurringTransaction } from '@/types/transactions';
+import { TranslationKey } from '@/translations/types';
 
 interface ChartsSectionProps {
   transactions: Transaction[];
@@ -10,7 +11,7 @@ interface ChartsSectionProps {
   bankBalance: string;
   debtBalance: string;
   recurringTransactions: RecurringTransaction[];
-  t: (key: string) => string;
+  t: (key: TranslationKey) => string;
 }
 
 const ChartsSection: React.FC<ChartsSectionProps> = ({
@@ -42,12 +43,12 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <RunwayChart
           data={runwayDataWithInitialBalances}
-          title={t('financial.runway.with.balances')}
+          title="financial.runway.with.balances"
           showIncomeExpenses={true}
         />
         <RunwayChart
           data={runwayDataWithoutInitialBalances}
-          title={t('financial.runway.without.balances')}
+          title="financial.runway.without.balances"
           showIncomeExpenses={true}
         />
       </div>

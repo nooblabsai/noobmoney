@@ -126,5 +126,7 @@ export const enTranslations = {
   'monthly': 'Monthly',
   'delete': 'Delete',
   'edit': 'Edit',
-  'session.check.failed': 'Session check failed'
+  'session.check.failed': 'Session check failed',
+  'financial.runway.with.balances': 'Financial Runway (Including Current Balances)',
+  'financial.runway.without.balances': 'Financial Runway (Excluding Current Balances)',
 } as const;

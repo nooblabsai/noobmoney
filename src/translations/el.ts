@@ -126,5 +126,7 @@ export const elTranslations = {
   'monthly': 'Μηνιαία',
   'delete': 'Διαγραφή',
   'edit': 'Επεξεργασία',
-  'session.check.failed': 'Αποτυχία ελέγχου συνεδρίας'
+  'session.check.failed': 'Αποτυχία ελέγχου συνεδρίας',
+  'financial.runway.with.balances': 'Οικονομική Διάρκεια (Συμπεριλαμβανομένων Τρεχόντων Υπολοίπων)',
+  'financial.runway.without.balances': 'Οικονομική Διάρκεια (Εξαιρουμένων Τρεχόντων Υπολοίπων)',
 } as const;
