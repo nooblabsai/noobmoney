@@ -86,6 +86,9 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
         updatedTransactions || localTransactions,
         updatedRecurringTransactions || localRecurringTransactions
       );
+
+      // Dispatch event for sync status
+      window.dispatchEvent(new Event('transactionEdited'));
       
       toast({
         title: t('success'),
@@ -134,7 +137,11 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
             <TransactionItem
               key={transaction.id}
               transaction={transaction}
-              onDelete={onDeleteTransaction}
+              onDelete={(id, isRecurring) => {
+                onDeleteTransaction(id, isRecurring);
+                // Dispatch event for sync status
+                window.dispatchEvent(new Event('transactionDeleted'));
+              }}
               onEdit={handleEditTransaction}
             />
           ))

@@ -2,7 +2,7 @@ import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Wallet, PiggyBank } from 'lucide-react';
+import { Euro } from 'lucide-react';
 
 interface BalanceSectionProps {
   bankBalance: string;
@@ -19,47 +19,53 @@ export const BalanceSection: React.FC<BalanceSectionProps> = ({
   setDebtBalance,
   t,
 }) => {
+  const handleBalanceChange = (value: string, type: 'bank' | 'debt') => {
+    if (type === 'bank') {
+      setBankBalance(value);
+    } else {
+      setDebtBalance(value);
+    }
+    // Dispatch event for sync status
+    window.dispatchEvent(new Event('balanceUpdated'));
+  };
+
   return (
-    <Card className="p-6 mb-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div>
-          <div className="flex items-center gap-3 mb-4">
-            <Wallet className="h-6 w-6 text-primary" />
-            <Label htmlFor="bankBalance" className="text-xl font-semibold">
-              {t('current.bank.balance')}
-            </Label>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-4xl font-bold text-primary">€</span>
-            <Input
-              id="bankBalance"
-              type="text"
-              value={bankBalance}
-              onChange={(e) => setBankBalance(e.target.value)}
-              className="text-4xl font-bold h-16 max-w-xs"
-            />
-          </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      <Card className="p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <Euro className="h-5 w-5" />
+          <h2 className="text-xl font-semibold">{t('bank.balance')}</h2>
         </div>
-        
-        <div>
-          <div className="flex items-center gap-3 mb-4">
-            <PiggyBank className="h-6 w-6 text-red-500" />
-            <Label htmlFor="debtBalance" className="text-xl font-semibold">
-              {t('current.debt.balance')}
-            </Label>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-4xl font-bold text-red-500">€</span>
-            <Input
-              id="debtBalance"
-              type="text"
-              value={debtBalance}
-              onChange={(e) => setDebtBalance(e.target.value)}
-              className="text-4xl font-bold h-16 max-w-xs"
-            />
-          </div>
+        <div className="space-y-2">
+          <Label htmlFor="bankBalance">{t('current.balance')}</Label>
+          <Input
+            id="bankBalance"
+            type="number"
+            value={bankBalance}
+            onChange={(e) => handleBalanceChange(e.target.value, 'bank')}
+            placeholder="0.00"
+            step="0.01"
+          />
         </div>
-      </div>
-    </Card>
+      </Card>
+
+      <Card className="p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <Euro className="h-5 w-5" />
+          <h2 className="text-xl font-semibold">{t('debt.balance')}</h2>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="debtBalance">{t('current.debt')}</Label>
+          <Input
+            id="debtBalance"
+            type="number"
+            value={debtBalance}
+            onChange={(e) => handleBalanceChange(e.target.value, 'debt')}
+            placeholder="0.00"
+            step="0.01"
+          />
+        </div>
+      </Card>
+    </div>
   );
 };
