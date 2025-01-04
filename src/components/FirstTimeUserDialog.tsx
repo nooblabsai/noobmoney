@@ -140,7 +140,7 @@ const FirstTimeUserDialog: React.FC<FirstTimeUserDialogProps> = ({
         <DialogHeader>
           <DialogTitle>{isLogin ? t('welcome.back') : t('create.account')}</DialogTitle>
           <DialogDescription>
-            {isLogin ? t('login.description') : t('signup.description')}
+            {isLogin ? t('auth.signin.description') : t('auth.signup.description')}
           </DialogDescription>
         </DialogHeader>
         <AuthForm
