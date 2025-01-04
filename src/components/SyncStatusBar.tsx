@@ -62,7 +62,7 @@ const SyncStatusBar = () => {
 
   return (
     <div
-      className={`fixed top-0 left-0 right-0 z-50 w-full p-2 text-sm flex items-center justify-center gap-2 ${
+      className={`fixed bottom-0 left-0 right-0 z-50 w-full p-2 text-sm flex items-center justify-center gap-2 ${
         showSyncWarning ? 'bg-orange-500 text-white' : 'bg-green-500 text-white'
       }`}
     >
