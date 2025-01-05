@@ -93,6 +93,12 @@ export const saveTransactions = async (
       if (insertError) throw insertError;
     }
 
+    // Update local storage
+    localStorage.setItem('transactions', JSON.stringify(transactions));
+    localStorage.setItem('recurringTransactions', JSON.stringify(recurringTransactions));
+    localStorage.setItem('bankBalance', bankBalance);
+    localStorage.setItem('debtBalance', debtBalance);
+
   } catch (error) {
     console.error('Error saving transactions:', error);
     throw error;
