@@ -63,24 +63,35 @@ export const saveTransactions = async (
       if (recurringError) throw recurringError;
     }
 
-    // Update user data (balances)
-    const { error: userDataError } = await supabase
+    // First, check if user data exists
+    const { data: existingUserData } = await supabase
       .from('user_data')
-      .upsert({
-        user_id: userId,
-        bank_balance: bankBalance,
-        debt_balance: debtBalance
-      }, { 
-        onConflict: 'user_id'
-      });
+      .select('*')
+      .eq('user_id', userId)
+      .maybeSingle();
 
-    if (userDataError) throw userDataError;
+    // Then either update or insert based on existence
+    if (existingUserData) {
+      const { error: updateError } = await supabase
+        .from('user_data')
+        .update({
+          bank_balance: bankBalance,
+          debt_balance: debtBalance
+        })
+        .eq('user_id', userId);
 
-    // Update local storage
-    localStorage.setItem('transactions', JSON.stringify(transactions));
-    localStorage.setItem('recurringTransactions', JSON.stringify(recurringTransactions));
-    localStorage.setItem('bankBalance', bankBalance);
-    localStorage.setItem('debtBalance', debtBalance);
+      if (updateError) throw updateError;
+    } else {
+      const { error: insertError } = await supabase
+        .from('user_data')
+        .insert({
+          user_id: userId,
+          bank_balance: bankBalance,
+          debt_balance: debtBalance
+        });
+
+      if (insertError) throw insertError;
+    }
 
   } catch (error) {
     console.error('Error saving transactions:', error);
