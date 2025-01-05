@@ -28,10 +28,13 @@ export const saveTransactions = async (
     // Save new transactions
     if (transactions.length > 0) {
       const transformedTransactions = transactions.map(t => ({
-        ...t,
-        user_id: userId,
+        id: t.id,
+        amount: t.amount,
+        description: t.description,
+        is_income: t.isIncome,
         date: new Date(t.date).toISOString(),
-        is_income: t.isIncome // Map isIncome to is_income
+        category: t.category,
+        user_id: userId
       }));
       
       const { error: transactionError } = await supabase
@@ -44,10 +47,13 @@ export const saveTransactions = async (
     // Save new recurring transactions
     if (recurringTransactions.length > 0) {
       const transformedRecurringTransactions = recurringTransactions.map(t => ({
-        ...t,
-        user_id: userId,
+        id: t.id,
+        amount: t.amount,
+        description: t.description,
+        is_income: t.isIncome,
         start_date: new Date(t.startDate).toISOString(),
-        is_income: t.isIncome // Map isIncome to is_income
+        category: t.category,
+        user_id: userId
       }));
       
       const { error: recurringError } = await supabase
@@ -87,7 +93,7 @@ export const loadTransactions = async (userId: string) => {
     // Load transactions
     const { data: transactions, error: transactionError } = await supabase
       .from('transactions')
-      .select('*')
+      .select('id, amount, description, is_income, date, category, user_id')
       .eq('user_id', userId);
 
     if (transactionError) throw transactionError;
@@ -95,12 +101,12 @@ export const loadTransactions = async (userId: string) => {
     // Load recurring transactions
     const { data: recurringTransactions, error: recurringError } = await supabase
       .from('recurring_transactions')
-      .select('*')
+      .select('id, amount, description, is_income, start_date, category, user_id')
       .eq('user_id', userId);
 
     if (recurringError) throw recurringError;
 
-    // Load user data with proper single row handling
+    // Load user data
     const { data: userData, error: userDataError } = await supabase
       .from('user_data')
       .select('*')
@@ -111,15 +117,21 @@ export const loadTransactions = async (userId: string) => {
 
     // Transform the data back to the expected format
     const transformedTransactions = (transactions || []).map(t => ({
-      ...t,
+      id: t.id,
+      amount: t.amount,
+      description: t.description,
+      isIncome: t.is_income,
       date: new Date(t.date),
-      isIncome: t.is_income // Map is_income back to isIncome
+      category: t.category
     }));
 
     const transformedRecurringTransactions = (recurringTransactions || []).map(t => ({
-      ...t,
+      id: t.id,
+      amount: t.amount,
+      description: t.description,
+      isIncome: t.is_income,
       startDate: new Date(t.start_date),
-      isIncome: t.is_income // Map is_income back to isIncome
+      category: t.category
     }));
 
     return {
