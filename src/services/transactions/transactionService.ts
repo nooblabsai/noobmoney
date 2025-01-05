@@ -1,6 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
 import { Transaction, RecurringTransaction } from '@/types/transactions';
-import { transformTransactionsForStorage, transformTransactionsFromStorage } from './transactionTransformers';
 
 export const saveTransactions = async (
   userId: string,
@@ -26,9 +25,14 @@ export const saveTransactions = async (
       .delete()
       .eq('user_id', userId);
 
-    // Transform and save new transactions
+    // Save new transactions
     if (transactions.length > 0) {
-      const transformedTransactions = transformTransactionsForStorage(transactions, userId);
+      const transformedTransactions = transactions.map(t => ({
+        ...t,
+        user_id: userId,
+        date: new Date(t.date).toISOString()
+      }));
+      
       const { error: transactionError } = await supabase
         .from('transactions')
         .insert(transformedTransactions);
@@ -36,9 +40,14 @@ export const saveTransactions = async (
       if (transactionError) throw transactionError;
     }
 
-    // Transform and save new recurring transactions
+    // Save new recurring transactions
     if (recurringTransactions.length > 0) {
-      const transformedRecurringTransactions = transformTransactionsForStorage(recurringTransactions, userId);
+      const transformedRecurringTransactions = recurringTransactions.map(t => ({
+        ...t,
+        user_id: userId,
+        start_date: new Date(t.startDate).toISOString()
+      }));
+      
       const { error: recurringError } = await supabase
         .from('recurring_transactions')
         .insert(transformedRecurringTransactions);
@@ -53,7 +62,9 @@ export const saveTransactions = async (
         user_id: userId,
         bank_balance: bankBalance,
         debt_balance: debtBalance
-      }, { onConflict: 'user_id' });
+      }, { 
+        onConflict: 'user_id'
+      });
 
     if (userDataError) throw userDataError;
 
@@ -71,6 +82,7 @@ export const saveTransactions = async (
 
 export const loadTransactions = async (userId: string) => {
   try {
+    // Load transactions
     const { data: transactions, error: transactionError } = await supabase
       .from('transactions')
       .select('*')
@@ -78,6 +90,7 @@ export const loadTransactions = async (userId: string) => {
 
     if (transactionError) throw transactionError;
 
+    // Load recurring transactions
     const { data: recurringTransactions, error: recurringError } = await supabase
       .from('recurring_transactions')
       .select('*')
@@ -85,17 +98,29 @@ export const loadTransactions = async (userId: string) => {
 
     if (recurringError) throw recurringError;
 
+    // Load user data with proper single row handling
     const { data: userData, error: userDataError } = await supabase
       .from('user_data')
       .select('*')
       .eq('user_id', userId)
-      .single();
+      .maybeSingle(); // This handles the case where the row might not exist
 
     if (userDataError && userDataError.code !== 'PGRST116') throw userDataError;
 
+    // Transform the data back to the expected format
+    const transformedTransactions = (transactions || []).map(t => ({
+      ...t,
+      date: new Date(t.date)
+    }));
+
+    const transformedRecurringTransactions = (recurringTransactions || []).map(t => ({
+      ...t,
+      startDate: new Date(t.start_date)
+    }));
+
     return {
-      transactions: transformTransactionsFromStorage(transactions || []),
-      recurringTransactions: transformTransactionsFromStorage(recurringTransactions || []),
+      transactions: transformedTransactions,
+      recurringTransactions: transformedRecurringTransactions,
       bankBalance: userData?.bank_balance || '0',
       debtBalance: userData?.debt_balance || '0'
     };

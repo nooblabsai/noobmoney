@@ -80,13 +80,11 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
         localStorage.setItem('transactions', JSON.stringify(updatedTransactions));
       }
       
-      // Notify parent component of the updates
       onTransactionsUpdate(
         updatedTransactions || localTransactions,
         updatedRecurringTransactions || localRecurringTransactions
       );
 
-      // Dispatch event for sync status
       window.dispatchEvent(new Event('transactionEdited'));
       
       toast({
@@ -102,16 +100,6 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
       });
     }
   };
-
-  useEffect(() => {
-    const updateCategories = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user?.id) {
-        await updateTransactionCategories(session.user.id);
-      }
-    };
-    updateCategories();
-  }, []);
 
   return (
     <Card className="p-6 mb-8">
@@ -138,7 +126,6 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
               transaction={transaction}
               onDelete={(id, isRecurring) => {
                 onDeleteTransaction(id, isRecurring);
-                // Dispatch event for sync status
                 window.dispatchEvent(new Event('transactionDeleted'));
               }}
               onEdit={handleEditTransaction}
