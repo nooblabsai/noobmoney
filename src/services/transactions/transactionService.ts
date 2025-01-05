@@ -63,35 +63,22 @@ export const saveTransactions = async (
       if (recurringError) throw recurringError;
     }
 
-    // First, check if user data exists
-    const { data: existingUserData } = await supabase
+    // First, delete any existing user data
+    await supabase
       .from('user_data')
-      .select('*')
-      .eq('user_id', userId)
-      .maybeSingle();
+      .delete()
+      .eq('user_id', userId);
 
-    // Then either update or insert based on existence
-    if (existingUserData) {
-      const { error: updateError } = await supabase
-        .from('user_data')
-        .update({
-          bank_balance: bankBalance,
-          debt_balance: debtBalance
-        })
-        .eq('user_id', userId);
+    // Then insert new user data
+    const { error: insertError } = await supabase
+      .from('user_data')
+      .insert({
+        user_id: userId,
+        bank_balance: bankBalance,
+        debt_balance: debtBalance
+      });
 
-      if (updateError) throw updateError;
-    } else {
-      const { error: insertError } = await supabase
-        .from('user_data')
-        .insert({
-          user_id: userId,
-          bank_balance: bankBalance,
-          debt_balance: debtBalance
-        });
-
-      if (insertError) throw insertError;
-    }
+    if (insertError) throw insertError;
 
     // Update local storage
     localStorage.setItem('transactions', JSON.stringify(transactions));
@@ -123,14 +110,17 @@ export const loadTransactions = async (userId: string) => {
 
     if (recurringError) throw recurringError;
 
-    // Load user data
-    const { data: userData, error: userDataError } = await supabase
+    // Load user data - get the most recent entry
+    const { data: userDataArray, error: userDataError } = await supabase
       .from('user_data')
       .select('bank_balance, debt_balance')
       .eq('user_id', userId)
-      .maybeSingle();
+      .order('created_at', { ascending: false })
+      .limit(1);
 
     if (userDataError) throw userDataError;
+
+    const userData = userDataArray?.[0];
 
     // Transform the data back to the expected format
     const transformedTransactions = (transactions || []).map(t => ({
