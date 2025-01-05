@@ -197,9 +197,9 @@ export const saveTransactions = async (
     throw userDataError;
   }
 
-  // Clear local storage after successful save
-  localStorage.removeItem('transactions');
-  localStorage.removeItem('recurringTransactions');
+  // Update local storage with current data instead of clearing it
+  localStorage.setItem('transactions', JSON.stringify(transactions));
+  localStorage.setItem('recurringTransactions', JSON.stringify(recurringTransactions));
   localStorage.setItem('bankBalance', bankBalance);
   localStorage.setItem('debtBalance', debtBalance);
 };
