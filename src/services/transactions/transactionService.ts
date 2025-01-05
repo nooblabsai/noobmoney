@@ -41,6 +41,28 @@ export const loadTransactions = async (userId: string) => {
       throw new Error('No active session');
     }
 
+    // Delete all existing transactions for this user first
+    const { error: deleteTransactionsError } = await supabase
+      .from('transactions')
+      .delete()
+      .eq('user_id', userId);
+
+    if (deleteTransactionsError) {
+      console.error('Error deleting existing transactions:', deleteTransactionsError);
+      throw deleteTransactionsError;
+    }
+
+    // Delete all existing recurring transactions for this user
+    const { error: deleteRecurringError } = await supabase
+      .from('recurring_transactions')
+      .delete()
+      .eq('user_id', userId);
+
+    if (deleteRecurringError) {
+      console.error('Error deleting existing recurring transactions:', deleteRecurringError);
+      throw deleteRecurringError;
+    }
+
     // Load transactions
     const { data: transactionsData, error: transactionsError } = await supabase
       .from('transactions')
@@ -110,11 +132,34 @@ export const saveTransactions = async (
     throw new Error('No active session');
   }
 
+  // First, delete all existing transactions for this user
+  const { error: deleteTransactionsError } = await supabase
+    .from('transactions')
+    .delete()
+    .eq('user_id', userId);
+
+  if (deleteTransactionsError) {
+    console.error('Error deleting existing transactions:', deleteTransactionsError);
+    throw deleteTransactionsError;
+  }
+
+  // Delete all existing recurring transactions for this user
+  const { error: deleteRecurringError } = await supabase
+    .from('recurring_transactions')
+    .delete()
+    .eq('user_id', userId);
+
+  if (deleteRecurringError) {
+    console.error('Error deleting existing recurring transactions:', deleteRecurringError);
+    throw deleteRecurringError;
+  }
+
+  // Now insert the current transactions
   if (transactions.length > 0) {
     const transformedTransactions = transactions.map(t => transformTransactionForDB(t, userId));
     const { error: transactionError } = await supabase
       .from('transactions')
-      .upsert(transformedTransactions, { onConflict: 'id' });
+      .insert(transformedTransactions);
 
     if (transactionError) {
       console.error('Error saving transactions:', transactionError);
@@ -122,13 +167,14 @@ export const saveTransactions = async (
     }
   }
 
+  // Insert the current recurring transactions
   if (recurringTransactions.length > 0) {
     const transformedRecurringTransactions = recurringTransactions.map(t => 
       transformRecurringTransactionForDB(t, userId)
     );
     const { error: recurringError } = await supabase
       .from('recurring_transactions')
-      .upsert(transformedRecurringTransactions, { onConflict: 'id' });
+      .insert(transformedRecurringTransactions);
 
     if (recurringError) {
       console.error('Error saving recurring transactions:', recurringError);
@@ -136,6 +182,7 @@ export const saveTransactions = async (
     }
   }
 
+  // Update user data
   const { error: userDataError } = await supabase
     .from('user_data')
     .upsert({
@@ -149,4 +196,10 @@ export const saveTransactions = async (
     console.error('Error saving user data:', userDataError);
     throw userDataError;
   }
+
+  // Clear local storage after successful save
+  localStorage.removeItem('transactions');
+  localStorage.removeItem('recurringTransactions');
+  localStorage.setItem('bankBalance', bankBalance);
+  localStorage.setItem('debtBalance', debtBalance);
 };
