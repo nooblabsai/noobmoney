@@ -13,30 +13,31 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
   },
   global: {
     headers: {
-      'X-Client-Info': 'supabase-js-web',
-      'Access-Control-Allow-Origin': '*'
+      'X-Client-Info': 'supabase-js-web'
     }
   }
 });
 
 // Handle auth state changes
-supabase.auth.onAuthStateChange((event, session) => {
+supabase.auth.onAuthStateChange(async (event, session) => {
   console.log('Auth state changed:', event, 'Session:', session);
   
   if (event === 'SIGNED_OUT') {
-    // Clear all local storage and reload
     console.log('User signed out, clearing storage');
     localStorage.clear();
     window.location.reload();
-  } else if (event === 'TOKEN_REFRESHED' && !session) {
-    // Session refresh failed, clear storage and reload
-    console.log('Token refresh failed, clearing storage');
-    localStorage.clear();
-    window.location.reload();
+  } else if (event === 'TOKEN_REFRESHED') {
+    if (!session) {
+      console.log('Token refresh failed, clearing storage');
+      localStorage.clear();
+      window.location.reload();
+    } else {
+      console.log('Token refreshed successfully');
+    }
   }
 });
 
-// Export a function to check session validity
+// Export a function to check and refresh session if needed
 export const checkSession = async () => {
   try {
     const { data: { session }, error } = await supabase.auth.getSession();
@@ -48,22 +49,26 @@ export const checkSession = async () => {
     
     if (!session) {
       console.log('No valid session found');
-      localStorage.clear();
       return null;
     }
 
     // Verify the session is not expired
     const tokenExpiryTime = session.expires_at ? session.expires_at * 1000 : 0;
     if (tokenExpiryTime && tokenExpiryTime < Date.now()) {
-      console.log('Session expired');
-      localStorage.clear();
-      return null;
+      console.log('Session expired, attempting refresh');
+      const { data: refreshedSession, error: refreshError } = await supabase.auth.refreshSession();
+      
+      if (refreshError || !refreshedSession.session) {
+        console.error('Session refresh failed:', refreshError);
+        return null;
+      }
+      
+      return refreshedSession.session;
     }
 
     return session;
   } catch (error) {
     console.error('Error checking session:', error);
-    localStorage.clear();
     return null;
   }
 };
@@ -72,11 +77,13 @@ export const checkSession = async () => {
 export const refreshSession = async () => {
   try {
     const { data: { session }, error } = await supabase.auth.refreshSession();
-    if (error) throw error;
+    if (error) {
+      console.error('Error refreshing session:', error);
+      throw error;
+    }
     return session;
   } catch (error) {
     console.error('Error refreshing session:', error);
-    localStorage.clear();
     return null;
   }
 };
