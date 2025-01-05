@@ -30,7 +30,8 @@ export const saveTransactions = async (
       const transformedTransactions = transactions.map(t => ({
         ...t,
         user_id: userId,
-        date: new Date(t.date).toISOString()
+        date: new Date(t.date).toISOString(),
+        is_income: t.isIncome // Map isIncome to is_income
       }));
       
       const { error: transactionError } = await supabase
@@ -45,7 +46,8 @@ export const saveTransactions = async (
       const transformedRecurringTransactions = recurringTransactions.map(t => ({
         ...t,
         user_id: userId,
-        start_date: new Date(t.startDate).toISOString()
+        start_date: new Date(t.startDate).toISOString(),
+        is_income: t.isIncome // Map isIncome to is_income
       }));
       
       const { error: recurringError } = await supabase
@@ -103,19 +105,21 @@ export const loadTransactions = async (userId: string) => {
       .from('user_data')
       .select('*')
       .eq('user_id', userId)
-      .maybeSingle(); // This handles the case where the row might not exist
+      .maybeSingle();
 
     if (userDataError && userDataError.code !== 'PGRST116') throw userDataError;
 
     // Transform the data back to the expected format
     const transformedTransactions = (transactions || []).map(t => ({
       ...t,
-      date: new Date(t.date)
+      date: new Date(t.date),
+      isIncome: t.is_income // Map is_income back to isIncome
     }));
 
     const transformedRecurringTransactions = (recurringTransactions || []).map(t => ({
       ...t,
-      startDate: new Date(t.start_date)
+      startDate: new Date(t.start_date),
+      isIncome: t.is_income // Map is_income back to isIncome
     }));
 
     return {
