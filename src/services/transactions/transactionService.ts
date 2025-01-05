@@ -126,11 +126,11 @@ export const loadTransactions = async (userId: string) => {
     // Load user data
     const { data: userData, error: userDataError } = await supabase
       .from('user_data')
-      .select('*')
+      .select('bank_balance, debt_balance')
       .eq('user_id', userId)
       .maybeSingle();
 
-    if (userDataError && userDataError.code !== 'PGRST116') throw userDataError;
+    if (userDataError) throw userDataError;
 
     // Transform the data back to the expected format
     const transformedTransactions = (transactions || []).map(t => ({
@@ -151,11 +151,21 @@ export const loadTransactions = async (userId: string) => {
       category: t.category
     }));
 
+    // Store in localStorage
+    localStorage.setItem('transactions', JSON.stringify(transformedTransactions));
+    localStorage.setItem('recurringTransactions', JSON.stringify(transformedRecurringTransactions));
+    
+    const bankBalance = userData?.bank_balance || '0';
+    const debtBalance = userData?.debt_balance || '0';
+    
+    localStorage.setItem('bankBalance', bankBalance);
+    localStorage.setItem('debtBalance', debtBalance);
+
     return {
       transactions: transformedTransactions,
       recurringTransactions: transformedRecurringTransactions,
-      bankBalance: userData?.bank_balance || '0',
-      debtBalance: userData?.debt_balance || '0'
+      bankBalance,
+      debtBalance
     };
   } catch (error) {
     console.error('Error loading transactions:', error);
