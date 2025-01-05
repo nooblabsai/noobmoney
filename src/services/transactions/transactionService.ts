@@ -1,4 +1,4 @@
-import { supabase, checkSession } from '@/lib/supabaseClient';
+import { supabase } from '@/lib/supabaseClient';
 import { Transaction, RecurringTransaction } from '@/types/transactions';
 import { transformTransactionsForStorage, transformTransactionsFromStorage } from './transactionTransformers';
 
@@ -10,57 +10,43 @@ export const saveTransactions = async (
   debtBalance: string
 ) => {
   try {
-    // Check session validity before proceeding
-    const session = await checkSession();
-    if (!session) {
-      throw new Error('Invalid session');
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) {
+      throw new Error('No active session');
     }
 
-    // Transform transactions for storage
-    const transformedTransactions = transformTransactionsForStorage(transactions);
-    const transformedRecurringTransactions = transformTransactionsForStorage(recurringTransactions);
-
-    // Delete existing data
-    const { error: deleteError } = await supabase
+    // Delete existing transactions
+    await supabase
       .from('transactions')
       .delete()
       .eq('user_id', userId);
 
-    if (deleteError) {
-      console.error('Error deleting existing transactions:', deleteError);
-      throw deleteError;
-    }
-
-    // Insert new transactions
-    const { error: transactionError } = await supabase
-      .from('transactions')
-      .insert(transformedTransactions.map(transaction => ({
-        ...transaction,
-        user_id: userId
-      })));
-
-    if (transactionError) {
-      console.error('Error saving transactions:', transactionError);
-      throw transactionError;
-    }
-
-    // Save recurring transactions
-    const { error: recurringError } = await supabase
+    await supabase
       .from('recurring_transactions')
-      .upsert(
-        transformedRecurringTransactions.map(transaction => ({
-          ...transaction,
-          user_id: userId
-        })),
-        { onConflict: 'user_id,id' }
-      );
+      .delete()
+      .eq('user_id', userId);
 
-    if (recurringError) {
-      console.error('Error saving recurring transactions:', recurringError);
-      throw recurringError;
+    // Transform and save new transactions
+    if (transactions.length > 0) {
+      const transformedTransactions = transformTransactionsForStorage(transactions, userId);
+      const { error: transactionError } = await supabase
+        .from('transactions')
+        .insert(transformedTransactions);
+
+      if (transactionError) throw transactionError;
     }
 
-    // Save user data (balances)
+    // Transform and save new recurring transactions
+    if (recurringTransactions.length > 0) {
+      const transformedRecurringTransactions = transformTransactionsForStorage(recurringTransactions, userId);
+      const { error: recurringError } = await supabase
+        .from('recurring_transactions')
+        .insert(transformedRecurringTransactions);
+
+      if (recurringError) throw recurringError;
+    }
+
+    // Update user data (balances)
     const { error: userDataError } = await supabase
       .from('user_data')
       .upsert({
@@ -69,20 +55,16 @@ export const saveTransactions = async (
         debt_balance: debtBalance
       }, { onConflict: 'user_id' });
 
-    if (userDataError) {
-      console.error('Error saving user data:', userDataError);
-      throw userDataError;
-    }
+    if (userDataError) throw userDataError;
 
-    // Update local storage with current data
+    // Update local storage
     localStorage.setItem('transactions', JSON.stringify(transactions));
     localStorage.setItem('recurringTransactions', JSON.stringify(recurringTransactions));
     localStorage.setItem('bankBalance', bankBalance);
     localStorage.setItem('debtBalance', debtBalance);
-    
-    console.log('All data saved successfully');
+
   } catch (error) {
-    console.error('Error in saveTransactions:', error);
+    console.error('Error saving transactions:', error);
     throw error;
   }
 };
@@ -94,20 +76,14 @@ export const loadTransactions = async (userId: string) => {
       .select('*')
       .eq('user_id', userId);
 
-    if (transactionError) {
-      console.error('Error loading transactions:', transactionError);
-      throw transactionError;
-    }
+    if (transactionError) throw transactionError;
 
     const { data: recurringTransactions, error: recurringError } = await supabase
       .from('recurring_transactions')
       .select('*')
       .eq('user_id', userId);
 
-    if (recurringError) {
-      console.error('Error loading recurring transactions:', recurringError);
-      throw recurringError;
-    }
+    if (recurringError) throw recurringError;
 
     const { data: userData, error: userDataError } = await supabase
       .from('user_data')
@@ -115,19 +91,16 @@ export const loadTransactions = async (userId: string) => {
       .eq('user_id', userId)
       .single();
 
-    if (userDataError) {
-      console.error('Error loading user data:', userDataError);
-      throw userDataError;
-    }
+    if (userDataError && userDataError.code !== 'PGRST116') throw userDataError;
 
     return {
-      transactions: transformTransactionsFromStorage(transactions),
-      recurringTransactions: transformTransactionsFromStorage(recurringTransactions),
-      bankBalance: userData.bank_balance,
-      debtBalance: userData.debt_balance,
+      transactions: transformTransactionsFromStorage(transactions || []),
+      recurringTransactions: transformTransactionsFromStorage(recurringTransactions || []),
+      bankBalance: userData?.bank_balance || '0',
+      debtBalance: userData?.debt_balance || '0'
     };
   } catch (error) {
-    console.error('Error in loadTransactions:', error);
+    console.error('Error loading transactions:', error);
     throw error;
   }
 };

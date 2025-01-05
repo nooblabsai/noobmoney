@@ -6,7 +6,6 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Transaction, RecurringTransaction } from '@/types/transactions';
 import { Button } from '@/components/ui/button';
 import { useTransactions } from '@/hooks/useTransactions';
-import { updateTransactionCategories } from '@/services/supabaseService';
 import { supabase } from '@/lib/supabaseClient';
 import { useToast } from '@/components/ui/use-toast';
 import TransactionItem from './transaction/TransactionItem';
