@@ -84,6 +84,19 @@ const enTranslations = {
   'pdf.export.failed': 'PDF export failed',
   'data.reset': 'Data reset',
   'data.reset.success': 'Data reset successfully',
+  'category.food': 'Food',
+  'category.transport': 'Transport',
+  'category.utilities': 'Utilities',
+  'category.entertainment': 'Entertainment',
+  'category.shopping': 'Shopping',
+  'category.health': 'Health',
+  'category.education': 'Education',
+  'category.other': 'Other',
+  'category.housing': 'Housing',
+  'income.added': 'Income added',
+  'expense.added': 'Expense added',
+  'loading.failed': 'Loading failed',
+  'save.data': 'Save data',
 } as const;
 
 export default enTranslations;

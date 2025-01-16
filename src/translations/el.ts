@@ -84,6 +84,19 @@ const elTranslations = {
   'pdf.export.failed': 'Η εξαγωγή PDF απέτυχε',
   'data.reset': 'Επαναφορά δεδομένων',
   'data.reset.success': 'Τα δεδομένα επαναφέρθηκαν με επιτυχία',
+  'category.food': 'Φαγητό',
+  'category.transport': 'Μεταφορές',
+  'category.utilities': 'Λογαριασμοί',
+  'category.entertainment': 'Ψυχαγωγία',
+  'category.shopping': 'Αγορές',
+  'category.health': 'Υγεία',
+  'category.education': 'Εκπαίδευση',
+  'category.other': 'Άλλο',
+  'category.housing': 'Στέγαση',
+  'income.added': 'Προστέθηκε έσοδο',
+  'expense.added': 'Προστέθηκε έξοδο',
+  'loading.failed': 'Η φόρτωση απέτυχε',
+  'save.data': 'Αποθήκευση δεδομένων',
 } as const;
 
 export default elTranslations;
