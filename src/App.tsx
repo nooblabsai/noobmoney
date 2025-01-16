@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import SyncStatusBar from "./components/SyncStatusBar";
 import Index from "./pages/Index";
+import Transactions from "./pages/Transactions";
 
 const App = () => {
   const queryClient = new QueryClient();
@@ -18,6 +19,7 @@ const App = () => {
             <SyncStatusBar />
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/transactions" element={<Transactions />} />
             </Routes>
             <Toaster />
             <Sonner />
