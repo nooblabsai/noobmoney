@@ -101,4 +101,5 @@ export const enTranslations = {
   'hide.annual.stats': 'Hide Annual Stats',
   'recurring.deleted': 'Recurring transaction deleted',
   'transaction.deleted': 'Transaction deleted',
+  'pdf.export.failed.description': 'Failed to export PDF. Please try again.',
 } as const;
