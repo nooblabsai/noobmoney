@@ -77,8 +77,45 @@ const MonthlyStats: React.FC<MonthlyStatsProps> = ({
     return { income, expenses };
   }, [recurringTransactions, selectedMonth]);
 
+  const annualTotals = useMemo(() => {
+    const currentYear = new Date().getFullYear();
+    
+    // Calculate annual recurring revenue
+    const annualRecurringIncome = recurringTransactions
+      .filter(t => t.isIncome && new Date(t.startDate).getFullYear() <= currentYear)
+      .reduce((sum, t) => sum + (t.amount * 12), 0);
+
+    // Calculate annual recurring expenses
+    const annualRecurringExpenses = recurringTransactions
+      .filter(t => !t.isIncome && new Date(t.startDate).getFullYear() <= currentYear)
+      .reduce((sum, t) => sum + (t.amount * 12), 0);
+
+    // Calculate one-time transactions for the year
+    const yearTransactions = transactions.filter(t => 
+      new Date(t.date).getFullYear() === currentYear
+    );
+
+    const oneTimeIncome = yearTransactions
+      .filter(t => t.isIncome)
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    const oneTimeExpenses = yearTransactions
+      .filter(t => !t.isIncome)
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    const totalIncome = annualRecurringIncome + oneTimeIncome;
+    const totalExpenses = annualRecurringExpenses + oneTimeExpenses;
+    const profitLoss = totalIncome - totalExpenses;
+
+    return {
+      recurringIncome: annualRecurringIncome,
+      recurringExpenses: annualRecurringExpenses,
+      profitLoss
+    };
+  }, [transactions, recurringTransactions]);
+
   return (
-    <div className="mb-8">
+    <div className="mb-8 space-y-8">
       <div className="mb-4">
         <Select value={selectedMonth} onValueChange={onMonthSelect}>
           <SelectTrigger className="w-[180px]">
@@ -113,6 +150,29 @@ const MonthlyStats: React.FC<MonthlyStatsProps> = ({
           <h3 className="text-lg font-medium mb-2">{t('monthly.recurring.expenses')}</h3>
           <p className="text-2xl font-bold text-red-600">
             €{recurringTotals.expenses.toFixed(2)}
+          </p>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card className="p-6">
+          <h3 className="text-lg font-medium mb-2">{t('annual.recurring.income')}</h3>
+          <p className="text-2xl font-bold text-green-600">
+            €{annualTotals.recurringIncome.toFixed(2)}
+          </p>
+        </Card>
+        <Card className="p-6">
+          <h3 className="text-lg font-medium mb-2">{t('annual.recurring.expenses')}</h3>
+          <p className="text-2xl font-bold text-red-600">
+            €{annualTotals.recurringExpenses.toFixed(2)}
+          </p>
+        </Card>
+        <Card className="p-6">
+          <h3 className="text-lg font-medium mb-2">{t('annual.profit.loss')}</h3>
+          <p className={`text-2xl font-bold ${
+            annualTotals.profitLoss >= 0 ? 'text-green-600' : 'text-red-600'
+          }`}>
+            €{annualTotals.profitLoss.toFixed(2)}
           </p>
         </Card>
       </div>
