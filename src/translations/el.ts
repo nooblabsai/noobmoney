@@ -1,4 +1,4 @@
-export default {
+const elTranslations = {
   welcome: 'Καλώς ήρθατε',
   login: 'Σύνδεση',
   logout: 'Αποσύνδεση',
@@ -85,3 +85,5 @@ export default {
   'data.reset': 'Επαναφορά δεδομένων',
   'data.reset.success': 'Τα δεδομένα επαναφέρθηκαν με επιτυχία',
 } as const;
+
+export default elTranslations;

@@ -1,4 +1,4 @@
-export default {
+const enTranslations = {
   welcome: 'Welcome',
   login: 'Login',
   logout: 'Logout',
@@ -85,3 +85,5 @@ export default {
   'data.reset': 'Data reset',
   'data.reset.success': 'Data reset successfully',
 } as const;
+
+export default enTranslations;
