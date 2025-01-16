@@ -94,5 +94,6 @@ export const enTranslations = {
   'back.to.dashboard': 'Back to Dashboard',
   'no.categorized.expenses': 'No categorized expenses',
   'expenses.by.category': 'Expenses by Category',
-  'view.all.transactions': 'View All Transactions'
+  'expenses': 'Expenses',
+  'data.loaded': 'Data Loaded'
 } as const;

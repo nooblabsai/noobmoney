@@ -94,5 +94,7 @@ export const elTranslations = {
   'back.to.dashboard': 'Επιστροφή στον Πίνακα Ελέγχου',
   'no.categorized.expenses': 'Δεν υπάρχουν κατηγοριοποιημένα έξοδα',
   'expenses.by.category': 'Έξοδα ανά Κατηγορία',
-  'view.all.transactions': 'Προβολή Όλων των Συναλλαγών'
+  'view.all.transactions': 'Προβολή Όλων των Συναλλαγών',
+  'expenses': 'Έξοδα',
+  'data.loaded': 'Τα δεδομένα φορτώθηκαν'
 } as const;
