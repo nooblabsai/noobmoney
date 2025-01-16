@@ -6,8 +6,9 @@ export const enTranslations = {
   'annual.recurring.income': 'Annual Recurring Income',
   'annual.recurring.expenses': 'Annual Recurring Expenses',
   'annual.profit.loss': 'Annual Profit/Loss',
-  'recurring.deleted': 'Recurring transaction deleted',
-  'transaction.deleted': 'Transaction deleted',
+  'annual.total.revenue': 'Annual Total Revenue',
+  'annual.total.expenses': 'Annual Total Expenses',
+  'annual.total.profit.loss': 'Annual Total Profit/Loss',
   'error': 'Error',
   'success': 'Success',
   'fill.required': 'Please fill in all required fields',
@@ -94,6 +95,7 @@ export const enTranslations = {
   'back.to.dashboard': 'Back to Dashboard',
   'no.categorized.expenses': 'No categorized expenses',
   'expenses.by.category': 'Expenses by Category',
+  'view.all.transactions': 'View All Transactions',
   'expenses': 'Expenses',
   'data.loaded': 'Data Loaded'
 } as const;

@@ -28,7 +28,6 @@ const MonthlyStats: React.FC<MonthlyStatsProps> = ({
 
   const getMonthOptions = () => {
     const options = [];
-    // Add 6 months before current month
     for (let i = -6; i < 12; i++) {
       const date = addMonths(new Date(), i);
       options.push({
@@ -108,9 +107,11 @@ const MonthlyStats: React.FC<MonthlyStatsProps> = ({
     const profitLoss = totalIncome - totalExpenses;
 
     return {
+      totalIncome,
+      totalExpenses,
+      profitLoss,
       recurringIncome: annualRecurringIncome,
-      recurringExpenses: annualRecurringExpenses,
-      profitLoss
+      recurringExpenses: annualRecurringExpenses
     };
   }, [transactions, recurringTransactions]);
 
@@ -150,6 +151,29 @@ const MonthlyStats: React.FC<MonthlyStatsProps> = ({
           <h3 className="text-lg font-medium mb-2">{t('monthly.recurring.expenses')}</h3>
           <p className="text-2xl font-bold text-red-600">
             €{recurringTotals.expenses.toFixed(2)}
+          </p>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card className="p-6">
+          <h3 className="text-lg font-medium mb-2">{t('annual.total.revenue')}</h3>
+          <p className="text-2xl font-bold text-green-600">
+            €{annualTotals.totalIncome.toFixed(2)}
+          </p>
+        </Card>
+        <Card className="p-6">
+          <h3 className="text-lg font-medium mb-2">{t('annual.total.expenses')}</h3>
+          <p className="text-2xl font-bold text-red-600">
+            €{annualTotals.totalExpenses.toFixed(2)}
+          </p>
+        </Card>
+        <Card className="p-6">
+          <h3 className="text-lg font-medium mb-2">{t('annual.total.profit.loss')}</h3>
+          <p className={`text-2xl font-bold ${
+            annualTotals.profitLoss >= 0 ? 'text-green-600' : 'text-red-600'
+          }`}>
+            €{annualTotals.profitLoss.toFixed(2)}
           </p>
         </Card>
       </div>
