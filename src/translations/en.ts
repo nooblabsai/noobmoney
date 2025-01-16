@@ -129,4 +129,8 @@ export const enTranslations = {
   'session.check.failed': 'Session check failed',
   'financial.runway.with.balances': 'Financial Runway (Including Current Balances)',
   'financial.runway.without.balances': 'Financial Runway (Excluding Current Balances)',
+  'all': 'All',
+  'expenses': 'Expenses',
+  'view.all.transactions': 'View All Transactions',
+  'back.to.dashboard': 'Back to Dashboard',
 } as const;

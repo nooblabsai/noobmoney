@@ -129,4 +129,8 @@ export const elTranslations = {
   'session.check.failed': 'Αποτυχία ελέγχου συνεδρίας',
   'financial.runway.with.balances': 'Οικονομική Διάρκεια (Συμπεριλαμβανομένων Τρεχόντων Υπολοίπων)',
   'financial.runway.without.balances': 'Οικονομική Διάρκεια (Εξαιρουμένων Τρεχόντων Υπολοίπων)',
+  'all': 'Όλα',
+  'expenses': 'Έξοδα',
+  'view.all.transactions': 'Προβολή Όλων των Συναλλαγών',
+  'back.to.dashboard': 'Επιστροφή στον Πίνακα Ελέγχου',
 } as const;
