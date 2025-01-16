@@ -108,13 +108,15 @@ const MonthlyStats: React.FC<MonthlyStatsProps> = ({
     const totalIncome = annualRecurringIncome + oneTimeIncome;
     const totalExpenses = annualRecurringExpenses + oneTimeExpenses;
     const profitLoss = totalIncome - totalExpenses;
+    const recurringDifference = annualRecurringIncome - annualRecurringExpenses;
 
     return {
       totalIncome,
       totalExpenses,
       profitLoss,
       recurringIncome: annualRecurringIncome,
-      recurringExpenses: annualRecurringExpenses
+      recurringExpenses: annualRecurringExpenses,
+      recurringDifference
     };
   }, [transactions, recurringTransactions]);
 
@@ -207,11 +209,11 @@ const MonthlyStats: React.FC<MonthlyStatsProps> = ({
             </p>
           </Card>
           <Card className="p-6">
-            <h3 className="text-lg font-medium mb-2">{t('annual.profit.loss')}</h3>
+            <h3 className="text-lg font-medium mb-2">{t('annual.recurring.difference')}</h3>
             <p className={`text-2xl font-bold ${
-              annualTotals.profitLoss >= 0 ? 'text-green-600' : 'text-red-600'
+              annualTotals.recurringDifference >= 0 ? 'text-green-600' : 'text-red-600'
             }`}>
-              €{annualTotals.profitLoss.toFixed(2)}
+              €{annualTotals.recurringDifference.toFixed(2)}
             </p>
           </Card>
         </div>
