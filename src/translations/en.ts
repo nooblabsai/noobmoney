@@ -90,12 +90,15 @@ export const enTranslations = {
   'pdf.exported': 'PDF Exported',
   'pdf.exported.success': 'PDF exported successfully',
   'pdf.export.failed': 'PDF export failed',
-  'pdf.export.failed.description': 'Failed to export PDF',
   'data.reset.success': 'Data reset successfully',
   'back.to.dashboard': 'Back to Dashboard',
   'no.categorized.expenses': 'No categorized expenses',
   'expenses.by.category': 'Expenses by Category',
   'view.all.transactions': 'View All Transactions',
   'expenses': 'Expenses',
-  'data.loaded': 'Data Loaded'
+  'data.loaded': 'Data Loaded',
+  'show.annual.stats': 'Show Annual Stats',
+  'hide.annual.stats': 'Hide Annual Stats',
+  'recurring.deleted': 'Recurring transaction deleted',
+  'transaction.deleted': 'Transaction deleted',
 } as const;

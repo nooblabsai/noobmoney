@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { format, addMonths } from 'date-fns';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -9,6 +9,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { Transaction, RecurringTransaction } from '@/types/transactions';
 
 interface MonthlyStatsProps {
@@ -25,6 +27,7 @@ const MonthlyStats: React.FC<MonthlyStatsProps> = ({
   onMonthSelect,
 }) => {
   const { t } = useLanguage();
+  const [showAnnualStats, setShowAnnualStats] = useState(false);
 
   const getMonthOptions = () => {
     const options = [];
@@ -155,50 +158,63 @@ const MonthlyStats: React.FC<MonthlyStatsProps> = ({
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="p-6">
-          <h3 className="text-lg font-medium mb-2">{t('annual.total.revenue')}</h3>
-          <p className="text-2xl font-bold text-green-600">
-            €{annualTotals.totalIncome.toFixed(2)}
-          </p>
-        </Card>
-        <Card className="p-6">
-          <h3 className="text-lg font-medium mb-2">{t('annual.total.expenses')}</h3>
-          <p className="text-2xl font-bold text-red-600">
-            €{annualTotals.totalExpenses.toFixed(2)}
-          </p>
-        </Card>
-        <Card className="p-6">
-          <h3 className="text-lg font-medium mb-2">{t('annual.total.profit.loss')}</h3>
-          <p className={`text-2xl font-bold ${
-            annualTotals.profitLoss >= 0 ? 'text-green-600' : 'text-red-600'
-          }`}>
-            €{annualTotals.profitLoss.toFixed(2)}
-          </p>
-        </Card>
+      <div className="flex justify-center">
+        <Button
+          variant="outline"
+          onClick={() => setShowAnnualStats(!showAnnualStats)}
+          className="gap-2"
+        >
+          {showAnnualStats ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+          {showAnnualStats ? t('hide.annual.stats') : t('show.annual.stats')}
+        </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="p-6">
-          <h3 className="text-lg font-medium mb-2">{t('annual.recurring.income')}</h3>
-          <p className="text-2xl font-bold text-green-600">
-            €{annualTotals.recurringIncome.toFixed(2)}
-          </p>
-        </Card>
-        <Card className="p-6">
-          <h3 className="text-lg font-medium mb-2">{t('annual.recurring.expenses')}</h3>
-          <p className="text-2xl font-bold text-red-600">
-            €{annualTotals.recurringExpenses.toFixed(2)}
-          </p>
-        </Card>
-        <Card className="p-6">
-          <h3 className="text-lg font-medium mb-2">{t('annual.profit.loss')}</h3>
-          <p className={`text-2xl font-bold ${
-            annualTotals.profitLoss >= 0 ? 'text-green-600' : 'text-red-600'
-          }`}>
-            €{annualTotals.profitLoss.toFixed(2)}
-          </p>
-        </Card>
+      <div className={`space-y-6 transition-all duration-300 ${showAnnualStats ? 'opacity-100' : 'opacity-0 h-0 overflow-hidden'}`}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card className="p-6">
+            <h3 className="text-lg font-medium mb-2">{t('annual.total.revenue')}</h3>
+            <p className="text-2xl font-bold text-green-600">
+              €{annualTotals.totalIncome.toFixed(2)}
+            </p>
+          </Card>
+          <Card className="p-6">
+            <h3 className="text-lg font-medium mb-2">{t('annual.total.expenses')}</h3>
+            <p className="text-2xl font-bold text-red-600">
+              €{annualTotals.totalExpenses.toFixed(2)}
+            </p>
+          </Card>
+          <Card className="p-6">
+            <h3 className="text-lg font-medium mb-2">{t('annual.total.profit.loss')}</h3>
+            <p className={`text-2xl font-bold ${
+              annualTotals.profitLoss >= 0 ? 'text-green-600' : 'text-red-600'
+            }`}>
+              €{annualTotals.profitLoss.toFixed(2)}
+            </p>
+          </Card>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card className="p-6">
+            <h3 className="text-lg font-medium mb-2">{t('annual.recurring.income')}</h3>
+            <p className="text-2xl font-bold text-green-600">
+              €{annualTotals.recurringIncome.toFixed(2)}
+            </p>
+          </Card>
+          <Card className="p-6">
+            <h3 className="text-lg font-medium mb-2">{t('annual.recurring.expenses')}</h3>
+            <p className="text-2xl font-bold text-red-600">
+              €{annualTotals.recurringExpenses.toFixed(2)}
+            </p>
+          </Card>
+          <Card className="p-6">
+            <h3 className="text-lg font-medium mb-2">{t('annual.profit.loss')}</h3>
+            <p className={`text-2xl font-bold ${
+              annualTotals.profitLoss >= 0 ? 'text-green-600' : 'text-red-600'
+            }`}>
+              €{annualTotals.profitLoss.toFixed(2)}
+            </p>
+          </Card>
+        </div>
       </div>
     </div>
   );
