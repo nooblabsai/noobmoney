@@ -19,17 +19,18 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [language, setLanguage] = useState<Language>('el');
 
-  const t = (key: TranslationKey, params?: Record<string, string>) => {
+  const t = (key: TranslationKey, params?: Record<string, string>): string => {
     const translationKey = key as keyof typeof translations[typeof language];
-    let text = translations[language][translationKey] || key;
+    const translatedText = translations[language][translationKey] || key;
     
     if (params) {
-      Object.entries(params).forEach(([paramKey, value]) => {
-        text = text.replace(`{${paramKey}}`, value);
-      });
+      return Object.entries(params).reduce(
+        (text, [paramKey, value]) => text.replace(`{${paramKey}}`, value),
+        translatedText
+      );
     }
     
-    return text;
+    return translatedText;
   };
 
   return (
