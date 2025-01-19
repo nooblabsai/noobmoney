@@ -12,7 +12,7 @@ interface LanguageContextType {
 const translations = {
   en: enTranslations,
   el: elTranslations,
-};
+} as const;
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
@@ -20,7 +20,7 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
   const [language, setLanguage] = useState<Language>('el');
 
   const t = (key: TranslationKey, params?: Record<string, string>) => {
-    let text = translations[language][key] || key;
+    let text = translations[language][key as keyof typeof translations[typeof language]] || key;
     
     if (params) {
       Object.entries(params).forEach(([paramKey, value]) => {

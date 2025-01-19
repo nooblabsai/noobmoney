@@ -1,5 +1,8 @@
 export type Language = 'en' | 'el';
 
+// Add support for dynamic category keys
+type CategoryKey = `category.${string}`;
+
 export type TranslationKey =
   | 'welcome'
   | 'login'
@@ -86,15 +89,7 @@ export type TranslationKey =
   | 'pdf.export.failed'
   | 'data.reset'
   | 'data.reset.success'
-  | 'category.food'
-  | 'category.transport'
-  | 'category.utilities'
-  | 'category.entertainment'
-  | 'category.shopping'
-  | 'category.health'
-  | 'category.education'
-  | 'category.other'
-  | 'category.housing'
+  | CategoryKey  // Add support for dynamic category keys
   | 'income.added'
   | 'expense.added'
   | 'loading.failed'
