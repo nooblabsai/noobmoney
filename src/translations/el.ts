@@ -161,7 +161,14 @@ const elTranslations = {
   'back.to.dashboard': 'Επιστροφή στον Πίνακα Ελέγχου',
   'no.categorized.expenses': 'Δεν υπάρχουν κατηγοριοποιημένα έξοδα',
   'expenses.by.category': 'Έξοδα ανά Κατηγορία',
-  'transaction.failed': 'Η συναλλαγή απέτυχε'
+  'transaction.failed': 'Η συναλλαγή απέτυχε',
+  'current.bank.balance': 'Τρέχον Υπόλοιπο Τράπεζας',
+  'current.debt.balance': 'Τρέχον Υπόλοιπο Χρέους',
+  'app.name': 'Διαχείριση Οικονομικών',
+  'financial.analysis': 'Οικονομική Ανάλυση',
+  'generate.analysis': 'Δημιουργία Ανάλυσης',
+  'current.balance': 'Τρέχον Υπόλοιπο',
+  'current.debt': 'Τρέχον Χρέος'
 } as const;
 
 export default elTranslations;

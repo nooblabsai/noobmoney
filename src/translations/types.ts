@@ -159,4 +159,11 @@ export type TranslationKey =
   | 'back.to.dashboard'
   | 'no.categorized.expenses'
   | 'expenses.by.category'
-  | 'transaction.failed';
+  | 'transaction.failed'
+  | 'current.bank.balance'
+  | 'current.debt.balance'
+  | 'app.name'
+  | 'financial.analysis'
+  | 'generate.analysis'
+  | 'current.balance'
+  | 'current.debt';

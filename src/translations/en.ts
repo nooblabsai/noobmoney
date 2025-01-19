@@ -161,7 +161,14 @@ const enTranslations = {
   'back.to.dashboard': 'Back to Dashboard',
   'no.categorized.expenses': 'No categorized expenses',
   'expenses.by.category': 'Expenses by Category',
-  'transaction.failed': 'Transaction failed'
+  'transaction.failed': 'Transaction failed',
+  'current.bank.balance': 'Current Bank Balance',
+  'current.debt.balance': 'Current Debt Balance',
+  'app.name': 'Financial Management',
+  'financial.analysis': 'Financial Analysis',
+  'generate.analysis': 'Generate Analysis',
+  'current.balance': 'Current Balance',
+  'current.debt': 'Current Debt'
 } as const;
 
 export default enTranslations;
