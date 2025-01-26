@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/lib/supabaseClient';
 import { useToast } from '@/hooks/use-toast';
-import { LogOut, Settings, Key, Calculator } from 'lucide-react';
+import { LogOut, Settings, Key, Calculator, Home } from 'lucide-react';
 import { validateOpenAiKey } from '@/utils/apiKeyValidation';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -144,6 +144,10 @@ const UserMenu = () => {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56">
+          <DropdownMenuItem onClick={() => navigate('/')}>
+            <Home className="mr-2 h-4 w-4" />
+            <span>Home</span>
+          </DropdownMenuItem>
           <DropdownMenuItem onClick={() => navigate('/financial-projection')}>
             <Calculator className="mr-2 h-4 w-4" />
             <span>Financial Calculator</span>
