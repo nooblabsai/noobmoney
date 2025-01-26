@@ -43,6 +43,7 @@ export type TranslationKey =
   | 'no.transactions'
   | 'add.first.transaction'
   | 'loading'
+  | 'loading.failed'
   | 'error.loading'
   | 'retry'
   | 'welcome'
