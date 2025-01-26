@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { HeaderSection } from '@/components/HeaderSection';
 
 interface ProjectionData {
   month: string;
@@ -22,6 +23,10 @@ const FinancialProjection = () => {
   const [annualChurn, setAnnualChurn] = useState<string>('5');
   const [months, setMonths] = useState<string>('12');
   const [projectionData, setProjectionData] = useState<ProjectionData[]>([]);
+
+  const handleExportPDF = () => {
+    // Placeholder for PDF export functionality
+  };
 
   const calculateProjection = () => {
     const arr = parseFloat(annualRevenue);
@@ -56,7 +61,7 @@ const FinancialProjection = () => {
 
   return (
     <div className="container mx-auto p-6 space-y-8">
-      <h1 className="text-3xl font-bold mb-6">{t('financial.projection.calculator')}</h1>
+      <HeaderSection t={t} handleExportPDF={handleExportPDF} />
       
       <Card className="p-6">
         <div className="grid gap-6 mb-6">
