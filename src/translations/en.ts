@@ -177,6 +177,10 @@ const enTranslations = {
   'monthly.revenue': 'Monthly Revenue',
   'annual.recurring.revenue': 'Annual Recurring Revenue (ARR)',
   'annual.churn.rate': 'Annual Churn Rate (%/customers)',
+  'starting.customers': 'Starting Number of Customers',
+  'projection.period': 'Projection Period',
+  'months': 'months',
+  'number.of.customers': 'Number of Customers'
 } as const;
 
 export default enTranslations;

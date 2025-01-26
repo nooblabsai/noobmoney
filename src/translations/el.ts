@@ -175,8 +175,12 @@ const elTranslations = {
   'calculate.projection': 'Υπολογισμός Πρόβλεψης',
   'revenue.projection': 'Πρόβλεψη Εσόδων',
   'monthly.revenue': 'Μηνιαία Έσοδα',
+  'annual.recurring.revenue': 'Ετήσια Επαναλαμβανόμενα Έσοδα (ARR)',
   'annual.churn.rate': 'Ετήσιο Ποσοστό Αποχώρησης (%/πελάτες)',
-  'annual.recurring.revenue': 'Ετήσια Επαναλαμβανόμενα Έσοδα (ARR)'
+  'starting.customers': 'Αρχικός Αριθμός Πελατών',
+  'projection.period': 'Περίοδος Πρόβλεψης',
+  'months': 'μήνες',
+  'number.of.customers': 'Αριθμός Πελατών'
 } as const;
 
 export default elTranslations;
