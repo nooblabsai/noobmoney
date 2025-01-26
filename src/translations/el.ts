@@ -170,12 +170,12 @@ const elTranslations = {
   'current.balance': 'Τρέχον Υπόλοιπο',
   'current.debt': 'Τρέχον Χρέος',
   'financial.projection.calculator': 'Υπολογιστής Οικονομικών Προβλέψεων',
-  'monthly.revenue.per.customer': 'Μηνιαίο Έσοδο ανά Πελάτη (€)',
-  'starting.customers': 'Αρχικός Αριθμός Πελατών',
+  'annual.revenue.per.customer': 'Ετήσια Έσοδα ανά Πελάτη (€)',
   'monthly.growth.percentage': 'Μηνιαίος Ρυθμός Ανάπτυξης (%)',
   'calculate.projection': 'Υπολογισμός Πρόβλεψης',
   'revenue.projection': 'Πρόβλεψη Εσόδων',
   'monthly.revenue': 'Μηνιαία Έσοδα',
+  'annual.churn.rate': 'Ετήσιο Ποσοστό Αποχώρησης (%/πελάτες)',
   'annual.recurring.revenue': 'Ετήσια Επαναλαμβανόμενα Έσοδα (ARR)'
 } as const;
 

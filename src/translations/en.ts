@@ -170,13 +170,13 @@ const enTranslations = {
   'current.balance': 'Current Balance',
   'current.debt': 'Current Debt',
   'financial.projection.calculator': 'Financial Projection Calculator',
-  'monthly.revenue.per.customer': 'Monthly Revenue per Customer (€)',
-  'starting.customers': 'Starting Number of Customers',
+  'annual.revenue.per.customer': 'Annual Revenue per Customer (€)',
   'monthly.growth.percentage': 'Monthly Growth Rate (%)',
   'calculate.projection': 'Calculate Projection',
   'revenue.projection': 'Revenue Projection',
   'monthly.revenue': 'Monthly Revenue',
-  'annual.recurring.revenue': 'Annual Recurring Revenue (ARR)'
+  'annual.recurring.revenue': 'Annual Recurring Revenue (ARR)',
+  'annual.churn.rate': 'Annual Churn Rate (%/customers)',
 } as const;
 
 export default enTranslations;

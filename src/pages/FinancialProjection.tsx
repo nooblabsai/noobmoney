@@ -14,32 +14,36 @@ interface ProjectionData {
 
 const FinancialProjection = () => {
   const { t } = useLanguage();
-  const [monthlyRevenue, setMonthlyRevenue] = useState<string>('100');
+  const [annualRevenue, setAnnualRevenue] = useState<string>('1200');
   const [startingCustomers, setStartingCustomers] = useState<string>('10');
   const [monthlyGrowth, setMonthlyGrowth] = useState<string>('10');
+  const [annualChurn, setAnnualChurn] = useState<string>('5');
   const [projectionData, setProjectionData] = useState<ProjectionData[]>([]);
 
   const calculateProjection = () => {
-    const mrr = parseFloat(monthlyRevenue);
+    const arr = parseFloat(annualRevenue);
+    const mrr = arr / 12; // Convert annual to monthly revenue
     const initialCustomers = parseInt(startingCustomers);
     const growth = parseFloat(monthlyGrowth) / 100; // Convert percentage to decimal
+    const monthlyChurn = parseFloat(annualChurn) / 12 / 100; // Convert annual churn to monthly decimal
 
     const data: ProjectionData[] = [];
     let customers = initialCustomers;
 
     // Calculate 12 months of projections
     for (let i = 0; i < 12; i++) {
+      // Apply growth and churn to customer base
+      const netGrowthRate = growth - monthlyChurn;
+      customers = customers * (1 + netGrowthRate);
+      
       const monthlyRevenue = customers * mrr;
-      const arr = monthlyRevenue * 12;
+      const annualRecurringRevenue = monthlyRevenue * 12;
       
       data.push({
         month: `Month ${i + 1}`,
         revenue: parseFloat(monthlyRevenue.toFixed(2)),
-        arr: parseFloat(arr.toFixed(2))
+        arr: parseFloat(annualRecurringRevenue.toFixed(2))
       });
-
-      // Apply monthly growth
-      customers = customers * (1 + growth);
     }
 
     setProjectionData(data);
@@ -52,13 +56,13 @@ const FinancialProjection = () => {
       <Card className="p-6">
         <div className="grid gap-6 mb-6">
           <div>
-            <Label htmlFor="monthlyRevenue">{t('monthly.revenue.per.customer')}</Label>
+            <Label htmlFor="annualRevenue">{t('annual.revenue.per.customer')}</Label>
             <Input
-              id="monthlyRevenue"
+              id="annualRevenue"
               type="number"
-              value={monthlyRevenue}
-              onChange={(e) => setMonthlyRevenue(e.target.value)}
-              placeholder="100"
+              value={annualRevenue}
+              onChange={(e) => setAnnualRevenue(e.target.value)}
+              placeholder="1200"
             />
           </div>
           
@@ -81,6 +85,17 @@ const FinancialProjection = () => {
               value={monthlyGrowth}
               onChange={(e) => setMonthlyGrowth(e.target.value)}
               placeholder="10"
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="annualChurn">{t('annual.churn.rate')}</Label>
+            <Input
+              id="annualChurn"
+              type="number"
+              value={annualChurn}
+              onChange={(e) => setAnnualChurn(e.target.value)}
+              placeholder="5"
             />
           </div>
           

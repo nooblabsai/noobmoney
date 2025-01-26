@@ -178,4 +178,5 @@ export type TranslationKey =
   | 'calculate.projection'
   | 'revenue.projection'
   | 'monthly.revenue'
-  | 'annual.recurring.revenue';
+  | 'annual.revenue.per.customer'
+  | 'annual.churn.rate';
