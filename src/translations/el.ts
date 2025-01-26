@@ -168,7 +168,15 @@ const elTranslations = {
   'financial.analysis': 'Οικονομική Ανάλυση',
   'generate.analysis': 'Δημιουργία Ανάλυσης',
   'current.balance': 'Τρέχον Υπόλοιπο',
-  'current.debt': 'Τρέχον Χρέος'
+  'current.debt': 'Τρέχον Χρέος',
+  'financial.projection.calculator': 'Υπολογιστής Οικονομικών Προβλέψεων',
+  'monthly.revenue.per.customer': 'Μηνιαίο Έσοδο ανά Πελάτη (€)',
+  'starting.customers': 'Αρχικός Αριθμός Πελατών',
+  'monthly.growth.percentage': 'Μηνιαίος Ρυθμός Ανάπτυξης (%)',
+  'calculate.projection': 'Υπολογισμός Πρόβλεψης',
+  'revenue.projection': 'Πρόβλεψη Εσόδων',
+  'monthly.revenue': 'Μηνιαία Έσοδα',
+  'annual.recurring.revenue': 'Ετήσια Επαναλαμβανόμενα Έσοδα (ARR)'
 } as const;
 
 export default elTranslations;

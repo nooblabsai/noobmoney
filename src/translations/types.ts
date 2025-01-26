@@ -1,9 +1,3 @@
-export type Language = 'en' | 'el';
-
-// Support for dynamic category keys
-type CategoryKey = `category.${string}`;
-
-// Define all possible translation keys
 export type TranslationKey =
   | 'welcome'
   | 'login'
@@ -90,7 +84,15 @@ export type TranslationKey =
   | 'pdf.export.failed'
   | 'data.reset'
   | 'data.reset.success'
-  | CategoryKey
+  | 'category.food'
+  | 'category.transport'
+  | 'category.utilities'
+  | 'category.entertainment'
+  | 'category.shopping'
+  | 'category.health'
+  | 'category.education'
+  | 'category.other'
+  | 'category.housing'
   | 'income.added'
   | 'expense.added'
   | 'loading.failed'
@@ -166,4 +168,12 @@ export type TranslationKey =
   | 'financial.analysis'
   | 'generate.analysis'
   | 'current.balance'
-  | 'current.debt';
+  | 'current.debt'
+  | 'financial.projection.calculator'
+  | 'monthly.revenue.per.customer'
+  | 'starting.customers'
+  | 'monthly.growth.percentage'
+  | 'calculate.projection'
+  | 'revenue.projection'
+  | 'monthly.revenue'
+  | 'annual.recurring.revenue';

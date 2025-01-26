@@ -7,6 +7,7 @@ import { LanguageProvider } from "./contexts/LanguageContext";
 import SyncStatusBar from "./components/SyncStatusBar";
 import Index from "./pages/Index";
 import Transactions from "./pages/Transactions";
+import FinancialProjection from "./pages/FinancialProjection";
 
 const App = () => {
   const queryClient = new QueryClient();
@@ -20,6 +21,7 @@ const App = () => {
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/transactions" element={<Transactions />} />
+              <Route path="/financial-projection" element={<FinancialProjection />} />
             </Routes>
             <Toaster />
             <Sonner />
