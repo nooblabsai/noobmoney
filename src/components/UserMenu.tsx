@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/lib/supabaseClient';
 import { useToast } from '@/hooks/use-toast';
-import { LogOut, Settings, Key } from 'lucide-react';
+import { LogOut, Settings, Key, Calculator } from 'lucide-react';
 import { validateOpenAiKey } from '@/utils/apiKeyValidation';
+import { useNavigate } from 'react-router-dom';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,6 +25,7 @@ import { Input } from '@/components/ui/input';
 const UserMenu = () => {
   const { t } = useLanguage();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [userName, setUserName] = useState<string>('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [apiKey, setApiKey] = useState('');
@@ -142,6 +144,10 @@ const UserMenu = () => {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56">
+          <DropdownMenuItem onClick={() => navigate('/financial-projection')}>
+            <Calculator className="mr-2 h-4 w-4" />
+            <span>Financial Calculator</span>
+          </DropdownMenuItem>
           <DropdownMenuItem>
             <Settings className="mr-2 h-4 w-4" />
             <span>{t('settings')}</span>
