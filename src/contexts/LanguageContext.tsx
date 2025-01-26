@@ -20,8 +20,7 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
   const [language, setLanguage] = useState<Language>('el');
 
   const t = (key: TranslationKey, params?: Record<string, string>): string => {
-    const translationKey = key as keyof typeof translations[typeof language];
-    const translatedText = translations[language][translationKey] || key;
+    const translatedText = translations[language][key] || key;
     
     if (params) {
       return Object.entries(params).reduce(

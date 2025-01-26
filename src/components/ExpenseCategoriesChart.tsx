@@ -3,6 +3,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { format, isSameMonth, isBefore, startOfMonth, endOfMonth } from 'date-fns';
 import { Transaction } from '@/types/transactions';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { TranslationKey } from '@/translations/types';
 
 interface ExpenseCategoriesChartProps {
   transactions: Transaction[];
@@ -66,8 +67,8 @@ const ExpenseCategoriesChart: React.FC<ExpenseCategoriesChartProps> = ({
     // Convert to chart data format and sort by amount
     return Object.entries(categoryTotals)
       .map(([name, value]) => ({
-        name,  // Use original category name
-        displayName: t(`category.${name}`), // Store translated name separately
+        name,
+        displayName: t(`category.${name}` as TranslationKey),
         amount: value,
       }))
       .sort((a, b) => b.amount - a.amount);
