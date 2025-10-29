@@ -1,13 +1,12 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabaseClient';
-import { AlertCircle, CheckCircle } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { AlertCircle, Cloud } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 const SyncStatusBar = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [hasLocalData, setHasLocalData] = useState(false);
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const { t } = useLanguage();
 
   useEffect(() => {
@@ -25,40 +24,26 @@ const SyncStatusBar = () => {
       setHasLocalData(hasTransactions || hasRecurringTransactions || hasBankBalance || hasDebtBalance);
     };
 
-    // Custom event handler for data changes
-    const handleDataChange = () => {
-      setHasUnsavedChanges(true);
-      checkLocalStorage();
-    };
-
     // Listen for storage changes
     window.addEventListener('storage', checkLocalStorage);
     
-    // Listen for all data change events
-    window.addEventListener('transactionAdded', handleDataChange);
-    window.addEventListener('transactionDeleted', handleDataChange);
-    window.addEventListener('transactionEdited', handleDataChange);
-    window.addEventListener('balanceUpdated', handleDataChange);
-    window.addEventListener('settingsUpdated', handleDataChange);
-    window.addEventListener('dataSynced', () => setHasUnsavedChanges(false));
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setIsLoggedIn(!!session);
+    });
 
     checkAuth();
     checkLocalStorage();
 
     return () => {
       window.removeEventListener('storage', checkLocalStorage);
-      window.removeEventListener('transactionAdded', handleDataChange);
-      window.removeEventListener('transactionDeleted', handleDataChange);
-      window.removeEventListener('transactionEdited', handleDataChange);
-      window.removeEventListener('balanceUpdated', handleDataChange);
-      window.removeEventListener('settingsUpdated', handleDataChange);
-      window.removeEventListener('dataSynced', () => setHasUnsavedChanges(false));
+      subscription.unsubscribe();
     };
   }, []);
 
-  if (!hasLocalData && !hasUnsavedChanges) return null;
+  if (!hasLocalData) return null;
 
-  const showSyncWarning = !isLoggedIn || hasUnsavedChanges;
+  const showSyncWarning = !isLoggedIn;
 
   return (
     <div
@@ -69,11 +54,11 @@ const SyncStatusBar = () => {
       {showSyncWarning ? (
         <>
           <AlertCircle className="h-4 w-4" />
-          {t('data.saved.locally')}
+          {t('data.saved.locally')} - {t('login.to.sync')}
         </>
       ) : (
         <>
-          <CheckCircle className="h-4 w-4" />
+          <Cloud className="h-4 w-4" />
           {t('data.synced')}
         </>
       )}

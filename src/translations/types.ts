@@ -210,4 +210,8 @@ export type TranslationKey =
   | 'auth.have.account'
   | 'auth.need.account'
   | 'openai.key.optional'
-  | 'enter.openai.key';
+  | 'enter.openai.key'
+  | 'data.loaded.from.cloud'
+  | 'sync.failed'
+  | 'sync.failed.description'
+  | 'login.to.sync';

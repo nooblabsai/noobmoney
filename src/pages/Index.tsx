@@ -6,10 +6,10 @@ import FinancialAnalysis from '@/components/FinancialAnalysis';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
 import { useTransactions } from '@/hooks/useTransactions';
+import { useCloudSync } from '@/hooks/useCloudSync';
 import { BalanceSection } from '@/components/BalanceSection';
 import { HeaderSection } from '@/components/HeaderSection';
 import { exportToPDF } from '@/utils/pdfExport';
-import { supabase } from '@/lib/supabaseClient';
 import { Transaction, RecurringTransaction } from '@/types/transactions';
 import DataManagementSection from '@/components/sections/DataManagementSection';
 import ChartsSection from '@/components/sections/ChartsSection';
@@ -28,6 +28,8 @@ const Index = () => {
     return saved ? saved : '0';
   });
 
+  const { syncToCloud, isLoggedIn } = useCloudSync();
+
   const {
     transactions,
     recurringTransactions,
@@ -36,17 +38,39 @@ const Index = () => {
     handleDeleteTransaction,
     setTransactions,
     setRecurringTransactions,
-  } = useTransactions();
+  } = useTransactions({
+    onDataChange: () => {
+      syncToCloud(transactions, recurringTransactions, bankBalance, debtBalance);
+    }
+  });
 
-  // Effect to save bank balance to localStorage
+  // Effect to save balances to localStorage and sync to cloud
   useEffect(() => {
     localStorage.setItem('bankBalance', bankBalance);
+    syncToCloud(transactions, recurringTransactions, bankBalance, debtBalance);
+    window.dispatchEvent(new CustomEvent('balanceUpdated'));
   }, [bankBalance]);
 
-  // Effect to save debt balance to localStorage
+  // Effect to save debt balance to localStorage and sync to cloud
   useEffect(() => {
     localStorage.setItem('debtBalance', debtBalance);
+    syncToCloud(transactions, recurringTransactions, bankBalance, debtBalance);
+    window.dispatchEvent(new CustomEvent('balanceUpdated'));
   }, [debtBalance]);
+
+  // Listen for cloud data loaded
+  useEffect(() => {
+    const handleCloudDataLoaded = (event: any) => {
+      const { transactions: loadedTransactions, recurringTransactions: loadedRecurring, bankBalance: loadedBank, debtBalance: loadedDebt } = event.detail;
+      setTransactions(loadedTransactions);
+      setRecurringTransactions(loadedRecurring);
+      setBankBalance(loadedBank);
+      setDebtBalance(loadedDebt);
+    };
+
+    window.addEventListener('cloudDataLoaded', handleCloudDataLoaded);
+    return () => window.removeEventListener('cloudDataLoaded', handleCloudDataLoaded);
+  }, []);
 
   const handleBankBalanceChange = (value: string) => {
     setBankBalance(value);
@@ -61,29 +85,8 @@ const Index = () => {
   };
 
   useEffect(() => {
-    const checkSession = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) {
-          localStorage.removeItem('transactions');
-          localStorage.removeItem('recurringTransactions');
-          localStorage.removeItem('bankBalance');
-          localStorage.removeItem('debtBalance');
-        }
-      } catch (error) {
-        console.error('Session check error:', error);
-        toast({
-          title: t('error'),
-          description: t('session.check.failed'),
-          variant: 'destructive',
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkSession();
-  }, [t, toast]);
+    setIsLoading(false);
+  }, []);
 
   const handleDataLoaded = (
     loadedTransactions: Transaction[], 
@@ -124,6 +127,8 @@ const Index = () => {
     setDebtBalance('0');
     localStorage.removeItem('bankBalance');
     localStorage.removeItem('debtBalance');
+    localStorage.removeItem('transactions');
+    localStorage.removeItem('recurringTransactions');
     toast({
       title: t('data.reset'),
       description: t('data.reset.success'),
@@ -154,11 +159,6 @@ const Index = () => {
 
       <DataManagementSection 
         onDataLoaded={handleDataLoaded}
-        transactions={transactions}
-        recurringTransactions={recurringTransactions}
-        bankBalance={bankBalance}
-        debtBalance={debtBalance}
-        onReset={handleReset}
         handleExportPDF={handleExportPDF}
       />
 

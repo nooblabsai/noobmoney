@@ -3,7 +3,11 @@ import { Transaction, RecurringTransaction } from '@/types/transactions';
 import { useToast } from '@/components/ui/use-toast';
 import { useLanguage } from '@/contexts/LanguageContext';
 
-export const useTransactions = () => {
+interface UseTransactionsProps {
+  onDataChange?: () => void;
+}
+
+export const useTransactions = ({ onDataChange }: UseTransactionsProps = {}) => {
   const { toast } = useToast();
   const { t } = useLanguage();
   
@@ -33,11 +37,19 @@ export const useTransactions = () => {
 
   useEffect(() => {
     localStorage.setItem('transactions', JSON.stringify(transactions));
-  }, [transactions]);
+    onDataChange?.();
+    
+    // Dispatch event for data changes
+    window.dispatchEvent(new CustomEvent('transactionAdded'));
+  }, [transactions, onDataChange]);
 
   useEffect(() => {
     localStorage.setItem('recurringTransactions', JSON.stringify(recurringTransactions));
-  }, [recurringTransactions]);
+    onDataChange?.();
+    
+    // Dispatch event for data changes
+    window.dispatchEvent(new CustomEvent('transactionAdded'));
+  }, [recurringTransactions, onDataChange]);
 
   const handleAddTransaction = (transaction: Transaction) => {
     setTransactions(prev => [...prev, transaction]);
