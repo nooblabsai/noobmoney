@@ -198,4 +198,16 @@ export type TranslationKey =
   | 'description'
   | 'edit'
   | 'delete'
-  | 'all';
+  | 'all'
+  | 'auth.name'
+  | 'auth.name.placeholder'
+  | 'auth.email'
+  | 'auth.email.placeholder'
+  | 'auth.password'
+  | 'auth.password.placeholder'
+  | 'auth.signup'
+  | 'auth.signin'
+  | 'auth.have.account'
+  | 'auth.need.account'
+  | 'openai.key.optional'
+  | 'enter.openai.key';
