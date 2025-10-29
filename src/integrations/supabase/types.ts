@@ -38,6 +38,102 @@ export type Database = {
         }
         Relationships: []
       }
+      recurring_transactions: {
+        Row: {
+          amount: number
+          category: string | null
+          created_at: string
+          description: string
+          id: string
+          is_income: boolean
+          start_date: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          category?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          is_income?: boolean
+          start_date: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          category?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          is_income?: boolean
+          start_date?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      transactions: {
+        Row: {
+          amount: number
+          category: string | null
+          created_at: string
+          date: string
+          description: string
+          id: string
+          is_income: boolean
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          category?: string | null
+          created_at?: string
+          date: string
+          description: string
+          id?: string
+          is_income?: boolean
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          category?: string | null
+          created_at?: string
+          date?: string
+          description?: string
+          id?: string
+          is_income?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_data: {
+        Row: {
+          bank_balance: string | null
+          created_at: string
+          debt_balance: string | null
+          id: string
+          openai_key: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          bank_balance?: string | null
+          created_at?: string
+          debt_balance?: string | null
+          id?: string
+          openai_key?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          bank_balance?: string | null
+          created_at?: string
+          debt_balance?: string | null
+          id?: string
+          openai_key?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
